@@ -1,1 +1,18 @@
 *.md
+
+# dependencies
+node_modules/
+.env
+.env.local
+
+# build outputs
+dist/
+build/
+
+# logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# misc
+.DS_Store
