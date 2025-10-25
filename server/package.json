@@ -3,13 +3,26 @@
   "version": "1.0.0",
   "scripts": {
     "start": "node server.js",
-    "dev": "nodemon server.js"
+    "dev": "nodemon server.js",
+    "db:generate": "prisma generate",
+    "db:push": "prisma db push",
+    "db:migrate": "prisma migrate dev",
+    "db:seed": "node utils/seed.js"
   },
   "dependencies": {
     "cors": "^2.8.5",
     "dotenv": "^16.0.0",
     "express": "^4.18.0",
-    "socket.io": "^4.7.0"
+    "socket.io": "^4.7.0",
+    "prisma": "^5.0.0",
+    "@prisma/client": "^5.0.0",
+    "bcryptjs": "^2.4.3",
+    "jsonwebtoken": "^9.0.0",
+    "axios": "^1.4.0",
+    "express-rate-limit": "^6.7.0",
+    "helmet": "^6.1.0",
+    "morgan": "^1.10.0",
+    "express-validator": "^6.15.0"
   },
   "devDependencies": {
     "nodemon": "^3.1.10"
