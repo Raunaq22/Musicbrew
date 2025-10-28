@@ -1,8 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useQuery } from 'react-query';
-import api from '../services/api';
-import { Search as SearchIcon, Music, Disc, User, Star } from 'lucide-react';
+import { api } from '../services/api';
+import { Button } from '../components/ui/button';
+import { Input } from '../components/ui/input';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
+import { Card, CardContent } from '../components/ui/card';
+import { Search as SearchIcon, Music, Disc, User, Play, Plus, Clock } from 'lucide-react';
+import { useMusicPlayer } from '../context/MusicPlayerContext';
+import { useAuth } from '../context/AuthContext';
+import toast from 'react-hot-toast';
 
 const Search = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -38,7 +45,7 @@ const Search = () => {
     if (error) {
       return (
         <div className="text-center py-12">
-          <p className="text-red-400">Failed to search. Please try again.</p>
+          <p className="text-destructive">Failed to search. Please try again.</p>
         </div>
       );
     }
@@ -46,19 +53,20 @@ const Search = () => {
     if (!searchResults) {
       return (
         <div className="text-center py-12">
-          <SearchIcon className="h-16 w-16 text-text-muted mx-auto mb-4" />
-          <p className="text-text-muted">Enter a search term to find music</p>
+          <SearchIcon className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+          <p className="text-muted-foreground">Enter a search term to find music</p>
         </div>
       );
     }
 
-    const results = searchResults[`${searchType}s`]?.items || [];
+    // Get results from the combined response
+    const results = searchResults.combined || searchResults.spotify?.tracks?.items || searchResults.audius || [];
 
     if (results.length === 0) {
       return (
         <div className="text-center py-12">
-          <Music className="h-16 w-16 text-text-muted mx-auto mb-4" />
-          <p className="text-text-muted">No results found for "{query}"</p>
+          <Music className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+          <p className="text-muted-foreground">No results found for "{query}"</p>
         </div>
       );
     }
@@ -66,48 +74,77 @@ const Search = () => {
     return (
       <div className="space-y-4">
         {results.map((item) => (
-          <div key={item.id} className="bg-card rounded-lg p-4 hover:bg-gray-700 transition-colors">
-            <div className="flex items-center space-x-4">
-              {item.album?.images?.[0] && (
-                <img
-                  src={item.album.images[0].url}
-                  alt={item.name}
-                  className="w-16 h-16 rounded-lg object-cover"
-                />
-              )}
-              
-              <div className="flex-1">
-                <h3 className="text-lg font-semibold text-text-light">{item.name}</h3>
-                <p className="text-text-muted">
-                  {searchType === 'track' ? (
-                    <>
-                      {item.artists?.map(artist => artist.name).join(', ')}
-                      {item.album && ` • ${item.album.name}`}
-                    </>
-                  ) : searchType === 'album' ? (
-                    <>
-                      {item.artists?.map(artist => artist.name).join(', ')}
-                      {item.release_date && ` • ${new Date(item.release_date).getFullYear()}`}
-                    </>
+          <Card key={`${item.id}-${item.source || 'spotify'}`} className="hover:bg-muted transition-colors">
+            <CardContent className="p-4">
+              <div className="flex items-center space-x-4">
+                {/* Album artwork */}
+                <div className="w-16 h-16 bg-muted rounded-lg flex items-center justify-center overflow-hidden flex-shrink-0">
+                  {item.album?.images?.[0] ? (
+                    <img
+                      src={item.album.images[0].url}
+                      alt={item.name}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : item.artwork ? (
+                    <img
+                      src={item.artwork}
+                      alt={item.title}
+                      className="w-full h-full object-cover"
+                    />
                   ) : (
-                    <>
-                      {item.genres?.slice(0, 2).join(', ')}
-                      {item.followers && ` • ${item.followers.total.toLocaleString()} followers`}
-                    </>
+                    <Music className="h-6 w-6 text-muted-foreground" />
                   )}
-                </p>
-              </div>
+                </div>
+                
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-lg font-semibold text-foreground truncate">{item.name || item.title}</h3>
+                  <p className="text-muted-foreground truncate">
+                    {item.source === 'audius' ? (
+                      <>
+                        {item.artist}
+                        {item.genre && ` • ${item.genre}`}
+                      </>
+                    ) : (
+                      <>
+                        {item.artists?.map(artist => artist.name).join(', ')}
+                        {item.album && ` • ${item.album.name}`}
+                      </>
+                    )}
+                  </p>
+                  {item.description && (
+                    <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{item.description}</p>
+                  )}
+                  {item.streamUrl && (
+                    <div className="flex items-center mt-2">
+                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-500/20 text-green-400">
+                        Streamable
+                      </span>
+                    </div>
+                  )}
+                </div>
 
-              <div className="flex items-center space-x-2">
-                <button 
-                  onClick={() => navigate(`/music/${item.id}`)}
-                  className="bg-primary hover:bg-primary-hover text-white px-4 py-2 rounded-lg transition-colors"
-                >
-                  View Details
-                </button>
+                <div className="flex items-center space-x-2 flex-shrink-0">
+                  {item.streamUrl ? (
+                    <Button 
+                      onClick={() => {
+                        // For Audius tracks, you could implement direct playback
+                        console.log('Play track:', item);
+                      }}
+                      className="bg-green-600 hover:bg-green-700"
+                    >
+                      Play
+                    </Button>
+                  ) : (
+                    <Button 
+                      onClick={() => navigate(`/music/${item.id}`)}
+                    >
+                      View Details
+                    </Button>
+                  )}
+                </div>
               </div>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
         ))}
       </div>
     );
@@ -116,53 +153,46 @@ const Search = () => {
   return (
     <div className="max-w-4xl mx-auto">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-text-light mb-6">Search Music</h1>
+        <h1 className="text-3xl font-bold text-foreground mb-6">Search Music</h1>
         
         <form onSubmit={handleSearch} className="mb-6">
           <div className="flex space-x-4">
             <div className="flex-1">
               <div className="relative">
-                <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-text-muted h-5 w-5" />
-                <input
+                <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                <Input
                   type="text"
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   placeholder="Search for tracks, albums, or artists..."
-                  className="w-full pl-10 pr-4 py-3 bg-card border border-gray-600 rounded-lg text-text-light placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                  className="pl-10"
                 />
               </div>
             </div>
             
-            <button
-              type="submit"
-              className="bg-primary hover:bg-primary-hover text-white px-6 py-3 rounded-lg transition-colors"
-            >
+            <Button type="submit">
               Search
-            </button>
+            </Button>
           </div>
         </form>
 
         {/* Search Type Tabs */}
-        <div className="flex space-x-1 bg-card rounded-lg p-1">
-          {[
-            { value: 'track', label: 'Tracks', icon: Music },
-            { value: 'album', label: 'Albums', icon: Disc },
-            { value: 'artist', label: 'Artists', icon: User },
-          ].map(({ value, label, icon: Icon }) => (
-            <button
-              key={value}
-              onClick={() => setSearchType(value)}
-              className={`flex items-center space-x-2 px-4 py-2 rounded-md transition-colors ${
-                searchType === value
-                  ? 'bg-primary text-white'
-                  : 'text-text-muted hover:text-text-light'
-              }`}
-            >
-              <Icon className="h-4 w-4" />
-              <span>{label}</span>
-            </button>
-          ))}
-        </div>
+        <Tabs value={searchType} onValueChange={setSearchType}>
+          <TabsList>
+            <TabsTrigger value="track" className="flex items-center space-x-2">
+              <Music className="h-4 w-4" />
+              <span>Tracks</span>
+            </TabsTrigger>
+            <TabsTrigger value="album" className="flex items-center space-x-2">
+              <Disc className="h-4 w-4" />
+              <span>Albums</span>
+            </TabsTrigger>
+            <TabsTrigger value="artist" className="flex items-center space-x-2">
+              <User className="h-4 w-4" />
+              <span>Artists</span>
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
       </div>
 
       {renderSearchResults()}

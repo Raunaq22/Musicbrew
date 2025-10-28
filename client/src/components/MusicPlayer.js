@@ -1,0 +1,185 @@
+import React, { useState, useRef, useEffect } from 'react';
+import { Card } from './ui/card';
+import { Button } from './ui/button';
+
+export default function MusicPlayer({ 
+  currentTrack, 
+  queue = [], 
+  onTrackEnd,
+  className = "" 
+}) {
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const [volume, setVolume] = useState(0.7);
+  const audioRef = useRef(null);
+
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.volume = volume;
+    }
+  }, [volume]);
+
+  useEffect(() => {
+    if (currentTrack && audioRef.current) {
+      setCurrentTime(0);
+      setIsPlaying(true);
+      // For demo purposes, we'll use a placeholder audio or simulate playback
+      if (currentTrack.preview_url) {
+        audioRef.current.src = currentTrack.preview_url;
+        audioRef.current.play();
+      } else {
+        // Simulate playback for tracks without preview
+        simulatePlayback();
+      }
+    }
+  }, [currentTrack]);
+
+  const simulatePlayback = () => {
+    if (!isPlaying) return;
+    
+    const interval = setInterval(() => {
+      setCurrentTime(prev => {
+        const newTime = prev + 1;
+        if (newTime >= duration) {
+          setIsPlaying(false);
+          clearInterval(interval);
+          onTrackEnd && onTrackEnd();
+          return 0;
+        }
+        return newTime;
+      });
+    }, 1000);
+  };
+
+  const togglePlayPause = () => {
+    if (isPlaying) {
+      setIsPlaying(false);
+      if (audioRef.current) {
+        audioRef.current.pause();
+      }
+    } else {
+      setIsPlaying(true);
+      if (audioRef.current && currentTrack?.preview_url) {
+        audioRef.current.play();
+      } else {
+        simulatePlayback();
+      }
+    }
+  };
+
+  const formatTime = (seconds) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  const handleSeek = (e) => {
+    const newTime = (e.target.value / 100) * duration;
+    setCurrentTime(newTime);
+    if (audioRef.current) {
+      audioRef.current.currentTime = newTime;
+    }
+  };
+
+  if (!currentTrack) {
+    return null;
+  }
+
+  return (
+    <div className={`fixed bottom-0 left-0 right-0 bg-black text-white p-4 shadow-lg z-50 ${className}`}>
+      <audio
+        ref={audioRef}
+        onLoadedMetadata={() => setDuration(audioRef.current.duration)}
+        onTimeUpdate={() => setCurrentTime(audioRef.current.currentTime)}
+        onEnded={() => {
+          setIsPlaying(false);
+          onTrackEnd && onTrackEnd();
+        }}
+      />
+      
+      <div className="max-w-7xl mx-auto flex items-center gap-4">
+        {/* Track Info */}
+        <div className="flex items-center gap-3 min-w-0 flex-1">
+          <img 
+            src={currentTrack.artwork || '/default-album.png'} 
+            alt={currentTrack.name}
+            className="w-14 h-14 rounded-md object-cover"
+          />
+          <div className="min-w-0">
+            <div className="font-medium text-sm truncate">{currentTrack.name}</div>
+            <div className="text-gray-400 text-xs truncate">{currentTrack.artist}</div>
+          </div>
+        </div>
+
+        {/* Controls */}
+        <div className="flex flex-col items-center gap-2 flex-1">
+          <div className="flex items-center gap-3">
+            <Button 
+              variant="ghost" 
+              size="sm"
+              className="text-white hover:text-green-400"
+            >
+              ⏮️
+            </Button>
+            
+            <Button 
+              variant="ghost" 
+              size="sm"
+              onClick={togglePlayPause}
+              className="text-white hover:text-green-400 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20"
+            >
+              {isPlaying ? '⏸️' : '▶️'}
+            </Button>
+            
+            <Button 
+              variant="ghost" 
+              size="sm"
+              className="text-white hover:text-green-400"
+            >
+              ⏭️
+            </Button>
+          </div>
+          
+          {/* Progress Bar */}
+          <div className="flex items-center gap-2 w-full max-w-md">
+            <span className="text-xs text-gray-400 w-10 text-right">
+              {formatTime(currentTime)}
+            </span>
+            <input
+              type="range"
+              min="0"
+              max="100"
+              value={duration ? (currentTime / duration) * 100 : 0}
+              onChange={handleSeek}
+              className="flex-1 h-1 bg-gray-600 rounded-lg appearance-none cursor-pointer slider"
+            />
+            <span className="text-xs text-gray-400 w-10">
+              {formatTime(duration)}
+            </span>
+          </div>
+        </div>
+
+        {/* Volume and Queue */}
+        <div className="flex items-center gap-3 flex-1 justify-end">
+          <div className="flex items-center gap-2">
+            <span className="text-gray-400">🔊</span>
+            <input
+              type="range"
+              min="0"
+              max="1"
+              step="0.1"
+              value={volume}
+              onChange={(e) => setVolume(parseFloat(e.target.value))}
+              className="w-20 h-1 bg-gray-600 rounded-lg appearance-none cursor-pointer"
+            />
+          </div>
+          
+          <div className="text-sm text-gray-400">
+            {queue.length} in queue
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

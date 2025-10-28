@@ -92,7 +92,7 @@ const Profile = () => {
                     name="displayName"
                     value={formData.displayName}
                     onChange={handleInputChange}
-                    className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-text-light focus:outline-none focus:ring-2 focus:ring-primary"
+                    className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                   />
                 </div>
 
@@ -105,7 +105,7 @@ const Profile = () => {
                     value={formData.bio}
                     onChange={handleInputChange}
                     rows={3}
-                    className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-text-light focus:outline-none focus:ring-2 focus:ring-primary"
+                    className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                     placeholder="Tell us about your music taste..."
                   />
                 </div>
@@ -145,7 +145,7 @@ const Profile = () => {
               <div>
                 <div className="flex items-center justify-between mb-4">
                   <div>
-                    <h1 className="text-2xl font-bold text-text-light">
+                    <h1 className="text-2xl font-bold text-foreground">
                       {user?.displayName || user?.username}
                     </h1>
                     <p className="text-text-muted">@{user?.username}</p>
@@ -175,7 +175,7 @@ const Profile = () => {
 
       {/* Reviews Section */}
       <div className="bg-card rounded-lg p-6">
-        <h2 className="text-xl font-semibold text-text-light mb-4">My Reviews</h2>
+        <h2 className="text-xl font-semibold text-foreground mb-4">My Reviews</h2>
         
         {reviewsLoading ? (
           <div className="flex items-center justify-center py-8">

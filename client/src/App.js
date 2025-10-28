@@ -5,6 +5,7 @@ import { Toaster } from 'react-hot-toast';
 
 // Context
 import { AuthProvider } from './context/AuthContext';
+import { MusicPlayerProvider } from './context/MusicPlayerContext';
 
 // Components
 import { PerformanceMonitor, NetworkStatus } from './components/PerformanceMonitor';
@@ -25,8 +26,9 @@ import Discovery from './pages/Discovery';
 import ListeningRooms from './pages/ListeningRooms';
 
 // Components
-import Navbar from './components/Navbar';
+import Sidebar from './components/Sidebar';
 import ProtectedRoute from './components/ProtectedRoute';
+import MusicPlayer from './components/MusicPlayer';
 
 // Create a client
 const queryClient = new QueryClient({
@@ -39,107 +41,119 @@ const queryClient = new QueryClient({
 });
 
 function App() {
+  // Apply dark theme class to document
+  React.useEffect(() => {
+    document.documentElement.classList.add('dark');
+    document.body.style.backgroundColor = 'hsl(222.2 84% 4.9%)';
+    document.body.style.color = 'hsl(210 40% 98%)';
+  }, []);
+
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <Router>
-          <div className="min-h-screen bg-background text-text-light">
-            <NetworkStatus />
-            <Navbar />
-            <main className="container mx-auto px-4 py-8">
-              <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/callback" element={<Login />} />
-                <Route path="/search" element={<Search />} />
-                <Route 
-                  path="/profile" 
-                  element={
-                    <ProtectedRoute>
-                      <Profile />
-                    </ProtectedRoute>
-                  } 
-                />
-                <Route 
-                  path="/music/:id" 
-                  element={
-                    <ProtectedRoute>
-                      <MusicDetails />
-                    </ProtectedRoute>
-                  } 
-                />
-                <Route 
-                  path="/user/:username" 
-                  element={<UserProfile />}
-                />
-                <Route 
-                  path="/playlists" 
-                  element={
-                    <ProtectedRoute>
-                      <Playlists />
-                    </ProtectedRoute>
-                  } 
-                />
-                <Route 
-                  path="/playlists/:id" 
-                  element={
-                    <ProtectedRoute>
-                      <PlaylistDetails />
-                    </ProtectedRoute>
-                  } 
-                />
-                <Route 
-                  path="/admin" 
-                  element={
-                    <ProtectedRoute>
-                      <Admin />
-                    </ProtectedRoute>
-                  } 
-                />
-                <Route 
-                  path="/room/:id" 
-                  element={
-                    <ProtectedRoute>
-                      <ListeningRoom />
-                    </ProtectedRoute>
-                  } 
-                />
-                <Route 
-                  path="/analytics" 
-                  element={
-                    <ProtectedRoute>
-                      <Analytics />
-                    </ProtectedRoute>
-                  } 
-                />
-                <Route 
-                  path="/discovery" 
-                  element={<Discovery />} 
-                />
-                <Route 
-                  path="/listening-rooms" 
-                  element={
-                    <ProtectedRoute>
-                      <ListeningRooms />
-                    </ProtectedRoute>
-                  } 
-                />
-              </Routes>
-            </main>
-            <Toaster 
-              position="top-right"
-              toastOptions={{
-                duration: 4000,
-                style: {
-                  background: '#23233a',
-                  color: '#f3f4f6',
-                  border: '1px solid #52525b',
-                },
-              }}
-            />
-            <PerformanceMonitor />
-          </div>
-        </Router>
+        <MusicPlayerProvider>
+          <Router>
+            <div className="min-h-screen bg-background text-foreground">
+              <NetworkStatus />
+              <div className="flex">
+                <Sidebar />
+                <main className="flex-1 ml-16 lg:ml-64 p-6 pb-24 transition-all duration-300">
+                  <Routes>
+                    <Route path="/" element={<Home />} />
+                    <Route path="/login" element={<Login />} />
+                    <Route path="/callback" element={<Login />} />
+                    <Route path="/search" element={<Search />} />
+                    <Route 
+                      path="/profile" 
+                      element={
+                        <ProtectedRoute>
+                          <Profile />
+                        </ProtectedRoute>
+                      } 
+                    />
+                    <Route 
+                      path="/music/:id" 
+                      element={
+                        <ProtectedRoute>
+                          <MusicDetails />
+                        </ProtectedRoute>
+                      } 
+                    />
+                    <Route 
+                      path="/user/:username" 
+                      element={<UserProfile />}
+                    />
+                    <Route 
+                      path="/playlists" 
+                      element={
+                        <ProtectedRoute>
+                          <Playlists />
+                        </ProtectedRoute>
+                      } 
+                    />
+                    <Route 
+                      path="/playlists/:id" 
+                      element={
+                        <ProtectedRoute>
+                          <PlaylistDetails />
+                        </ProtectedRoute>
+                      } 
+                    />
+                    <Route 
+                      path="/admin" 
+                      element={
+                        <ProtectedRoute>
+                          <Admin />
+                        </ProtectedRoute>
+                      } 
+                    />
+                    <Route 
+                      path="/room/:id" 
+                      element={
+                        <ProtectedRoute>
+                          <ListeningRoom />
+                        </ProtectedRoute>
+                      } 
+                    />
+                    <Route 
+                      path="/analytics" 
+                      element={
+                        <ProtectedRoute>
+                          <Analytics />
+                        </ProtectedRoute>
+                      } 
+                    />
+                    <Route 
+                      path="/discovery" 
+                      element={<Discovery />} 
+                    />
+                    <Route 
+                      path="/listening-rooms" 
+                      element={
+                        <ProtectedRoute>
+                          <ListeningRooms />
+                        </ProtectedRoute>
+                      } 
+                    />
+                  </Routes>
+                </main>
+              </div>
+              <MusicPlayer />
+              <Toaster 
+                position="top-right"
+                toastOptions={{
+                  duration: 4000,
+                  style: {
+                    background: 'hsl(var(--card))',
+                    color: 'hsl(var(--card-foreground))',
+                    border: '1px solid hsl(var(--border))',
+                  },
+                }}
+              />
+              <PerformanceMonitor />
+            </div>
+          </Router>
+        </MusicPlayerProvider>
       </AuthProvider>
     </QueryClientProvider>
   );

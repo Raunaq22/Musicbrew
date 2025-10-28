@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../services/api';
+import { Music, TrendingUp, Star, Users } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 const Discovery = () => {
@@ -96,15 +97,15 @@ const Discovery = () => {
   const renderForYou = () => (
     <div className="space-y-6">
       <div className="bg-card rounded-lg p-6">
-        <h2 className="text-xl font-bold text-text-light mb-4">Personalized for You</h2>
+        <h2 className="text-xl font-bold text-foreground mb-4">Personalized for You</h2>
         {loading ? (
           <div className="text-center py-8">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
           </div>
         ) : recommendations.length === 0 ? (
           <div className="text-center py-8">
-            <p className="text-text-muted">No personalized recommendations yet.</p>
-            <p className="text-text-muted text-sm mt-2">Start reviewing music to get better recommendations!</p>
+            <p className="text-muted-foreground">No personalized recommendations yet.</p>
+            <p className="text-muted-foreground text-sm mt-2">Start reviewing music to get better recommendations!</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -117,8 +118,8 @@ const Discovery = () => {
                     </svg>
                   </div>
                   <div>
-                    <p className="text-text-light font-medium">Music ID: {musicId}</p>
-                    <p className="text-text-muted text-sm">Recommended based on your taste</p>
+                    <p className="text-foreground font-medium">Music ID: {musicId}</p>
+                    <p className="text-muted-foreground text-sm">Recommended based on your taste</p>
                   </div>
                 </div>
                 <button className="w-full mt-3 bg-primary hover:bg-primary-hover text-white py-2 rounded-lg text-sm">
@@ -135,14 +136,14 @@ const Discovery = () => {
   const renderTrending = () => (
     <div className="space-y-6">
       <div className="bg-card rounded-lg p-6">
-        <h2 className="text-xl font-bold text-text-light mb-4">Trending This Month</h2>
+        <h2 className="text-xl font-bold text-foreground mb-4">Trending This Month</h2>
         {loading ? (
           <div className="text-center py-8">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
           </div>
         ) : trendingMusic.length === 0 ? (
           <div className="text-center py-8">
-            <p className="text-text-muted">No trending data available</p>
+            <p className="text-muted-foreground">No trending data available</p>
           </div>
         ) : (
           <div className="space-y-4">
@@ -157,8 +158,8 @@ const Discovery = () => {
                   </svg>
                 </div>
                 <div className="flex-1">
-                  <p className="text-text-light font-medium">Music ID: {music.musicId}</p>
-                  <p className="text-text-muted text-sm">
+                  <p className="text-foreground font-medium">Music ID: {music.musicId}</p>
+                  <p className="text-muted-foreground text-sm">
                     {music._count.id} reviews • {Math.round(music._avg.rating * 10) / 10} avg rating
                   </p>
                 </div>
@@ -176,14 +177,14 @@ const Discovery = () => {
   const renderWeekly = () => (
     <div className="space-y-6">
       <div className="bg-card rounded-lg p-6">
-        <h2 className="text-xl font-bold text-text-light mb-4">Weekly Editor's Picks</h2>
+        <h2 className="text-xl font-bold text-foreground mb-4">Weekly Editor's Picks</h2>
         {loading ? (
           <div className="text-center py-8">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
           </div>
         ) : weeklyPicks.length === 0 ? (
           <div className="text-center py-8">
-            <p className="text-text-muted">No weekly picks available</p>
+            <p className="text-muted-foreground">No weekly picks available</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -196,14 +197,14 @@ const Discovery = () => {
                     </svg>
                   </div>
                   <div>
-                    <p className="text-text-light font-medium">Music ID: {pick.musicId}</p>
-                    <p className="text-text-muted text-sm">
+                    <p className="text-foreground font-medium">Music ID: {pick.musicId}</p>
+                    <p className="text-muted-foreground text-sm">
                       Rating: {pick.rating}★ by {pick.user?.displayName || pick.user?.username}
                     </p>
                   </div>
                 </div>
                 {pick.content && (
-                  <p className="text-text-muted text-sm mt-3 line-clamp-2">{pick.content}</p>
+                  <p className="text-muted-foreground text-sm mt-3 line-clamp-2">{pick.content}</p>
                 )}
                 <button className="w-full mt-3 bg-primary hover:bg-primary-hover text-white py-2 rounded-lg text-sm">
                   View Details
@@ -219,7 +220,7 @@ const Discovery = () => {
   const renderSimilar = () => (
     <div className="space-y-6">
       <div className="bg-card rounded-lg p-6">
-        <h2 className="text-xl font-bold text-text-light mb-4">Users with Similar Taste</h2>
+        <h2 className="text-xl font-bold text-foreground mb-4">Users with Similar Taste</h2>
         {loading ? (
           <div className="text-center py-8">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
@@ -235,8 +236,8 @@ const Discovery = () => {
                     </span>
                   </div>
                   <div>
-                    <p className="text-text-light font-medium">@{user.username}</p>
-                    <p className="text-text-muted text-sm">{user.similarity}% taste similarity</p>
+                    <p className="text-foreground font-medium">@{user.username}</p>
+                    <p className="text-muted-foreground text-sm">{user.similarity}% taste similarity</p>
                   </div>
                 </div>
                 <div className="flex items-center space-x-2">
@@ -260,23 +261,23 @@ const Discovery = () => {
 
       {selectedUser && (
         <div className="bg-card rounded-lg p-6">
-          <h3 className="text-lg font-bold text-text-light mb-4">
+          <h3 className="text-lg font-bold text-foreground mb-4">
             Similarity with User {selectedUser.id}
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="text-center">
               <p className="text-3xl font-bold text-primary">{selectedUser.similarity}%</p>
-              <p className="text-text-muted">Similarity Score</p>
+              <p className="text-muted-foreground">Similarity Score</p>
             </div>
             <div className="text-center">
               <p className="text-3xl font-bold text-accent">{selectedUser.totalCommonMusic}</p>
-              <p className="text-text-muted">Common Music</p>
+              <p className="text-muted-foreground">Common Music</p>
             </div>
           </div>
           {selectedUser.analysis && (
             <div className="mt-4 p-4 bg-background rounded-lg">
-              <h4 className="font-semibold text-text-light mb-2">Analysis</h4>
-              <p className="text-text-muted text-sm">
+              <h4 className="font-semibold text-foreground mb-2">Analysis</h4>
+              <p className="text-muted-foreground text-sm">
                 {selectedUser.analysis.verySimilar ? 'Your music tastes are very similar!' :
                  selectedUser.analysis.similar ? 'You have similar music preferences.' :
                  selectedUser.analysis.somewhatSimilar ? 'You share some musical interests.' :
@@ -293,31 +294,34 @@ const Discovery = () => {
     <div className="max-w-7xl mx-auto p-4">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-text-light mb-2">Discover Music</h1>
-        <p className="text-text-muted">Find new music based on your taste and what's trending</p>
+        <h1 className="text-3xl font-bold text-foreground mb-2">Discover Music</h1>
+        <p className="text-muted-foreground">Find new music based on your taste and what's trending</p>
       </div>
 
       {/* Tabs */}
       <div className="flex space-x-1 bg-card rounded-lg p-1 mb-8">
         {[
-          { id: 'for-you', label: 'For You', icon: '🎵' },
-          { id: 'trending', label: 'Trending', icon: '🔥' },
-          { id: 'weekly', label: "Editor's Picks", icon: '⭐' },
-          { id: 'similar', label: 'Similar Users', icon: '👥' }
-        ].map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all ${
-              activeTab === tab.id
-                ? 'bg-primary text-white'
-                : 'text-text-muted hover:text-text-light hover:bg-background'
-            }`}
-          >
-            <span>{tab.icon}</span>
-            <span>{tab.label}</span>
-          </button>
-        ))}
+          { id: 'for-you', label: 'For You', icon: Music },
+          { id: 'trending', label: 'Trending', icon: TrendingUp },
+          { id: 'weekly', label: "Editor's Picks", icon: Star },
+          { id: 'similar', label: 'Similar Users', icon: Users }
+        ].map((tab) => {
+          const IconComponent = tab.icon;
+          return (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all ${
+                activeTab === tab.id
+                  ? 'bg-primary text-white'
+                  : 'text-muted-foreground hover:text-foreground hover:bg-background'
+              }`}
+            >
+              <IconComponent className="h-4 w-4" />
+              <span>{tab.label}</span>
+            </button>
+          );
+        })}
       </div>
 
       {/* Content */}

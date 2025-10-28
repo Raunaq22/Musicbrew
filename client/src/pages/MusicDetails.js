@@ -96,7 +96,7 @@ const MusicDetails = () => {
           )}
           
           <div className="flex-1">
-            <h1 className="text-3xl font-bold text-text-light mb-2">{track.name}</h1>
+            <h1 className="text-3xl font-bold text-foreground mb-2">{track.name}</h1>
             <p className="text-xl text-text-muted mb-2">
               {track.artists?.map(artist => artist.name).join(', ')}
             </p>
@@ -116,7 +116,7 @@ const MusicDetails = () => {
 
       {/* Review Form */}
       <div className="bg-card rounded-lg p-6 mb-8">
-        <h2 className="text-xl font-semibold text-text-light mb-4">Write a Review</h2>
+        <h2 className="text-xl font-semibold text-foreground mb-4">Write a Review</h2>
         
         <form onSubmit={handleSubmitReview} className="space-y-4">
           <div>
@@ -149,7 +149,7 @@ const MusicDetails = () => {
               value={reviewContent}
               onChange={(e) => setReviewContent(e.target.value)}
               rows={4}
-              className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-text-light placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-primary"
+              className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-foreground placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-primary"
               placeholder="Share your thoughts about this track..."
             />
           </div>
@@ -166,7 +166,7 @@ const MusicDetails = () => {
 
       {/* Reviews List */}
       <div className="bg-card rounded-lg p-6">
-        <h2 className="text-xl font-semibold text-text-light mb-4">
+        <h2 className="text-xl font-semibold text-foreground mb-4">
           Reviews ({reviews.length})
         </h2>
         

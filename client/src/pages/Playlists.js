@@ -75,7 +75,7 @@ const Playlists = () => {
   return (
     <div className="max-w-4xl mx-auto">
       <div className="flex items-center justify-between mb-8">
-        <h1 className="text-3xl font-bold text-text-light">My Playlists</h1>
+        <h1 className="text-3xl font-bold text-foreground">My Playlists</h1>
         <button
           onClick={() => setIsCreating(true)}
           className="bg-primary hover:bg-primary-hover text-white px-4 py-2 rounded-lg transition-colors flex items-center space-x-2"
@@ -88,7 +88,7 @@ const Playlists = () => {
       {/* Create Playlist Form */}
       {isCreating && (
         <div className="bg-card rounded-lg p-6 mb-8">
-          <h2 className="text-xl font-semibold text-text-light mb-4">Create New Playlist</h2>
+          <h2 className="text-xl font-semibold text-foreground mb-4">Create New Playlist</h2>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-text-muted mb-2">
@@ -98,7 +98,7 @@ const Playlists = () => {
                 type="text"
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-text-light focus:outline-none focus:ring-2 focus:ring-primary"
+                className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                 placeholder="My Awesome Playlist"
                 required
               />
@@ -112,7 +112,7 @@ const Playlists = () => {
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 rows={3}
-                className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-text-light focus:outline-none focus:ring-2 focus:ring-primary"
+                className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                 placeholder="What's this playlist about?"
               />
             </div>
@@ -178,7 +178,7 @@ const Playlists = () => {
                   <div className="flex items-start justify-between mb-1">
                     <div className="flex-1">
                       <div className="flex items-center space-x-2 mb-1">
-                        <h3 className="text-lg font-semibold text-text-light truncate">
+                        <h3 className="text-lg font-semibold text-foreground truncate">
                           {playlist.name}
                         </h3>
                         {/* Privacy icon removed; all are public */}
@@ -202,7 +202,7 @@ const Playlists = () => {
                   </div>
                   <button
                     onClick={() => navigate(`/playlists/${playlist.id}`)}
-                    className="mt-3 w-full bg-gray-700 hover:bg-gray-600 text-text-light px-4 py-2 rounded-lg transition-colors text-sm"
+                    className="mt-3 w-full bg-gray-700 hover:bg-gray-600 text-foreground px-4 py-2 rounded-lg transition-colors text-sm"
                   >
                     View Playlist
                   </button>

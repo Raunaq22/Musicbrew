@@ -186,7 +186,7 @@ const ListeningRoom = () => {
   if (!room) {
     return (
       <div className="text-center py-12">
-        <h2 className="text-2xl font-bold text-text-light mb-4">Room Not Found</h2>
+        <h2 className="text-2xl font-bold text-foreground mb-4">Room Not Found</h2>
         <button
           onClick={() => navigate('/')}
           className="bg-primary hover:bg-primary-hover text-white px-6 py-2 rounded-lg"
@@ -206,7 +206,7 @@ const ListeningRoom = () => {
           <div className="bg-card rounded-lg p-6">
             <div className="flex justify-between items-start mb-4">
               <div>
-                <h1 className="text-3xl font-bold text-text-light mb-2">{room.name}</h1>
+                <h1 className="text-3xl font-bold text-foreground mb-2">{room.name}</h1>
                 <p className="text-text-muted">{room.description}</p>
                 <div className="flex items-center space-x-4 mt-3">
                   <div className="flex items-center space-x-2">
@@ -236,7 +236,7 @@ const ListeningRoom = () => {
           {/* Current Track */}
           {currentTrack && (
             <div className="bg-card rounded-lg p-6">
-              <h2 className="text-xl font-bold text-text-light mb-4">Now Playing</h2>
+              <h2 className="text-xl font-bold text-foreground mb-4">Now Playing</h2>
               <div className="flex items-center space-x-4">
                 <img
                   src={currentTrack.albumArt || '/default-album.png'}
@@ -244,7 +244,7 @@ const ListeningRoom = () => {
                   className="w-16 h-16 rounded-lg"
                 />
                 <div>
-                  <h3 className="text-lg font-semibold text-text-light">{currentTrack.name}</h3>
+                  <h3 className="text-lg font-semibold text-foreground">{currentTrack.name}</h3>
                   <p className="text-text-muted">{currentTrack.artist}</p>
                 </div>
               </div>
@@ -253,7 +253,7 @@ const ListeningRoom = () => {
 
           {/* Queue */}
           <div className="bg-card rounded-lg p-6">
-            <h2 className="text-xl font-bold text-text-light mb-4">Queue</h2>
+            <h2 className="text-xl font-bold text-foreground mb-4">Queue</h2>
             {queue.length === 0 ? (
               <p className="text-text-muted">No tracks in queue yet</p>
             ) : (
@@ -267,7 +267,7 @@ const ListeningRoom = () => {
                       className="w-10 h-10 rounded"
                     />
                     <div className="flex-1">
-                      <h4 className="text-text-light font-medium">{track.name}</h4>
+                      <h4 className="text-foreground font-medium">{track.name}</h4>
                       <p className="text-text-muted text-sm">{track.artist}</p>
                     </div>
                   </div>
@@ -279,7 +279,7 @@ const ListeningRoom = () => {
 
         {/* Chat Sidebar */}
         <div className="bg-card rounded-lg p-4 flex flex-col h-[600px]">
-          <h2 className="text-xl font-bold text-text-light mb-4">Chat</h2>
+          <h2 className="text-xl font-bold text-foreground mb-4">Chat</h2>
           
           {/* Chat Messages */}
           <div className="flex-1 overflow-y-auto space-y-3 mb-4">
@@ -293,7 +293,7 @@ const ListeningRoom = () => {
                     {new Date(message.timestamp).toLocaleTimeString()}
                   </span>
                 </div>
-                <p className="text-text-light ml-0">{message.message}</p>
+                <p className="text-foreground ml-0">{message.message}</p>
               </div>
             ))}
             {isTyping && (
@@ -315,7 +315,7 @@ const ListeningRoom = () => {
               }}
               onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
               placeholder="Type a message..."
-              className="flex-1 bg-background text-text-light rounded-lg px-3 py-2 border border-gray-600 focus:border-primary focus:outline-none"
+              className="flex-1 bg-background text-foreground rounded-lg px-3 py-2 border border-gray-600 focus:border-primary focus:outline-none"
             />
             <button
               onClick={sendMessage}

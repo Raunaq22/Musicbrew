@@ -64,7 +64,7 @@ const Admin = () => {
   return (
     <div className="max-w-6xl mx-auto">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-text-light mb-2">Admin Panel</h1>
+        <h1 className="text-3xl font-bold text-foreground mb-2">Admin Panel</h1>
         <p className="text-text-muted">Manage users, reviews, and content</p>
       </div>
 
@@ -75,7 +75,7 @@ const Admin = () => {
           className={`flex items-center space-x-2 px-4 py-2 rounded-md transition-colors ${
             activeTab === 'stats'
               ? 'bg-primary text-white'
-              : 'text-text-muted hover:text-text-light'
+              : 'text-text-muted hover:text-foreground'
           }`}
         >
           <BarChart3 className="h-4 w-4" />
@@ -86,7 +86,7 @@ const Admin = () => {
           className={`flex items-center space-x-2 px-4 py-2 rounded-md transition-colors ${
             activeTab === 'users'
               ? 'bg-primary text-white'
-              : 'text-text-muted hover:text-text-light'
+              : 'text-text-muted hover:text-foreground'
           }`}
         >
           <Users className="h-4 w-4" />
@@ -97,7 +97,7 @@ const Admin = () => {
           className={`flex items-center space-x-2 px-4 py-2 rounded-md transition-colors ${
             activeTab === 'reviews'
               ? 'bg-primary text-white'
-              : 'text-text-muted hover:text-text-light'
+              : 'text-text-muted hover:text-foreground'
           }`}
         >
           <Star className="h-4 w-4" />
@@ -110,22 +110,22 @@ const Admin = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <div className="bg-card rounded-lg p-6">
             <Users className="h-8 w-8 text-primary mb-2" />
-            <h3 className="text-2xl font-bold text-text-light">{stats.totalUsers || 0}</h3>
+            <h3 className="text-2xl font-bold text-foreground">{stats.totalUsers || 0}</h3>
             <p className="text-text-muted">Total Users</p>
           </div>
           <div className="bg-card rounded-lg p-6">
             <Star className="h-8 w-8 text-accent mb-2" />
-            <h3 className="text-2xl font-bold text-text-light">{stats.totalReviews || 0}</h3>
+            <h3 className="text-2xl font-bold text-foreground">{stats.totalReviews || 0}</h3>
             <p className="text-text-muted">Total Reviews</p>
           </div>
           <div className="bg-card rounded-lg p-6">
             <BarChart3 className="h-8 w-8 text-primary mb-2" />
-            <h3 className="text-2xl font-bold text-text-light">{stats.totalPlaylists || 0}</h3>
+            <h3 className="text-2xl font-bold text-foreground">{stats.totalPlaylists || 0}</h3>
             <p className="text-text-muted">Total Playlists</p>
           </div>
           <div className="bg-card rounded-lg p-6">
             <AlertTriangle className="h-8 w-8 text-accent mb-2" />
-            <h3 className="text-2xl font-bold text-text-light">{stats.totalComments || 0}</h3>
+            <h3 className="text-2xl font-bold text-foreground">{stats.totalComments || 0}</h3>
             <p className="text-text-muted">Total Comments</p>
           </div>
         </div>
@@ -133,7 +133,7 @@ const Admin = () => {
 
       {activeTab === 'users' && (
         <div className="bg-card rounded-lg p-6">
-          <h2 className="text-xl font-semibold text-text-light mb-4">All Users</h2>
+          <h2 className="text-xl font-semibold text-foreground mb-4">All Users</h2>
           <div className="space-y-2">
             {users.map((user) => (
               <div key={user.id} className="flex items-center justify-between bg-gray-700 rounded-lg p-4">
@@ -146,7 +146,7 @@ const Admin = () => {
                     </div>
                   )}
                   <div>
-                    <p className="font-medium text-text-light">{user.displayName || user.username}</p>
+                    <p className="font-medium text-foreground">{user.displayName || user.username}</p>
                     <p className="text-sm text-text-muted">@{user.username} • {user._count?.reviews || 0} reviews</p>
                   </div>
                 </div>
@@ -168,12 +168,12 @@ const Admin = () => {
 
       {activeTab === 'reviews' && (
         <div className="bg-card rounded-lg p-6">
-          <h2 className="text-xl font-semibold text-text-light mb-4">All Reviews</h2>
+          <h2 className="text-xl font-semibold text-foreground mb-4">All Reviews</h2>
           <div className="space-y-2">
             {reviews.map((review) => (
               <div key={review.id} className="flex items-center justify-between bg-gray-700 rounded-lg p-4">
                 <div className="flex-1">
-                  <p className="font-medium text-text-light">
+                  <p className="font-medium text-foreground">
                     {review.user.displayName || review.user.username}
                   </p>
                   <p className="text-sm text-text-muted line-clamp-2">{review.content || 'No content'}</p>

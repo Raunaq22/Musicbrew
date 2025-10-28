@@ -61,7 +61,7 @@ const ListeningRooms = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 space-y-4 sm:space-y-0">
         <div>
-          <h1 className="text-3xl font-bold text-text-light mb-2">Listening Rooms</h1>
+          <h1 className="text-3xl font-bold text-foreground mb-2">Listening Rooms</h1>
           <p className="text-text-muted">Join rooms to listen together with friends</p>
         </div>
         <button
@@ -78,7 +78,7 @@ const ListeningRooms = () => {
         <CardGrid className="text-center py-12">
           <div className="py-8">
             <Users className="h-16 w-16 text-text-muted mx-auto mb-4" />
-            <h2 className="text-xl font-semibold text-text-light mb-2">No Active Rooms</h2>
+            <h2 className="text-xl font-semibold text-foreground mb-2">No Active Rooms</h2>
             <p className="text-text-muted mb-6">
               Be the first to create a listening room and start the music session!
             </p>
@@ -99,7 +99,7 @@ const ListeningRooms = () => {
                   {/* Room Header */}
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex-1">
-                      <h3 className="text-lg font-semibold text-text-light group-hover:text-primary transition-colors mb-1">
+                      <h3 className="text-lg font-semibold text-foreground group-hover:text-primary transition-colors mb-1">
                         {room.name}
                       </h3>
                       <div className="flex items-center space-x-4 text-sm text-text-muted">
@@ -135,7 +135,7 @@ const ListeningRooms = () => {
                         className="w-10 h-10 rounded"
                       />
                       <div className="flex-1 min-w-0">
-                        <p className="text-text-light font-medium text-sm truncate">
+                        <p className="text-foreground font-medium text-sm truncate">
                           {room.currentTrack.name}
                         </p>
                         <p className="text-text-muted text-xs truncate">
@@ -183,30 +183,30 @@ const ListeningRooms = () => {
       {showCreateModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-card rounded-lg p-6 w-full max-w-md">
-            <h2 className="text-xl font-bold text-text-light mb-4">Create Listening Room</h2>
+            <h2 className="text-xl font-bold text-foreground mb-4">Create Listening Room</h2>
             <form onSubmit={createRoom} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-text-light mb-2">
+                <label className="block text-sm font-medium text-foreground mb-2">
                   Room Name
                 </label>
                 <input
                   type="text"
                   value={newRoom.name}
                   onChange={(e) => setNewRoom({ ...newRoom, name: e.target.value })}
-                  className="w-full px-3 py-2 bg-background text-text-light rounded-lg border border-gray-600 focus:border-primary focus:outline-none"
+                  className="w-full px-3 py-2 bg-background text-foreground rounded-lg border border-gray-600 focus:border-primary focus:outline-none"
                   placeholder="Enter room name..."
                   required
                   maxLength={50}
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-text-light mb-2">
+                <label className="block text-sm font-medium text-foreground mb-2">
                   Description (optional)
                 </label>
                 <textarea
                   value={newRoom.description}
                   onChange={(e) => setNewRoom({ ...newRoom, description: e.target.value })}
-                  className="w-full px-3 py-2 bg-background text-text-light rounded-lg border border-gray-600 focus:border-primary focus:outline-none"
+                  className="w-full px-3 py-2 bg-background text-foreground rounded-lg border border-gray-600 focus:border-primary focus:outline-none"
                   placeholder="What's this room about?"
                   rows={3}
                   maxLength={200}
@@ -216,7 +216,7 @@ const ListeningRooms = () => {
                 <button
                   type="button"
                   onClick={() => setShowCreateModal(false)}
-                  className="flex-1 px-4 py-2 text-text-muted hover:text-text-light transition-colors"
+                  className="flex-1 px-4 py-2 text-text-muted hover:text-foreground transition-colors"
                 >
                   Cancel
                 </button>
@@ -235,28 +235,28 @@ const ListeningRooms = () => {
       {/* Info Section */}
       <div className="mt-12">
         <CardGrid>
-          <h2 className="text-xl font-semibold text-text-light mb-4">About Listening Rooms</h2>
+          <h2 className="text-xl font-semibold text-foreground mb-4">About Listening Rooms</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <h3 className="font-medium text-text-light mb-2">🎵 Real-time Synchronization</h3>
+              <h3 className="font-medium text-foreground mb-2">Real-time Synchronization</h3>
               <p className="text-text-muted text-sm">
                 All participants listen to the same track at the same time, just like being in the same room.
               </p>
             </div>
             <div>
-              <h3 className="font-medium text-text-light mb-2">💬 Live Chat</h3>
+              <h3 className="font-medium text-foreground mb-2">Live Chat</h3>
               <p className="text-text-muted text-sm">
                 Chat with other listeners, share reactions, and discuss the music in real-time.
               </p>
             </div>
             <div>
-              <h3 className="font-medium text-text-light mb-2">🎶 Collaborative Queue</h3>
+              <h3 className="font-medium text-foreground mb-2">Collaborative Queue</h3>
               <p className="text-text-muted text-sm">
                 Add tracks to the queue and vote on what plays next. The host controls the final order.
               </p>
             </div>
             <div>
-              <h3 className="font-medium text-text-light mb-2">👑 Host Controls</h3>
+              <h3 className="font-medium text-foreground mb-2">Host Controls</h3>
               <p className="text-text-muted text-sm">
                 Room hosts can pause, skip, and manage the listening session for everyone.
               </p>

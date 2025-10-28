@@ -1,10 +1,150 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
+const { body, validationResult } = require('express-validator');
 const prisma = require('../config/database');
 const spotifyService = require('../services/spotify');
 const { authenticateToken } = require('../middleware/auth');
 
 const router = express.Router();
+
+// Register with email/password
+router.post('/register', [
+  body('email').isEmail().normalizeEmail(),
+  body('username').isLength({ min: 3 }).trim().escape(),
+  body('password').isLength({ min: 6 }),
+  body('displayName').optional().trim().escape()
+], async (req, res) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    const { email, username, password, displayName } = req.body;
+
+    // Check if user already exists
+    const existingUser = await prisma.user.findFirst({
+      where: {
+        OR: [
+          { email },
+          { username }
+        ]
+      }
+    });
+
+    if (existingUser) {
+      return res.status(400).json({ 
+        error: existingUser.email === email ? 'Email already registered' : 'Username already taken'
+      });
+    }
+
+    // Hash password
+    const hashedPassword = await bcrypt.hash(password, 12);
+
+    // Create user
+    const user = await prisma.user.create({
+      data: {
+        email,
+        username,
+        password: hashedPassword,
+        displayName: displayName || username
+      },
+      select: {
+        id: true,
+        email: true,
+        username: true,
+        displayName: true,
+        bio: true,
+        avatar: true,
+        spotifyId: true,
+        isPublic: true,
+        createdAt: true
+      }
+    });
+
+    // Generate JWT token
+    const token = jwt.sign(
+      { userId: user.id },
+      process.env.JWT_SECRET,
+      { expiresIn: '7d' }
+    );
+
+    res.status(201).json({
+      user,
+      token,
+      authMethod: 'email'
+    });
+  } catch (error) {
+    console.error('Registration error:', error);
+    res.status(500).json({ error: 'Registration failed' });
+  }
+});
+
+// Login with email/password
+router.post('/login', [
+  body('email').isEmail().normalizeEmail(),
+  body('password').notEmpty()
+], async (req, res) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    const { email, password } = req.body;
+
+    // Find user
+    const user = await prisma.user.findUnique({
+      where: { email },
+      select: {
+        id: true,
+        email: true,
+        username: true,
+        displayName: true,
+        bio: true,
+        avatar: true,
+        spotifyId: true,
+        password: true,
+        isPublic: true,
+        createdAt: true
+      }
+    });
+
+    if (!user) {
+      return res.status(401).json({ error: 'Invalid credentials' });
+    }
+
+    // Check password
+    if (!user.password) {
+      return res.status(401).json({ error: 'Please use Spotify login for this account' });
+    }
+
+    const isValidPassword = await bcrypt.compare(password, user.password);
+    if (!isValidPassword) {
+      return res.status(401).json({ error: 'Invalid credentials' });
+    }
+
+    // Remove password from response
+    delete user.password;
+
+    // Generate JWT token
+    const token = jwt.sign(
+      { userId: user.id },
+      process.env.JWT_SECRET,
+      { expiresIn: '7d' }
+    );
+
+    res.json({
+      user,
+      token,
+      authMethod: 'email'
+    });
+  } catch (error) {
+    console.error('Login error:', error);
+    res.status(500).json({ error: 'Login failed' });
+  }
+});
 
 // Generate Spotify OAuth URL
 router.get('/spotify', (req, res) => {
@@ -39,7 +179,7 @@ router.post('/spotify/callback', async (req, res) => {
     const { code } = req.body;
     
     // Debug logging (can be removed in production)
-    console.log('🔍 OAuth Callback Debug:');
+    console.log('OAuth Callback Debug:');
     console.log('  - Code received:', code ? code.substring(0, 20) + '...' : 'MISSING');
 
     if (!code) {
@@ -49,7 +189,7 @@ router.post('/spotify/callback', async (req, res) => {
     // Check if this code has already been processed (prevent duplicate requests)
     const codeKey = `oauth_code_${code}`;
     if (global.processedCodes && global.processedCodes.has(codeKey)) {
-      console.log('⚠️  Authorization code already processed, silently ignoring duplicate request');
+      console.log('Authorization code already processed, silently ignoring duplicate request');
       // Return 200 with a flag instead of error, since this is likely from React Strict Mode
       // The first request already succeeded
       return res.status(200).json({ 

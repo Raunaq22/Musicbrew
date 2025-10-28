@@ -4,16 +4,16 @@ const { authenticateToken } = require('../middleware/auth');
 
 const router = express.Router();
 
-// Search for music
-router.get('/search', authenticateToken, async (req, res) => {
+// Search for music (Spotify only)
+router.get('/search', async (req, res) => {
   try {
     const { q, type = 'track', limit = 20, offset = 0 } = req.query;
-    const { accesstoken } = req.headers;
 
     if (!q) {
       return res.status(400).json({ error: 'Query parameter is required' });
     }
 
+    const { accesstoken } = req.headers;
     if (!accesstoken) {
       return res.status(400).json({ error: 'Spotify access token required' });
     }
@@ -26,7 +26,7 @@ router.get('/search', authenticateToken, async (req, res) => {
   }
 });
 
-// Get track details
+// Get track details (Spotify - requires authentication)
 router.get('/track/:id', authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
@@ -37,14 +37,17 @@ router.get('/track/:id', authenticateToken, async (req, res) => {
     }
 
     const track = await spotifyService.getTrack(id, accesstoken);
-    res.json(track);
+    res.json({
+      ...track,
+      source: 'spotify'
+    });
   } catch (error) {
     console.error('Get track error:', error);
     res.status(500).json({ error: 'Failed to get track' });
   }
 });
 
-// Get album details
+// Get album details (Spotify - requires authentication)
 router.get('/album/:id', authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
@@ -62,7 +65,7 @@ router.get('/album/:id', authenticateToken, async (req, res) => {
   }
 });
 
-// Get artist details
+// Get artist details (Spotify - requires authentication)
 router.get('/artist/:id', authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
@@ -80,7 +83,7 @@ router.get('/artist/:id', authenticateToken, async (req, res) => {
   }
 });
 
-// Get user's top tracks
+// Get user's top tracks (Spotify - requires authentication)
 router.get('/top/tracks', authenticateToken, async (req, res) => {
   try {
     const { timeRange = 'medium_term', limit = 20 } = req.query;
@@ -98,7 +101,7 @@ router.get('/top/tracks', authenticateToken, async (req, res) => {
   }
 });
 
-// Get user's top artists
+// Get user's top artists (Spotify - requires authentication)
 router.get('/top/artists', authenticateToken, async (req, res) => {
   try {
     const { timeRange = 'medium_term', limit = 20 } = req.query;
@@ -116,17 +119,21 @@ router.get('/top/artists', authenticateToken, async (req, res) => {
   }
 });
 
-// Get trending music (placeholder - would need to implement trending logic)
+// Get trending music (Spotify only)
 router.get('/trending', async (req, res) => {
   try {
     const { type = 'track', limit = 20 } = req.query;
+    const { accesstoken } = req.headers;
+
+    if (!accesstoken) {
+      return res.status(400).json({ error: 'Spotify access token required for trending' });
+    }
+
+    // Search for trending music
+    const trendingQuery = 'year:2024';
+    const trending = await spotifyService.search(trendingQuery, type, parseInt(limit), 0, accesstoken);
     
-    // This is a placeholder - in a real implementation, you'd track
-    // which music is being reviewed/rated most frequently
-    const trendingQuery = 'year:2024'; // Example trending query
-    const results = await spotifyService.search(trendingQuery, type, parseInt(limit), 0);
-    
-    res.json(results);
+    res.json(trending);
   } catch (error) {
     console.error('Get trending error:', error);
     res.status(500).json({ error: 'Failed to get trending music' });

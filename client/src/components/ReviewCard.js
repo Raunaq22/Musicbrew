@@ -79,7 +79,7 @@ const ReviewCard = ({ review }) => {
             />
           ) : (
             <div className="w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center">
-              <span className="text-xs text-text-light">
+              <span className="text-xs text-foreground">
                 {review.user.displayName?.[0] || review.user.username?.[0]}
               </span>
             </div>
@@ -87,7 +87,7 @@ const ReviewCard = ({ review }) => {
           <div>
             <Link 
               to={`/user/${review.user.username}`}
-              className="font-medium text-text-light hover:text-primary transition-colors"
+              className="font-medium text-foreground hover:text-primary transition-colors"
             >
               {review.user.displayName || review.user.username}
             </Link>
@@ -142,7 +142,7 @@ const ReviewCard = ({ review }) => {
                 value={commentContent}
                 onChange={(e) => setCommentContent(e.target.value)}
                 placeholder="Write a comment..."
-                className="flex-1 px-3 py-2 bg-gray-600 border border-gray-500 rounded-lg text-text-light placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-primary"
+                className="flex-1 px-3 py-2 bg-gray-600 border border-gray-500 rounded-lg text-foreground placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-primary"
               />
               <button
                 type="submit"
@@ -175,7 +175,7 @@ const ReviewCard = ({ review }) => {
                         />
                       ) : (
                         <div className="w-6 h-6 bg-gray-500 rounded-full flex items-center justify-center">
-                          <span className="text-xs text-text-light">
+                          <span className="text-xs text-foreground">
                             {comment.user.displayName?.[0] || comment.user.username?.[0]}
                           </span>
                         </div>
@@ -183,7 +183,7 @@ const ReviewCard = ({ review }) => {
                       <div className="flex-1">
                         <Link
                           to={`/user/${comment.user.username}`}
-                          className="text-sm font-medium text-text-light hover:text-primary transition-colors"
+                          className="text-sm font-medium text-foreground hover:text-primary transition-colors"
                         >
                           {comment.user.displayName || comment.user.username}
                         </Link>

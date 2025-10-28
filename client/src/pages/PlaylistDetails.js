@@ -130,7 +130,7 @@ const PlaylistDetails = () => {
           <div className="flex-1">
             <div className="flex items-start justify-between">
               <div className="flex-1">
-                <h1 className="text-3xl font-bold text-text-light mb-2">{playlist.name}</h1>
+                <h1 className="text-3xl font-bold text-foreground mb-2">{playlist.name}</h1>
                 {playlist.description && (
                   <p className="text-text-muted mb-3 max-w-2xl">{playlist.description}</p>
                 )}
@@ -166,7 +166,7 @@ const PlaylistDetails = () => {
 
       {/* Add tracks section */}
       <div className="bg-card rounded-lg p-6 mb-6">
-        <h2 className="text-xl font-semibold text-text-light mb-4">Add Tracks</h2>
+        <h2 className="text-xl font-semibold text-foreground mb-4">Add Tracks</h2>
 
         <form onSubmit={handleSearch} className="mb-4">
           <div className="flex space-x-2">
@@ -175,7 +175,7 @@ const PlaylistDetails = () => {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search tracks to add..."
-              className="flex-1 px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-text-light placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-primary"
+              className="flex-1 px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-foreground placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-primary"
             />
             <button
               type="submit"
@@ -191,7 +191,7 @@ const PlaylistDetails = () => {
         {searchResults.length > 0 && (
           <div className="mb-0">
             <div className="flex items-center justify-between mb-2">
-              <h3 className="text-text-light font-semibold">Search Results</h3>
+              <h3 className="text-foreground font-semibold">Search Results</h3>
               <button
                 onClick={() => addMany(searchResults)}
                 className="text-sm bg-primary hover:bg-primary-hover text-white px-3 py-1 rounded"
@@ -211,7 +211,7 @@ const PlaylistDetails = () => {
                       </div>
                     )}
                     <div>
-                      <p className="text-text-light font-medium">{t.name}</p>
+                      <p className="text-foreground font-medium">{t.name}</p>
                       <p className="text-text-muted text-sm">{(t.artists || []).join(', ')} {t.album ? `• ${t.album}` : ''}</p>
                     </div>
                   </div>
@@ -231,7 +231,7 @@ const PlaylistDetails = () => {
 
       {/* Tracks */}
       <div className="bg-card rounded-lg p-6 mb-6">
-        <h2 className="text-xl font-semibold text-text-light mb-4">Tracks</h2>
+        <h2 className="text-xl font-semibold text-foreground mb-4">Tracks</h2>
         {loadingTracks ? (
           <div className="flex items-center justify-center py-8">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
@@ -255,7 +255,7 @@ const PlaylistDetails = () => {
                     </div>
                   )}
                   <div>
-                    <p className="text-text-light font-medium">{t.name}</p>
+                    <p className="text-foreground font-medium">{t.name}</p>
                     <p className="text-text-muted text-sm">{(t.artists || []).join(', ')}</p>
                   </div>
                 </div>

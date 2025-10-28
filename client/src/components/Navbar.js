@@ -2,6 +2,9 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Search, User, LogOut, Music, ListMusic, BarChart3, Compass, Users, Menu, X } from 'lucide-react';
+import { Button } from './ui/button';
+import { Input } from './ui/input';
+import { cn } from '../lib/utils';
 
 const Navbar = () => {
   const { user, logout, isAuthenticated } = useAuth();
@@ -22,23 +25,17 @@ const Navbar = () => {
   ];
 
   return (
-    <nav className="bg-card border-b border-gray-700 sticky top-0 z-50">
+    <nav className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-16">
-          {/* Logo */}
-          <Link to="/" className="flex items-center space-x-2">
-            <Music className="h-8 w-8 text-primary" />
-            <span className="text-xl font-bold text-text-light hidden sm:block">MusicBrew</span>
-          </Link>
-
-          {/* Search Bar - Hidden on mobile */}
-          <div className="hidden md:flex flex-1 max-w-lg mx-8">
-            <div className="relative w-full">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-text-muted h-4 w-4" />
-              <input
+        <div className="flex h-16 items-center justify-between">
+          {/* Search Bar */}
+          <div className="flex-1 max-w-2xl mx-4">
+            <div className="relative">
+              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+              <Input
                 type="text"
-                placeholder="Search for music..."
-                className="w-full pl-10 pr-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-text-light placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                placeholder="Search for music, artists, albums..."
+                className="pl-12 pr-4 h-10 bg-muted/50 border-muted hover:bg-muted focus:bg-background transition-colors rounded-full"
                 onKeyPress={(e) => {
                   if (e.key === 'Enter') {
                     const query = e.target.value.trim();
@@ -52,73 +49,84 @@ const Navbar = () => {
           </div>
 
           {/* Desktop Navigation Links */}
-          <div className="hidden lg:flex items-center space-x-4">
+          <div className="hidden lg:flex items-center space-x-1">
             {isAuthenticated ? (
               <>
                 {navigationLinks.map(({ to, label, icon: Icon }) => (
-                  <Link
+                  <Button
                     key={to}
-                    to={to}
-                    className="flex items-center space-x-2 text-text-muted hover:text-text-light transition-colors"
-                    title={label}
+                    variant="ghost"
+                    size="sm"
+                    asChild
+                    className="text-muted-foreground hover:text-foreground"
                   >
-                    <Icon className="h-5 w-5" />
-                    <span className="text-sm">{label}</span>
-                  </Link>
+                    <Link to={to}>
+                      <Icon className="h-4 w-4 mr-2" />
+                      {label}
+                    </Link>
+                  </Button>
                 ))}
                 {(user?.email?.includes('admin') || user?.username?.includes('admin')) && (
-                  <Link
-                    to="/admin"
-                    className="flex items-center space-x-2 text-text-muted hover:text-text-light transition-colors"
-                    title="Admin Panel"
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    asChild
+                    className="text-primary border-primary hover:bg-primary hover:text-primary-foreground"
                   >
-                    <span className="text-xs font-semibold text-primary">ADMIN</span>
-                  </Link>
+                    <Link to="/admin">ADMIN</Link>
+                  </Button>
                 )}
-                <Link
-                  to="/profile"
-                  className="flex items-center space-x-2 text-text-muted hover:text-text-light transition-colors"
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  asChild
+                  className="text-muted-foreground hover:text-foreground"
                 >
-                  <User className="h-5 w-5" />
-                  <span className="text-sm">{user?.displayName || user?.username}</span>
-                </Link>
-                <button
+                  <Link to="/profile">
+                    <User className="h-4 w-4 mr-2" />
+                    {user?.displayName || user?.username}
+                  </Link>
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
                   onClick={handleLogout}
-                  className="flex items-center space-x-2 text-text-muted hover:text-text-light transition-colors"
+                  className="text-muted-foreground hover:text-foreground"
                 >
-                  <LogOut className="h-5 w-5" />
-                  <span className="text-sm">Logout</span>
-                </button>
+                  <LogOut className="h-4 w-4 mr-2" />
+                  Logout
+                </Button>
               </>
             ) : (
-              <Link
-                to="/login"
-                className="bg-primary hover:bg-primary-hover text-white px-4 py-2 rounded-lg transition-colors"
-              >
-                Login with Spotify
-              </Link>
+              <Button asChild>
+                <Link to="/login">
+                  Sign In
+                </Link>
+              </Button>
             )}
           </div>
 
           {/* Mobile menu button */}
           <div className="lg:hidden">
-            <button
+            <Button
+              variant="ghost"
+              size="icon"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="text-text-muted hover:text-text-light transition-colors"
+              className="text-muted-foreground hover:text-foreground"
             >
-              {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-            </button>
+              {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            </Button>
           </div>
         </div>
 
         {/* Mobile Search Bar */}
         <div className="md:hidden pb-4">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-text-muted h-4 w-4" />
-            <input
+            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+            <Input
               type="text"
-              placeholder="Search for music..."
-              className="w-full pl-10 pr-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-text-light placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+              placeholder="Search for music, artists, albums..."
+              className="pl-12 pr-4 h-10 bg-muted/50 border-muted hover:bg-muted focus:bg-background transition-colors rounded-full"
               onKeyPress={(e) => {
                 if (e.key === 'Enter') {
                   const query = e.target.value.trim();
@@ -134,54 +142,63 @@ const Navbar = () => {
 
         {/* Mobile Navigation Menu */}
         {isMobileMenuOpen && (
-          <div className="lg:hidden border-t border-gray-700 pt-4 pb-4">
-            <div className="space-y-2">
+          <div className="lg:hidden border-t border-border pb-4">
+            <div className="flex flex-col space-y-1">
               {isAuthenticated ? (
                 <>
                   {navigationLinks.map(({ to, label, icon: Icon }) => (
-                    <Link
+                    <Button
                       key={to}
-                      to={to}
+                      variant="ghost"
+                      asChild
+                      className="justify-start text-muted-foreground hover:text-foreground"
                       onClick={() => setIsMobileMenuOpen(false)}
-                      className="flex items-center space-x-3 px-4 py-3 text-text-muted hover:text-text-light hover:bg-background rounded-lg transition-colors"
                     >
-                      <Icon className="h-5 w-5" />
-                      <span>{label}</span>
-                    </Link>
+                      <Link to={to}>
+                        <Icon className="h-4 w-4 mr-2" />
+                        {label}
+                      </Link>
+                    </Button>
                   ))}
-                  <Link
-                    to="/profile"
+                  <Button
+                    variant="ghost"
+                    asChild
+                    className="justify-start text-muted-foreground hover:text-foreground"
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className="flex items-center space-x-3 px-4 py-3 text-text-muted hover:text-text-light hover:bg-background rounded-lg transition-colors"
                   >
-                    <User className="h-5 w-5" />
-                    <span>{user?.displayName || user?.username}</span>
-                  </Link>
-                  {(user?.email?.includes('admin') || user?.username?.includes('admin')) && (
-                    <Link
-                      to="/admin"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                      className="flex items-center space-x-3 px-4 py-3 text-text-muted hover:text-text-light hover:bg-background rounded-lg transition-colors"
-                    >
-                      <span className="text-xs font-semibold text-primary">ADMIN PANEL</span>
+                    <Link to="/profile">
+                      <User className="h-4 w-4 mr-2" />
+                      {user?.displayName || user?.username}
                     </Link>
+                  </Button>
+                  {(user?.email?.includes('admin') || user?.username?.includes('admin')) && (
+                    <Button
+                      variant="outline"
+                      asChild
+                      className="justify-start text-primary border-primary hover:bg-primary hover:text-primary-foreground"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      <Link to="/admin">Admin Panel</Link>
+                    </Button>
                   )}
-                  <button
-                    onClick={handleLogout}
-                    className="w-full flex items-center space-x-3 px-4 py-3 text-text-muted hover:text-text-light hover:bg-background rounded-lg transition-colors"
+                  <Button
+                    variant="ghost"
+                    onClick={() => {
+                      handleLogout();
+                      setIsMobileMenuOpen(false);
+                    }}
+                    className="justify-start text-muted-foreground hover:text-foreground"
                   >
-                    <LogOut className="h-5 w-5" />
-                    <span>Logout</span>
-                  </button>
+                    <LogOut className="h-4 w-4 mr-2" />
+                    Logout
+                  </Button>
                 </>
               ) : (
-                <Link
-                  to="/login"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className="block bg-primary hover:bg-primary-hover text-white px-4 py-3 rounded-lg transition-colors text-center"
-                >
-                  Login with Spotify
-                </Link>
+                <Button asChild className="justify-start">
+                  <Link to="/login" onClick={() => setIsMobileMenuOpen(false)}>
+                    Sign In
+                  </Link>
+                </Button>
               )}
             </div>
           </div>

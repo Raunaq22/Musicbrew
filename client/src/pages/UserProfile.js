@@ -101,7 +101,7 @@ const UserProfile = () => {
             )}
 
             <div className="flex-1">
-              <h1 className="text-2xl font-bold text-text-light mb-1">
+              <h1 className="text-2xl font-bold text-foreground mb-1">
                 {user.displayName || user.username}
               </h1>
               <p className="text-text-muted mb-4">@{user.username}</p>
@@ -137,7 +137,7 @@ const UserProfile = () => {
               disabled={followMutation.isLoading}
               className={`px-6 py-2 rounded-lg transition-colors flex items-center space-x-2 ${
                 user.isFollowing
-                  ? 'bg-gray-700 hover:bg-gray-600 text-text-light'
+                  ? 'bg-gray-700 hover:bg-gray-600 text-foreground'
                   : 'bg-primary hover:bg-primary-hover text-white'
               }`}
             >
@@ -164,7 +164,7 @@ const UserProfile = () => {
           className={`flex-1 px-4 py-2 rounded-md transition-colors ${
             activeTab === 'reviews'
               ? 'bg-primary text-white'
-              : 'text-text-muted hover:text-text-light'
+              : 'text-text-muted hover:text-foreground'
           }`}
         >
           Reviews ({reviews.length})
@@ -174,7 +174,7 @@ const UserProfile = () => {
           className={`flex-1 px-4 py-2 rounded-md transition-colors ${
             activeTab === 'playlists'
               ? 'bg-primary text-white'
-              : 'text-text-muted hover:text-text-light'
+              : 'text-text-muted hover:text-foreground'
           }`}
         >
           Playlists ({playlists.length})
@@ -220,7 +220,7 @@ const UserProfile = () => {
                   to={`/playlists/${playlist.id}`}
                   className="bg-card rounded-lg p-4 hover:bg-gray-700 transition-colors"
                 >
-                  <h3 className="text-lg font-semibold text-text-light mb-2">
+                  <h3 className="text-lg font-semibold text-foreground mb-2">
                     {playlist.name}
                   </h3>
                   {playlist.description && (

@@ -83,33 +83,33 @@ export const PerformanceMonitor = () => {
     <div className="fixed bottom-4 right-4 z-50">
       <button
         onClick={() => setIsVisible(!isVisible)}
-        className="bg-primary text-white px-3 py-2 rounded-lg text-xs font-mono"
+        className="bg-primary text-primary-foreground px-3 py-2 rounded-lg text-xs font-mono"
       >
-        🚀 Perf
+        Perf
       </button>
 
       {isVisible && (
         <div className="absolute bottom-12 right-0 bg-card border border-gray-600 rounded-lg p-4 w-80 text-xs font-mono">
-          <h3 className="font-bold mb-2 text-text-light">Performance Metrics</h3>
+          <h3 className="font-bold mb-2 text-foreground">Performance Metrics</h3>
           
           {Object.entries(metrics).map(([key, value]) => (
             <div key={key} className="flex justify-between mb-1">
               <span className="text-text-muted">{key}:</span>
-              <span className="text-text-light">
+              <span className="text-foreground">
                 {typeof value === 'number' ? value.toFixed(2) : value}
               </span>
             </div>
           ))}
 
           <div className="border-t border-gray-600 mt-2 pt-2">
-            <h4 className="font-bold mb-1 text-text-light">Service Worker</h4>
+            <h4 className="font-bold mb-1 text-foreground">Service Worker</h4>
             <div className="flex justify-between mb-1">
-              <span className="text-text-muted">Supported:</span>
-              <span className="text-text-light">{isSupported ? '✅' : '❌'}</span>
+              <span className="text-muted-foreground">Supported:</span>
+              <span className="text-foreground">{isSupported ? 'Yes' : 'No'}</span>
             </div>
             <div className="flex justify-between mb-1">
-              <span className="text-text-muted">Registered:</span>
-              <span className="text-text-light">{isRegistered ? '✅' : '❌'}</span>
+              <span className="text-muted-foreground">Registered:</span>
+              <span className="text-foreground">{isRegistered ? 'Yes' : 'No'}</span>
             </div>
             {updateAvailable && (
               <button
@@ -122,17 +122,17 @@ export const PerformanceMonitor = () => {
           </div>
 
           <div className="border-t border-gray-600 mt-2 pt-2">
-            <h4 className="font-bold mb-1 text-text-light">Network Info</h4>
+            <h4 className="font-bold mb-1 text-foreground">Network Info</h4>
             <div className="flex justify-between mb-1">
-              <span className="text-text-muted">Connection:</span>
-              <span className="text-text-light">
-                {navigator.connection?.effectiveType || 'unknown'}
+              <span className="text-muted-foreground">{key}:</span>
+              <span className="text-foreground">
+                {typeof value === 'number' ? value.toFixed(2) : value}
               </span>
             </div>
             <div className="flex justify-between">
-              <span className="text-text-muted">Online:</span>
-              <span className="text-text-light">
-                {navigator.onLine ? '✅' : '❌'}
+              <span className="text-muted-foreground">Online:</span>
+              <span className="text-foreground">
+                {navigator.onLine ? 'Yes' : 'No'}
               </span>
             </div>
           </div>
@@ -180,8 +180,8 @@ export const NetworkStatus = () => {
   }
 
   return (
-    <div className="fixed top-16 left-0 right-0 bg-yellow-600 text-white px-4 py-2 text-center text-sm z-40">
-      📡 You're offline. Some features may be limited.
+    <div className="fixed top-16 left-0 right-0 bg-yellow-600 text-primary-foreground px-4 py-2 text-center text-sm z-40">
+      Network offline. Some features may be limited.
       {connectionType !== '4g' && connectionType !== 'wifi' && (
         <span className="ml-2">Connection: {connectionType}</span>
       )}

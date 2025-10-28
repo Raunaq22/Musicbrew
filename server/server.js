@@ -17,6 +17,7 @@ const adminRoutes = require('./routes/admin');
 const listeningRoomRoutes = require('./routes/listeningRooms');
 const analyticsRoutes = require('./routes/analytics');
 const discoveryRoutes = require('./routes/discovery');
+const homeRoutes = require('./routes/home');
 
 const app = express();
 const server = http.createServer(app);
@@ -71,6 +72,7 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/listening-rooms', listeningRoomRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/discovery', discoveryRoutes);
+app.use('/api/home', homeRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
