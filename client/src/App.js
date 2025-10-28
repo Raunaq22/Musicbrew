@@ -6,6 +6,9 @@ import { Toaster } from 'react-hot-toast';
 // Context
 import { AuthProvider } from './context/AuthContext';
 
+// Components
+import { PerformanceMonitor, NetworkStatus } from './components/PerformanceMonitor';
+
 // Pages
 import Home from './pages/Home';
 import Login from './pages/Login';
@@ -16,6 +19,10 @@ import Search from './pages/Search';
 import Playlists from './pages/Playlists';
 import Admin from './pages/Admin';
 import PlaylistDetails from './pages/PlaylistDetails';
+import ListeningRoom from './pages/ListeningRoom';
+import Analytics from './pages/Analytics';
+import Discovery from './pages/Discovery';
+import ListeningRooms from './pages/ListeningRooms';
 
 // Components
 import Navbar from './components/Navbar';
@@ -37,6 +44,7 @@ function App() {
       <AuthProvider>
         <Router>
           <div className="min-h-screen bg-background text-text-light">
+            <NetworkStatus />
             <Navbar />
             <main className="container mx-auto px-4 py-8">
               <Routes>
@@ -88,6 +96,34 @@ function App() {
                     </ProtectedRoute>
                   } 
                 />
+                <Route 
+                  path="/room/:id" 
+                  element={
+                    <ProtectedRoute>
+                      <ListeningRoom />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/analytics" 
+                  element={
+                    <ProtectedRoute>
+                      <Analytics />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/discovery" 
+                  element={<Discovery />} 
+                />
+                <Route 
+                  path="/listening-rooms" 
+                  element={
+                    <ProtectedRoute>
+                      <ListeningRooms />
+                    </ProtectedRoute>
+                  } 
+                />
               </Routes>
             </main>
             <Toaster 
@@ -101,6 +137,7 @@ function App() {
                 },
               }}
             />
+            <PerformanceMonitor />
           </div>
         </Router>
       </AuthProvider>
