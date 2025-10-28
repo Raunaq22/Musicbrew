@@ -169,6 +169,129 @@ class SpotifyService {
       throw new Error('Failed to get top artists: ' + error.message);
     }
   }
+
+  // Get a playlist by ID
+  async getPlaylist(playlistId, accessToken) {
+    try {
+      const response = await axios.get(`${this.baseURL}/playlists/${playlistId}`, {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+      return response.data;
+    } catch (error) {
+      throw new Error('Failed to get playlist: ' + error.message);
+    }
+  }
+
+  // Get tracks for a playlist
+  async getPlaylistTracks(playlistId, accessToken, limit = 100, offset = 0) {
+    try {
+      const response = await axios.get(`${this.baseURL}/playlists/${playlistId}/tracks`, {
+        headers: { Authorization: `Bearer ${accessToken}` },
+        params: { limit, offset },
+      });
+      return response.data;
+    } catch (error) {
+      throw new Error('Failed to get playlist tracks: ' + error.message);
+    }
+  }
+
+  // Create a playlist for a user
+  async createPlaylist(userSpotifyId, name, description = '', isPublic = true, accessToken) {
+    try {
+      const response = await axios.post(
+        `${this.baseURL}/users/${userSpotifyId}/playlists`,
+        { name, description, public: isPublic },
+        { headers: { Authorization: `Bearer ${accessToken}` } }
+      );
+      return response.data;
+    } catch (error) {
+      throw new Error('Failed to create playlist on Spotify: ' + error.message);
+    }
+  }
+
+  async addTracksToPlaylist(playlistId, uris, accessToken) {
+    try {
+      const response = await axios.post(
+        `${this.baseURL}/playlists/${playlistId}/tracks`,
+        { uris },
+        { headers: { Authorization: `Bearer ${accessToken}` } }
+      );
+      return response.data;
+    } catch (error) {
+      throw new Error('Failed to add tracks to playlist: ' + error.message);
+    }
+  }
+
+  async getRecommendations(accessToken, options = {}) {
+    try {
+      const params = {
+        limit: options.limit || 10,
+      };
+      if (options.seed_artists) params.seed_artists = options.seed_artists;
+      if (options.seed_tracks) params.seed_tracks = options.seed_tracks;
+      if (options.seed_genres) params.seed_genres = options.seed_genres;
+
+      const response = await axios.get(`${this.baseURL}/recommendations`, {
+        headers: { Authorization: `Bearer ${accessToken}` },
+        params,
+      });
+      return response.data;
+    } catch (error) {
+      throw new Error('Failed to get recommendations: ' + error.message);
+    }
+  }
+
+  async getUserTopTracks(accessToken, limit = 10) {
+    try {
+      const response = await axios.get(`${this.baseURL}/me/top/tracks`, {
+        headers: { Authorization: `Bearer ${accessToken}` },
+        params: { limit },
+      });
+      return response.data;
+    } catch (error) {
+      throw new Error('Failed to get user top tracks: ' + error.message);
+    }
+  }
+
+  async getAvailableGenreSeeds(accessToken) {
+    try {
+      const response = await axios.get(`${this.baseURL}/recommendations/available-genre-seeds`, {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+      return response.data?.genres || [];
+    } catch (error) {
+      throw new Error('Failed to get available genre seeds: ' + error.message);
+    }
+  }
+
+  async updatePlaylistDetails(playlistId, accessToken, { name, description, isPublic }) {
+    try {
+      const payload = {};
+      if (name !== undefined) payload.name = name;
+      if (description !== undefined) payload.description = description;
+      if (isPublic !== undefined) payload.public = !!isPublic;
+
+      await axios.put(
+        `${this.baseURL}/playlists/${playlistId}`,
+        payload,
+        { headers: { Authorization: `Bearer ${accessToken}` } }
+      );
+      return { success: true };
+    } catch (error) {
+      throw new Error('Failed to update playlist on Spotify: ' + error.message);
+    }
+  }
+
+  async unfollowPlaylist(playlistId, accessToken) {
+    try {
+      await axios.delete(`${this.baseURL}/playlists/${playlistId}/followers`, {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+      return { success: true };
+    } catch (error) {
+      throw new Error('Failed to remove playlist from Spotify library: ' + error.message);
+    }
+  }
 }
 
 module.exports = new SpotifyService();

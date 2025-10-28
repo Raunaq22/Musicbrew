@@ -2,8 +2,9 @@ import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useQuery, useMutation, useQueryClient } from 'react-query';
 import api from '../services/api';
-import { User, Edit3, Save, X, Star, MessageCircle, Heart } from 'lucide-react';
+import { User, Edit3, Save, X, Star } from 'lucide-react';
 import toast from 'react-hot-toast';
+import ReviewCard from '../components/ReviewCard';
 
 const Profile = () => {
   const { user } = useAuth();
@@ -65,7 +66,7 @@ const Profile = () => {
 
   return (
     <div className="max-w-4xl mx-auto">
-      <div className="bg-gray-800 rounded-lg p-6 mb-8">
+      <div className="bg-card rounded-lg p-6 mb-8">
         <div className="flex items-start space-x-6">
           {user?.avatar ? (
             <img
@@ -75,7 +76,7 @@ const Profile = () => {
             />
           ) : (
             <div className="w-24 h-24 bg-gray-700 rounded-full flex items-center justify-center">
-              <User className="h-12 w-12 text-gray-400" />
+              <User className="h-12 w-12 text-text-muted" />
             </div>
           )}
 
@@ -83,7 +84,7 @@ const Profile = () => {
             {isEditing ? (
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                  <label className="block text-sm font-medium text-text-muted mb-2">
                     Display Name
                   </label>
                   <input
@@ -91,12 +92,12 @@ const Profile = () => {
                     name="displayName"
                     value={formData.displayName}
                     onChange={handleInputChange}
-                    className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-green-400"
+                    className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-text-light focus:outline-none focus:ring-2 focus:ring-primary"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                  <label className="block text-sm font-medium text-text-muted mb-2">
                     Bio
                   </label>
                   <textarea
@@ -104,7 +105,7 @@ const Profile = () => {
                     value={formData.bio}
                     onChange={handleInputChange}
                     rows={3}
-                    className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-green-400"
+                    className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-text-light focus:outline-none focus:ring-2 focus:ring-primary"
                     placeholder="Tell us about your music taste..."
                   />
                 </div>
@@ -115,9 +116,9 @@ const Profile = () => {
                     name="isPublic"
                     checked={formData.isPublic}
                     onChange={handleInputChange}
-                    className="h-4 w-4 text-green-400 focus:ring-green-400 border-gray-600 rounded"
+                    className="h-4 w-4 text-primary focus:ring-primary border-gray-600 rounded"
                   />
-                  <label className="ml-2 text-sm text-gray-300">
+                  <label className="ml-2 text-sm text-text-muted">
                     Public profile
                   </label>
                 </div>
@@ -126,7 +127,7 @@ const Profile = () => {
                   <button
                     onClick={handleSave}
                     disabled={updateProfileMutation.isLoading}
-                    className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-colors flex items-center space-x-2"
+                    className="bg-primary hover:bg-primary-hover text-white px-4 py-2 rounded-lg transition-colors flex items-center space-x-2"
                   >
                     <Save className="h-4 w-4" />
                     <span>Save</span>
@@ -144,10 +145,10 @@ const Profile = () => {
               <div>
                 <div className="flex items-center justify-between mb-4">
                   <div>
-                    <h1 className="text-2xl font-bold text-white">
+                    <h1 className="text-2xl font-bold text-text-light">
                       {user?.displayName || user?.username}
                     </h1>
-                    <p className="text-gray-400">@{user?.username}</p>
+                    <p className="text-text-muted">@{user?.username}</p>
                   </div>
                   <button
                     onClick={() => setIsEditing(true)}
@@ -159,10 +160,10 @@ const Profile = () => {
                 </div>
 
                 {user?.bio && (
-                  <p className="text-gray-300 mb-4">{user.bio}</p>
+                  <p className="text-text-muted mb-4">{user.bio}</p>
                 )}
 
-                <div className="flex items-center space-x-6 text-sm text-gray-400">
+                <div className="flex items-center space-x-6 text-sm text-text-muted">
                   <span>Member since {new Date(user?.createdAt).toLocaleDateString()}</span>
                   <span>{user?.isPublic ? 'Public' : 'Private'} profile</span>
                 </div>
@@ -173,60 +174,25 @@ const Profile = () => {
       </div>
 
       {/* Reviews Section */}
-      <div className="bg-gray-800 rounded-lg p-6">
-        <h2 className="text-xl font-semibold text-white mb-4">My Reviews</h2>
+      <div className="bg-card rounded-lg p-6">
+        <h2 className="text-xl font-semibold text-text-light mb-4">My Reviews</h2>
         
         {reviewsLoading ? (
           <div className="flex items-center justify-center py-8">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-400"></div>
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
           </div>
         ) : reviews.length === 0 ? (
           <div className="text-center py-8">
-            <Star className="h-16 w-16 text-gray-500 mx-auto mb-4" />
-            <p className="text-gray-400">You haven't reviewed any music yet</p>
-            <p className="text-sm text-gray-500 mt-2">
+            <Star className="h-16 w-16 text-text-muted mx-auto mb-4" />
+            <p className="text-text-muted">You haven't reviewed any music yet</p>
+            <p className="text-sm text-text-muted mt-2">
               Start by searching for music and adding your first review
             </p>
           </div>
         ) : (
           <div className="space-y-4">
             {reviews.map((review) => (
-              <div key={review.id} className="bg-gray-700 rounded-lg p-4">
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center space-x-2 mb-2">
-                      <div className="flex">
-                        {[...Array(5)].map((_, i) => (
-                          <Star
-                            key={i}
-                            className={`h-4 w-4 ${
-                              i < review.rating ? 'text-yellow-400 fill-current' : 'text-gray-500'
-                            }`}
-                          />
-                        ))}
-                      </div>
-                      <span className="text-sm text-gray-400">
-                        {new Date(review.createdAt).toLocaleDateString()}
-                      </span>
-                    </div>
-                    
-                    {review.content && (
-                      <p className="text-gray-300 mb-2">{review.content}</p>
-                    )}
-                    
-                    <div className="flex items-center space-x-4 text-sm text-gray-400">
-                      <span className="flex items-center space-x-1">
-                        <Heart className="h-4 w-4" />
-                        <span>{review._count?.likes || 0}</span>
-                      </span>
-                      <span className="flex items-center space-x-1">
-                        <MessageCircle className="h-4 w-4" />
-                        <span>{review._count?.comments || 0}</span>
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <ReviewCard key={review.id} review={review} />
             ))}
           </div>
         )}

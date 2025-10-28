@@ -3,8 +3,9 @@ import { useParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from 'react-query';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
-import { Star, Heart, MessageCircle, Play, Pause, Music } from 'lucide-react';
+import { Star, Play, Music, MessageCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
+import ReviewCard from '../components/ReviewCard';
 
 const MusicDetails = () => {
   const { id } = useParams();
@@ -49,16 +50,6 @@ const MusicDetails = () => {
     }
   );
 
-  // Like/unlike review mutation
-  const likeReviewMutation = useMutation(
-    (reviewId) => api.post(`/reviews/${reviewId}/like`).then(res => res.data),
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries(['reviews', id]);
-      },
-    }
-  );
-
   const handleSubmitReview = (e) => {
     e.preventDefault();
     if (rating === 0) {
@@ -72,16 +63,12 @@ const MusicDetails = () => {
     });
   };
 
-  const handleLikeReview = (reviewId) => {
-    likeReviewMutation.mutate(reviewId);
-  };
-
   const reviews = reviewsData?.reviews || [];
 
   if (trackLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-400"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
       </div>
     );
   }
@@ -89,8 +76,8 @@ const MusicDetails = () => {
   if (!track) {
     return (
       <div className="text-center py-12">
-        <Music className="h-16 w-16 text-gray-500 mx-auto mb-4" />
-        <p className="text-gray-400">Track not found</p>
+        <Music className="h-16 w-16 text-text-muted mx-auto mb-4" />
+        <p className="text-text-muted">Track not found</p>
       </div>
     );
   }
@@ -98,7 +85,7 @@ const MusicDetails = () => {
   return (
     <div className="max-w-4xl mx-auto">
       {/* Track Header */}
-      <div className="bg-gray-800 rounded-lg p-6 mb-8">
+      <div className="bg-card rounded-lg p-6 mb-8">
         <div className="flex items-start space-x-6">
           {track.album?.images?.[0] && (
             <img
@@ -109,16 +96,16 @@ const MusicDetails = () => {
           )}
           
           <div className="flex-1">
-            <h1 className="text-3xl font-bold text-white mb-2">{track.name}</h1>
-            <p className="text-xl text-gray-300 mb-2">
+            <h1 className="text-3xl font-bold text-text-light mb-2">{track.name}</h1>
+            <p className="text-xl text-text-muted mb-2">
               {track.artists?.map(artist => artist.name).join(', ')}
             </p>
             {track.album && (
-              <p className="text-gray-400 mb-4">{track.album.name}</p>
+              <p className="text-text-muted mb-4">{track.album.name}</p>
             )}
             
             <div className="flex items-center space-x-4">
-              <button className="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-lg transition-colors flex items-center space-x-2">
+              <button className="bg-primary hover:bg-primary-hover text-white px-6 py-2 rounded-lg transition-colors flex items-center space-x-2">
                 <Play className="h-4 w-4" />
                 <span>Play on Spotify</span>
               </button>
@@ -128,12 +115,12 @@ const MusicDetails = () => {
       </div>
 
       {/* Review Form */}
-      <div className="bg-gray-800 rounded-lg p-6 mb-8">
-        <h2 className="text-xl font-semibold text-white mb-4">Write a Review</h2>
+      <div className="bg-card rounded-lg p-6 mb-8">
+        <h2 className="text-xl font-semibold text-text-light mb-4">Write a Review</h2>
         
         <form onSubmit={handleSubmitReview} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-text-muted mb-2">
               Rating
             </label>
             <div className="flex space-x-1">
@@ -146,7 +133,7 @@ const MusicDetails = () => {
                 >
                   <Star
                     className={`h-6 w-6 ${
-                      star <= rating ? 'text-yellow-400 fill-current' : 'text-gray-500'
+                      star <= rating ? 'text-accent fill-current' : 'text-text-muted'
                     }`}
                   />
                 </button>
@@ -155,14 +142,14 @@ const MusicDetails = () => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-text-muted mb-2">
               Review (optional)
             </label>
             <textarea
               value={reviewContent}
               onChange={(e) => setReviewContent(e.target.value)}
               rows={4}
-              className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-400"
+              className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-text-light placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-primary"
               placeholder="Share your thoughts about this track..."
             />
           </div>
@@ -170,7 +157,7 @@ const MusicDetails = () => {
           <button
             type="submit"
             disabled={submitReviewMutation.isLoading || rating === 0}
-            className="bg-green-500 hover:bg-green-600 disabled:bg-gray-600 disabled:cursor-not-allowed text-white px-6 py-2 rounded-lg transition-colors"
+            className="bg-primary hover:bg-primary-hover disabled:bg-gray-600 disabled:cursor-not-allowed text-white px-6 py-2 rounded-lg transition-colors"
           >
             {submitReviewMutation.isLoading ? 'Submitting...' : 'Submit Review'}
           </button>
@@ -178,83 +165,27 @@ const MusicDetails = () => {
       </div>
 
       {/* Reviews List */}
-      <div className="bg-gray-800 rounded-lg p-6">
-        <h2 className="text-xl font-semibold text-white mb-4">
+      <div className="bg-card rounded-lg p-6">
+        <h2 className="text-xl font-semibold text-text-light mb-4">
           Reviews ({reviews.length})
         </h2>
         
         {reviewsLoading ? (
           <div className="flex items-center justify-center py-8">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-400"></div>
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
           </div>
         ) : reviews.length === 0 ? (
           <div className="text-center py-8">
-            <MessageCircle className="h-16 w-16 text-gray-500 mx-auto mb-4" />
-            <p className="text-gray-400">No reviews yet</p>
-            <p className="text-sm text-gray-500 mt-2">
+            <MessageCircle className="h-16 w-16 text-text-muted mx-auto mb-4" />
+            <p className="text-text-muted">No reviews yet</p>
+            <p className="text-sm text-text-muted mt-2">
               Be the first to review this track!
             </p>
           </div>
         ) : (
           <div className="space-y-4">
             {reviews.map((review) => (
-              <div key={review.id} className="bg-gray-700 rounded-lg p-4">
-                <div className="flex items-start justify-between mb-2">
-                  <div className="flex items-center space-x-3">
-                    {review.user.avatar ? (
-                      <img
-                        src={review.user.avatar}
-                        alt={review.user.displayName}
-                        className="w-8 h-8 rounded-full"
-                      />
-                    ) : (
-                      <div className="w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center">
-                        <span className="text-xs text-gray-300">
-                          {review.user.displayName?.[0] || review.user.username?.[0]}
-                        </span>
-                      </div>
-                    )}
-                    <div>
-                      <p className="font-medium text-white">
-                        {review.user.displayName || review.user.username}
-                      </p>
-                      <p className="text-sm text-gray-400">
-                        {new Date(review.createdAt).toLocaleDateString()}
-                      </p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex">
-                    {[...Array(5)].map((_, i) => (
-                      <Star
-                        key={i}
-                        className={`h-4 w-4 ${
-                          i < review.rating ? 'text-yellow-400 fill-current' : 'text-gray-500'
-                        }`}
-                      />
-                    ))}
-                  </div>
-                </div>
-                
-                {review.content && (
-                  <p className="text-gray-300 mb-3">{review.content}</p>
-                )}
-                
-                <div className="flex items-center space-x-4">
-                  <button
-                    onClick={() => handleLikeReview(review.id)}
-                    className="flex items-center space-x-1 text-gray-400 hover:text-red-400 transition-colors"
-                  >
-                    <Heart className="h-4 w-4" />
-                    <span>{review._count?.likes || 0}</span>
-                  </button>
-                  
-                  <span className="flex items-center space-x-1 text-gray-400">
-                    <MessageCircle className="h-4 w-4" />
-                    <span>{review._count?.comments || 0}</span>
-                  </span>
-                </div>
-              </div>
+              <ReviewCard key={review.id} review={review} />
             ))}
           </div>
         )}

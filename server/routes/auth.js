@@ -17,6 +17,10 @@ router.get('/spotify', (req, res) => {
     'user-read-playback-state',
     'user-modify-playback-state',
     'user-read-currently-playing',
+    // Added for playlists
+    'playlist-read-private',
+    'playlist-modify-public',
+    'playlist-modify-private',
   ].join(' ');
 
   const authURL = `https://accounts.spotify.com/authorize?` +
@@ -45,8 +49,14 @@ router.post('/spotify/callback', async (req, res) => {
     // Check if this code has already been processed (prevent duplicate requests)
     const codeKey = `oauth_code_${code}`;
     if (global.processedCodes && global.processedCodes.has(codeKey)) {
-      console.log('⚠️  Authorization code already processed, returning cached result');
-      return res.status(400).json({ error: 'Authorization code already used' });
+      console.log('⚠️  Authorization code already processed, silently ignoring duplicate request');
+      // Return 200 with a flag instead of error, since this is likely from React Strict Mode
+      // The first request already succeeded
+      return res.status(200).json({ 
+        success: false, 
+        message: 'Authorization code already processed',
+        duplicate: true
+      });
     }
 
     // Mark code as being processed

@@ -11,6 +11,9 @@ const rateLimit = require('express-rate-limit');
 const authRoutes = require('./routes/auth');
 const musicRoutes = require('./routes/music');
 const reviewRoutes = require('./routes/reviews');
+const userRoutes = require('./routes/users');
+const playlistRoutes = require('./routes/playlists');
+const adminRoutes = require('./routes/admin');
 
 const app = express();
 const server = http.createServer(app);
@@ -59,6 +62,9 @@ app.get('/', (req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/music', musicRoutes);
 app.use('/api/reviews', reviewRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/playlists', playlistRoutes);
+app.use('/api/admin', adminRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
