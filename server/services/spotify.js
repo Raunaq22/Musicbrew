@@ -182,6 +182,36 @@ class SpotifyService {
     }
   }
 
+  // Extract cover image URL from playlist data
+  extractPlaylistCover(playlistData) {
+    if (!playlistData?.images || playlistData.images.length === 0) {
+      return null;
+    }
+    
+    // Get the highest quality image (first one is typically the largest)
+    return playlistData.images[0]?.url || null;
+  }
+
+  // Update playlist cover image in database
+  async updatePlaylistCover(prisma, playlistId, spotifyPlaylistData) {
+    try {
+      const coverImage = this.extractPlaylistCover(spotifyPlaylistData);
+      
+      if (coverImage) {
+        await prisma.playlist.update({
+          where: { id: playlistId },
+          data: { coverImage },
+        });
+        return coverImage;
+      }
+      
+      return null;
+    } catch (error) {
+      console.warn('Failed to update playlist cover:', error.message);
+      return null;
+    }
+  }
+
   // Get tracks for a playlist
   async getPlaylistTracks(playlistId, accessToken, limit = 100, offset = 0) {
     try {

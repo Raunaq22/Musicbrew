@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from 'react-query';
 import api from '../services/api';
-import { Music, Play, Plus } from 'lucide-react';
+import { Music, Play, Plus, RefreshCw } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 const PlaylistDetails = () => {
@@ -33,6 +33,21 @@ const PlaylistDetails = () => {
       },
       onError: (error) => {
         toast.error(error.response?.data?.error || 'Failed to add tracks');
+      }
+    }
+  );
+
+  const syncCoverMutation = useMutation(
+    () => api.post(`/playlists/${id}/sync-cover`).then(res => res.data),
+    {
+      onSuccess: (data) => {
+        toast.success(data.message || 'Cover image synced successfully');
+        queryClient.invalidateQueries(['playlist', id]);
+      },
+      onError: (error) => {
+        const errorMessage = error.response?.data?.error || 'Failed to sync cover image';
+        console.error('Sync cover error:', error);
+        toast.error(errorMessage);
       }
     }
   );
@@ -95,13 +110,58 @@ const PlaylistDetails = () => {
     <div className="max-w-4xl mx-auto">
       {/* Header */}
       <div className="bg-card rounded-lg p-6 mb-6">
-        <h1 className="text-3xl font-bold text-text-light mb-2">{playlist.name}</h1>
-        {playlist.description && (
-          <p className="text-text-muted mb-2">{playlist.description}</p>
-        )}
-        <p className="text-xs text-text-muted">
-          {playlist.isPublic ? 'Public' : 'Private'} • Created {new Date(playlist.createdAt).toLocaleDateString()}
-        </p>
+        <div className="flex items-start space-x-6">
+          {/* Playlist Cover */}
+          <div className="flex-shrink-0">
+            {playlist.coverImage ? (
+              <img
+                src={playlist.coverImage}
+                alt={playlist.name}
+                className="w-32 h-32 rounded-lg object-cover shadow-lg"
+              />
+            ) : (
+              <div className="w-32 h-32 bg-gray-600 rounded-lg flex items-center justify-center shadow-lg">
+                <Music className="h-16 w-16 text-text-muted" />
+              </div>
+            )}
+          </div>
+
+          {/* Playlist Info */}
+          <div className="flex-1">
+            <div className="flex items-start justify-between">
+              <div className="flex-1">
+                <h1 className="text-3xl font-bold text-text-light mb-2">{playlist.name}</h1>
+                {playlist.description && (
+                  <p className="text-text-muted mb-3 max-w-2xl">{playlist.description}</p>
+                )}
+                <div className="flex items-center space-x-4 text-sm text-text-muted">
+                  <span>{playlist.isPublic ? 'Public' : 'Private'}</span>
+                  <span>•</span>
+                  <span>Created {new Date(playlist.createdAt).toLocaleDateString()}</span>
+                  {playlist.spotifyId && (
+                    <>
+                      <span>•</span>
+                      <span className="text-green-400">Spotify Linked</span>
+                    </>
+                  )}
+                </div>
+              </div>
+              
+              {/* Sync Cover Button for Spotify Playlists */}
+              {playlist.spotifyId && (
+                <button
+                  onClick={() => syncCoverMutation.mutate()}
+                  disabled={syncCoverMutation.isLoading}
+                  className="ml-4 bg-primary hover:bg-primary-hover text-white px-3 py-2 rounded-lg transition-colors flex items-center space-x-2 disabled:opacity-50"
+                  title="Sync cover image from Spotify"
+                >
+                  <RefreshCw className={`h-4 w-4 ${syncCoverMutation.isLoading ? 'animate-spin' : ''}`} />
+                  <span className="text-sm">Sync Cover</span>
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Add tracks section */}

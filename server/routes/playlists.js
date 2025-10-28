@@ -139,10 +139,12 @@ router.post('/',
 
       // Create on Spotify if we have user's spotifyId and access token
       let spotifyId = null;
+      let spotifyPlaylistData = null;
       if (req.user.spotifyId && accesstoken) {
         try {
           const sp = await spotifyService.createPlaylist(req.user.spotifyId, name, description || '', true, accesstoken);
           spotifyId = sp.id;
+          spotifyPlaylistData = sp;
         } catch (e) {
           console.warn('Spotify playlist create failed, proceeding with local only:', e.message);
         }
@@ -155,6 +157,7 @@ router.post('/',
           description,
           isPublic: true,
           spotifyId,
+          coverImage: spotifyId && spotifyPlaylistData ? spotifyService.extractPlaylistCover(spotifyPlaylistData) : null,
         },
         include: {
           user: {
@@ -205,6 +208,7 @@ router.post('/import',
           name: spPlaylist.name || 'Imported Playlist',
           description: spPlaylist.description || null,
           isPublic: !!spPlaylist.public,
+          coverImage: spotifyService.extractPlaylistCover(spPlaylist),
         },
         create: {
           userId: req.user.id,
@@ -212,6 +216,7 @@ router.post('/import',
           description: spPlaylist.description || null,
           isPublic: !!spPlaylist.public,
           spotifyId: spotifyPlaylistId,
+          coverImage: spotifyService.extractPlaylistCover(spPlaylist),
         },
         include: {
           user: {
@@ -298,6 +303,16 @@ router.put('/:id',
         },
       });
 
+      // Sync cover image if playlist is linked to Spotify
+      if (existingPlaylist.spotifyId && accesstoken) {
+        try {
+          const spPlaylist = await spotifyService.getPlaylist(existingPlaylist.spotifyId, accesstoken);
+          await spotifyService.updatePlaylistCover(prisma, id, spPlaylist);
+        } catch (e) {
+          console.warn('Failed to sync cover image:', e.message);
+        }
+      }
+
       res.json({ playlist });
     } catch (error) {
       console.error('Update playlist error:', error);
@@ -342,6 +357,67 @@ router.delete('/:id', authenticateToken, async (req, res) => {
   } catch (error) {
     console.error('Delete playlist error:', error);
     res.status(500).json({ error: 'Failed to delete playlist' });
+  }
+});
+
+// Sync playlist cover image from Spotify
+router.post('/:id/sync-cover', authenticateToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { accesstoken } = req.headers;
+
+    const playlist = await prisma.playlist.findUnique({ where: { id } });
+    
+    if (!playlist) {
+      return res.status(404).json({ error: 'Playlist not found' });
+    }
+
+    if (playlist.userId !== req.user.id) {
+      return res.status(403).json({ error: 'Not authorized to sync this playlist' });
+    }
+
+    if (!playlist.spotifyId) {
+      return res.status(400).json({ error: 'Playlist is not linked to Spotify' });
+    }
+
+    if (!accesstoken) {
+      return res.status(400).json({ error: 'Spotify access token required' });
+    }
+
+    try {
+      const spPlaylist = await spotifyService.getPlaylist(playlist.spotifyId, accesstoken);
+      const coverImage = spotifyService.extractPlaylistCover(spPlaylist);
+      
+      if (coverImage) {
+        const updatedPlaylist = await prisma.playlist.update({
+          where: { id },
+          data: { coverImage },
+          include: {
+            user: {
+              select: {
+                id: true,
+                username: true,
+                displayName: true,
+                avatar: true,
+              },
+            },
+          },
+        });
+        
+        return res.json({ 
+          success: true, 
+          playlist: updatedPlaylist,
+          message: 'Cover image synced successfully' 
+        });
+      } else {
+        return res.status(404).json({ error: 'No cover image found on Spotify' });
+      }
+    } catch (spotifyError) {
+      throw new Error('Failed to fetch from Spotify: ' + spotifyError.message);
+    }
+  } catch (error) {
+    console.error('Sync cover error:', error);
+    res.status(500).json({ error: 'Failed to sync cover image' });
   }
 });
 

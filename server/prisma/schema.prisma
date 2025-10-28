@@ -59,6 +59,7 @@ model Playlist {
   description String?
   isPublic    Boolean  @default(true)
   spotifyId   String?  @unique
+  coverImage  String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 

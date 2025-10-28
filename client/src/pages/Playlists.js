@@ -157,34 +157,57 @@ const Playlists = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {playlists.map((playlist) => (
             <div key={playlist.id} className="bg-card rounded-lg p-4 hover:bg-gray-700 transition-colors">
-              <div className="flex items-start justify-between mb-2">
-                <div className="flex-1">
-                  <div className="flex items-center space-x-2 mb-1">
-                    <h3 className="text-lg font-semibold text-text-light">
-                      {playlist.name}
-                    </h3>
-                    {/* Privacy icon removed; all are public */}
-                  </div>
-                  {playlist.description && (
-                    <p className="text-text-muted text-sm mb-2">{playlist.description}</p>
+              <div className="flex items-start space-x-3">
+                {/* Playlist Cover Image */}
+                <div className="flex-shrink-0">
+                  {playlist.coverImage ? (
+                    <img
+                      src={playlist.coverImage}
+                      alt={playlist.name}
+                      className="w-16 h-16 rounded-lg object-cover"
+                    />
+                  ) : (
+                    <div className="w-16 h-16 bg-gray-600 rounded-lg flex items-center justify-center">
+                      <Music className="h-8 w-8 text-text-muted" />
+                    </div>
                   )}
-                  <p className="text-xs text-text-muted">
-                    Created {new Date(playlist.createdAt).toLocaleDateString()}
-                  </p>
                 </div>
-                <button
-                  onClick={() => confirmDelete(playlist.id)}
-                  className="text-text-muted hover:text-red-400 transition-colors ml-2"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </button>
+
+                {/* Playlist Info */}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-start justify-between mb-1">
+                    <div className="flex-1">
+                      <div className="flex items-center space-x-2 mb-1">
+                        <h3 className="text-lg font-semibold text-text-light truncate">
+                          {playlist.name}
+                        </h3>
+                        {/* Privacy icon removed; all are public */}
+                      </div>
+                      {playlist.description && (
+                        <p className="text-text-muted text-sm mb-2 line-clamp-2">{playlist.description}</p>
+                      )}
+                      <p className="text-xs text-text-muted">
+                        Created {new Date(playlist.createdAt).toLocaleDateString()}
+                        {playlist.spotifyId && (
+                          <span className="ml-2 text-green-400">• Spotify</span>
+                        )}
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => confirmDelete(playlist.id)}
+                      className="text-text-muted hover:text-red-400 transition-colors ml-2"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
+                  <button
+                    onClick={() => navigate(`/playlists/${playlist.id}`)}
+                    className="mt-3 w-full bg-gray-700 hover:bg-gray-600 text-text-light px-4 py-2 rounded-lg transition-colors text-sm"
+                  >
+                    View Playlist
+                  </button>
+                </div>
               </div>
-              <button
-                onClick={() => navigate(`/playlists/${playlist.id}`)}
-                className="mt-3 w-full bg-gray-700 hover:bg-gray-600 text-text-light px-4 py-2 rounded-lg transition-colors text-sm"
-              >
-                View Playlist
-              </button>
             </div>
           ))}
         </div>
