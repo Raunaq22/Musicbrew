@@ -1,13 +1,16 @@
 const express = require('express');
 const spotifyService = require('../services/spotify');
+const deezerService = require('../services/deezer');
 const { authenticateToken } = require('../middleware/auth');
 
 const router = express.Router();
 
-// Search for music (Spotify only - requires authentication)
+// Search for music (Spotify + Deezer previews)
 router.get('/search', async (req, res) => {
   try {
     const { q, type = 'track', limit = 20, offset = 0 } = req.query;
+
+    console.log('Search request:', { q, type, limit, offset });
 
     if (!q) {
       return res.status(400).json({ error: 'Query parameter is required' });
@@ -18,8 +21,42 @@ router.get('/search', async (req, res) => {
       return res.status(401).json({ error: 'Spotify access token required for music search. Please sign in with Spotify.' });
     }
 
-    const results = await spotifyService.search(q, type, parseInt(limit), parseInt(offset), accesstoken);
-    res.json(results);
+    // Search on Spotify
+    const spotifyResults = await spotifyService.search(q, type, parseInt(limit), parseInt(offset), accesstoken);
+    
+    // Get the appropriate results based on type
+    let tracks = [];
+    if (type === 'track') {
+      tracks = spotifyResults.tracks?.items || [];
+    } else if (type === 'album') {
+      tracks = spotifyResults.albums?.items || [];
+    } else if (type === 'artist') {
+      tracks = spotifyResults.artists?.items || [];
+    } else {
+      // Return all types
+      tracks = [
+        ...(spotifyResults.tracks?.items || []).map(item => ({ ...item, type: 'track' })),
+        ...(spotifyResults.albums?.items || []).map(item => ({ ...item, type: 'album' })),
+        ...(spotifyResults.artists?.items || []).map(item => ({ ...item, type: 'artist' }))
+      ];
+    }
+
+    // For tracks, add Deezer preview URLs
+    if (type === 'track' || type === 'all') {
+      const tracksToProcess = tracks.filter(item => !item.type || item.type === 'track');
+      
+      const tracksWithPreviews = await deezerService.getBatchPreviews(tracksToProcess);
+      
+      // Replace tracks in results with preview-enhanced versions
+      if (spotifyResults.tracks && spotifyResults.tracks.items) {
+        spotifyResults.tracks.items = tracksWithPreviews;
+      }
+
+      const tracksWithPreviewUrls = tracksWithPreviews.filter(track => track.preview_url);
+      console.log(`Search completed: ${tracksWithPreviewUrls.length} of ${tracksWithPreviews.length} tracks have preview URLs`);
+    }
+
+    res.json(spotifyResults);
   } catch (error) {
     console.error('Search error:', error);
     res.status(500).json({ error: 'Search failed: ' + error.message });

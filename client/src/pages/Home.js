@@ -8,28 +8,6 @@ import { Card } from '../components/ui/card';
 import api from '../services/api';
 import { useMusicPlayer } from '../context/MusicPlayerContext';
 
-// Mock data for demo purposes
-const mockPopularThisWeek = [
-  { id: 1, name: 'Midnight Dreams', artist: 'Luna Eclipse', cover: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400&h=400&fit=crop' },
-  { id: 2, name: 'Electric Nights', artist: 'Neon Pulse', cover: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=400&h=400&fit=crop' },
-  { id: 3, name: 'Ocean Waves', artist: 'Coastal Vibes', cover: 'https://images.unsplash.com/photo-1506157786151-b8491531f063?w=400&h=400&fit=crop' },
-  { id: 4, name: 'Urban Symphony', artist: 'City Sounds', cover: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400&h=400&fit=crop' },
-  { id: 5, name: 'Sunset Boulevard', artist: 'Golden Hour', cover: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=400&h=400&fit=crop' },
-  { id: 6, name: 'Mountain Echo', artist: 'Alpine Echo', cover: 'https://images.unsplash.com/photo-1506157786151-b8491531f063?w=400&h=400&fit=crop' },
-];
-
-const mockNewFromFriends = [
-  { id: 7, name: 'Coffee Shop Sessions', artist: 'Morning Brew', cover: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400&h=400&fit=crop', friend: 'Sarah M.' },
-  { id: 8, name: 'Late Night Radio', artist: 'Midnight FM', cover: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=400&h=400&fit=crop', friend: 'Mike R.' },
-  { id: 9, name: 'Weekend Vibes', artist: 'Chill Collective', cover: 'https://images.unsplash.com/photo-1506157786151-b8491531f063?w=400&h=400&fit=crop', friend: 'Emma L.' },
-];
-
-const mockPopularWithFriends = [
-  { id: 10, name: 'Road Trip Anthems', artist: 'Highway Kings', cover: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400&h=400&fit=crop', playCount: '1.2M' },
-  { id: 11, name: 'Party Starter', artist: 'Dance Machine', cover: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=400&h=400&fit=crop', playCount: '890K' },
-  { id: 12, name: 'Chill Meditation', artist: 'Zen Master', cover: 'https://images.unsplash.com/photo-1506157786151-b8491531f063?w=400&h=400&fit=crop', playCount: '654K' },
-];
-
 const Home = () => {
   const { isAuthenticated, user } = useAuth();
   const { playTrack } = useMusicPlayer();
@@ -37,13 +15,60 @@ const Home = () => {
   // Performance monitoring
   usePerformanceMonitor('Home');
 
+  // Fetch popular tracks for authenticated users
+  const { data: popularTracks, isLoading: popularLoading } = useQuery(
+    'popular-tracks',
+    async () => {
+      const response = await api.get('/music/search', {
+        params: { q: 'popular music', type: 'track', limit: 6 }
+      });
+      const tracks = response.data?.tracks?.items || response.data?.tracks || [];
+      // Convert tracks to album format
+      return tracks.map(track => ({
+        id: track.id,
+        name: track.name,
+        artist: track.artists?.map(a => a.name).join(', ') || 'Unknown Artist',
+        cover: track.album?.images?.[0]?.url || track.album?.cover || '/default-album.png',
+        preview_url: track.preview_url
+      }));
+    },
+    {
+      enabled: isAuthenticated,
+      refetchOnWindowFocus: false,
+    }
+  );
+
+  // Fetch trending tracks for non-authenticated users
+  const { data: trendingTracks, isLoading: trendingLoading } = useQuery(
+    'trending-tracks',
+    async () => {
+      const response = await api.get('/music/search', {
+        params: { q: 'trending', type: 'track', limit: 6 }
+      });
+      const tracks = response.data?.tracks?.items || response.data?.tracks || [];
+      // Convert tracks to album format
+      return tracks.map(track => ({
+        id: track.id,
+        name: track.name,
+        artist: track.artists?.map(a => a.name).join(', ') || 'Unknown Artist',
+        cover: track.album?.images?.[0]?.url || track.album?.cover || '/default-album.png',
+        preview_url: track.preview_url
+      }));
+    },
+    {
+      enabled: !isAuthenticated,
+      refetchOnWindowFocus: false,
+    }
+  );
+
   const handlePlayTrack = (track) => {
+    console.log('Playing track:', track);
     playTrack({
       id: track.id,
       name: track.name,
       artist: track.artist,
-      artwork: track.cover,
-      preview_url: null // For demo
+      artwork: track.album?.cover || track.cover,
+      preview_url: track.preview_url
     });
   };
 
@@ -54,7 +79,7 @@ const Home = () => {
     >
       <div className="relative">
         <img
-          src={album.cover}
+          src={album.album?.cover || album.cover || '/default-album.png'}
           alt={album.name}
           className="w-full aspect-square object-cover rounded-lg shadow-lg group-hover:shadow-xl transition-shadow"
         />
@@ -72,35 +97,60 @@ const Home = () => {
         </h3>
         <p className="text-sm text-muted-foreground truncate">{album.artist}</p>
         {showPlayCount && (
-          <p className="text-xs text-muted-foreground">{album.plays} plays</p>
+          <p className="text-xs text-muted-foreground">{album.play_count || album.plays || '0'} plays</p>
         )}
         {showFriend && (
-          <p className="text-xs text-blue-400">by {album.friend}</p>
+          <p className="text-xs text-blue-400">by {album.friend || 'Friend'}</p>
         )}
       </div>
     </div>
   );
 
-  const AlbumSection = ({ title, albums, showPlayCount = false, showFriend = false }) => (
-    <section className="mb-12">
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-bold text-foreground">{title}</h2>
-        <Button variant="ghost" size="sm" className="text-primary hover:text-primary/80">
-          View all →
-        </Button>
-      </div>
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
-        {albums.map((album) => (
-          <AlbumCard 
-            key={album.id} 
-            album={album} 
-            showPlayCount={showPlayCount}
-            showFriend={showFriend}
-          />
-        ))}
-      </div>
-    </section>
-  );
+  const AlbumSection = ({ title, albums = [], showPlayCount = false, showFriend = false, isLoading = false }) => {
+    // Ensure albums is always an array
+    const albumList = Array.isArray(albums) ? albums : [];
+    
+    return (
+      <section className="mb-12">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-2xl font-bold text-foreground">{title}</h2>
+          <Button variant="ghost" size="sm" className="text-primary hover:text-primary/80">
+            View all →
+          </Button>
+        </div>
+        
+        {isLoading ? (
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="animate-pulse">
+                <div className="w-full aspect-square bg-gray-700 rounded-lg mb-3"></div>
+                <div className="h-4 bg-gray-700 rounded mb-2"></div>
+                <div className="h-3 bg-gray-700 rounded w-2/3"></div>
+              </div>
+            ))}
+          </div>
+        ) : albumList.length > 0 ? (
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
+            {albumList.map((album) => (
+              <AlbumCard 
+                key={album.id} 
+                album={album} 
+                showPlayCount={showPlayCount}
+                showFriend={showFriend}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-8 text-muted-foreground">
+            <p>No {title.toLowerCase()} available at the moment.</p>
+          </div>
+        )}
+      </section>
+    );
+  };
+
+  const displayTracks = isAuthenticated ? popularTracks : trendingTracks;
+  const isDataLoading = isAuthenticated ? popularLoading : trendingLoading;
 
   return (
     <div className="max-w-7xl mx-auto">
@@ -130,8 +180,12 @@ const Home = () => {
           </div>
 
           {/* Preview sections for non-authenticated users */}
-          <div className="mt-16 space-y-8 opacity-60">
-            <AlbumSection title="🔥 Popular This Week" albums={mockPopularThisWeek.slice(0, 6)} />
+          <div className="mt-16 space-y-8">
+            <AlbumSection 
+              title="🔥 Trending Now" 
+              albums={displayTracks || []} 
+              isLoading={isDataLoading}
+            />
           </div>
         </div>
       ) : (
@@ -145,20 +199,25 @@ const Home = () => {
             <p className="text-muted-foreground">Here's what's happening in your music world</p>
           </div>
 
-          {/* Album sections with rich covers */}
-          <AlbumSection title="🔥 Popular This Week" albums={mockPopularThisWeek} />
-          
+          {/* Album sections with real data */}
           <AlbumSection 
-            title="👥 New From Friends" 
-            albums={mockNewFromFriends} 
-            showFriend={true} 
+            title="🔥 Popular This Week" 
+            albums={displayTracks || []} 
+            isLoading={isDataLoading}
           />
           
-          <AlbumSection 
-            title="🎯 Popular With Friends" 
-            albums={mockPopularWithFriends} 
-            showPlayCount={true} 
-          />
+          {/* Add more sections as needed */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="bg-card rounded-lg p-6">
+              <h3 className="text-lg font-semibold mb-4">🎯 Recommended for You</h3>
+              <p className="text-muted-foreground">Based on your listening history</p>
+            </div>
+            
+            <div className="bg-card rounded-lg p-6">
+              <h3 className="text-lg font-semibold mb-4">👥 Friends' Activity</h3>
+              <p className="text-muted-foreground">See what your friends are playing</p>
+            </div>
+          </div>
         </>
       )}
     </div>

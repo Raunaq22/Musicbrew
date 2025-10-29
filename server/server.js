@@ -6,6 +6,7 @@ const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
+const axios = require('axios');
 
 // Import routes
 const authRoutes = require('./routes/auth');
@@ -44,6 +45,97 @@ app.use(morgan('combined'));
 app.use(cors(corsOptions));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
+
+// Audio proxy route to handle Deezer preview URLs
+app.get('/api/audio/proxy', async (req, res) => {
+  try {
+    const { url } = req.query;
+    
+    if (!url) {
+      return res.status(400).json({ error: 'URL parameter is required' });
+    }
+
+    console.log('🎵 Proxying Deezer request:', url);
+
+    // Set CORS headers for audio streaming
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Range');
+    res.setHeader('Access-Control-Expose-Headers', 'Content-Length, Content-Range');
+    res.setHeader('Accept-Ranges', 'bytes');
+
+    // Handle preflight requests
+    if (req.method === 'OPTIONS') {
+      return res.status(200).end();
+    }
+
+    // Fetch the audio file directly from Deezer
+    const response = await axios({
+      method: 'GET',
+      url: decodeURIComponent(url),
+      responseType: 'stream',
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Accept': 'audio/*,audio/mpeg,audio/mp3,application/octet-stream,*/*',
+        'Accept-Language': 'en-US,en;q=0.9',
+        'Accept-Encoding': 'identity',
+        'Connection': 'keep-alive',
+        'Sec-Fetch-Dest': 'audio',
+        'Sec-Fetch-Mode': 'no-cors',
+        'Sec-Fetch-Site': 'cross-site',
+        'Range': 'bytes=0-',
+        'Cache-Control': 'no-cache',
+      },
+      timeout: 15000,
+      maxContentLength: 10 * 1024 * 1024, // 10MB max
+    });
+
+    console.log('🎵 Deezer response status:', response.status);
+    console.log('🎵 Deezer content-type:', response.headers['content-type']);
+
+    // Set content type and headers for audio
+    res.setHeader('Content-Type', response.headers['content-type'] || 'audio/mpeg');
+    res.setHeader('Cache-Control', 'public, max-age=3600');
+    
+    // Handle range requests for seeking
+    if (response.headers['content-range']) {
+      res.setHeader('Content-Range', response.headers['content-range']);
+    }
+
+    // Stream the response directly to the client
+    response.data.pipe(res);
+
+    response.data.on('error', (error) => {
+      console.error('Stream error:', error);
+      if (!res.headersSent) {
+        res.status(500).end();
+      }
+    });
+
+    console.log('✅ Successfully proxying Deezer audio stream');
+
+  } catch (error) {
+    console.error('❌ Audio proxy error:', error.message);
+    
+    if (error.response) {
+      console.log('Response status:', error.response.status);
+      res.status(error.response.status).json({ 
+        error: 'Failed to fetch audio from source',
+        details: error.message
+      });
+    } else if (error.code === 'ECONNABORTED' || error.code === 'ETIMEDOUT') {
+      res.status(408).json({ 
+        error: 'Request timeout',
+        message: 'The audio source took too long to respond'
+      });
+    } else {
+      res.status(500).json({ 
+        error: 'Audio proxy failed',
+        message: error.message
+      });
+    }
+  }
+});
 
 // Rate limiting
 const limiter = rateLimit({

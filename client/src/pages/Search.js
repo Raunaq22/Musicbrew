@@ -6,20 +6,61 @@ import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
 import { Card, CardContent } from '../components/ui/card';
-import { Search as SearchIcon, Music, Disc, User } from 'lucide-react';
+import { Search as SearchIcon, Music, Disc, User, Play } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { useMusicPlayer } from '../context/MusicPlayerContext';
 import toast from 'react-hot-toast';
 
 const Search = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [query, setQuery] = useState(searchParams.get('q') || '');
   const [searchType, setSearchType] = useState('track');
+
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
+  const { playTrack } = useMusicPlayer();
+
+  const playPreview = (track) => {
+    console.log('=== PLAY PREVIEW CLICKED ===');
+    console.log('Track object received:', track);
+    console.log('Track ID:', track.id);
+    console.log('Track name:', track.name);
+    console.log('Has preview_url:', !!track.preview_url);
+    console.log('Preview URL:', track.preview_url);
+    console.log('Preview source:', track.preview_source);
+    console.log('Full track object:', track);
+    console.log('==========================');
+    
+    if (track.preview_url) {
+      // Format track for music player
+      const playerTrack = {
+        id: track.id,
+        name: track.name,
+        artist: track.artists?.map(a => a.name).join(', ') || 'Unknown Artist',
+        artwork: track.album?.images?.[0]?.url || track.images?.[0]?.url,
+        preview_url: track.preview_url,
+        source: track.preview_source || 'deezer'
+      };
+      
+      console.log('=== FORMATTED TRACK FOR PLAYER ===');
+      console.log('Player track object:', playerTrack);
+      console.log('Formatted track preview URL:', playerTrack.preview_url);
+      console.log('===================================');
+      
+      playTrack(playerTrack);
+      console.log('✅ Track sent to music player');
+      toast.success(`Playing preview: ${track.name}`);
+    } else {
+      console.log('❌ No preview URL available for:', track.name);
+      toast.error('No preview available for this track');
+    }
+  };
 
   const { data: searchResults, isLoading, error } = useQuery(
     ['search', query, searchType],
-    () => api.get(`/music/search?q=${encodeURIComponent(query)}&type=${searchType}&limit=20`).then(res => res.data),
+    () => api.get(`/music/search?q=${encodeURIComponent(query)}&type=${searchType}&limit=20`).then(res => {
+      return res.data;
+    }),
     {
       enabled: !!query.trim(),
       retry: false,
@@ -111,66 +152,102 @@ const Search = () => {
 
     return (
       <div className="space-y-4">
-        {results.map((item, index) => (
-          <Card key={`${item.id}-${index}`} className="hover:bg-muted transition-colors">
-            <CardContent className="p-4">
-              <div className="flex items-center space-x-4">
-                {/* Album artwork */}
-                <div className="w-16 h-16 bg-muted rounded-lg flex items-center justify-center overflow-hidden flex-shrink-0">
-                  {item.album?.images?.[0] ? (
-                    <img
-                      src={item.album.images[0].url}
-                      alt={item.name}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : item.images?.[0] ? (
-                    <img
-                      src={item.images[0].url}
-                      alt={item.name}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <Music className="h-6 w-6 text-muted-foreground" />
-                  )}
-                </div>
-                
-                <div className="flex-1 min-w-0">
-                  <h3 className="text-lg font-semibold text-foreground truncate">{item.name}</h3>
-                  <p className="text-muted-foreground truncate">
-                    {item.artists?.map(artist => artist.name).join(', ')}
-                    {item.album && ` • ${item.album.name}`}
-                    {item.followers && (
-                      <span className="text-xs text-muted-foreground">
-                        {' • '}{(item.followers.total / 1000).toFixed(1)}K followers
-                      </span>
+        {results.map((item, index) => {
+          const hasPreview = item.preview_url && searchType === 'track';
+          
+          // Debug first few items
+          if (index < 3) {
+            console.log(`Result ${index + 1}: ${item.name}`);
+            console.log(`  - Has preview_url: ${!!item.preview_url}`);
+            console.log(`  - Preview URL: ${item.preview_url || 'NONE'}`);
+            console.log(`  - Search type: ${searchType}`);
+            console.log(`  - Should show button: ${searchType === 'track'}`);
+          }
+          console.log('=== SEARCH DEBUG ===');
+          console.log('Track:', item.name);
+          console.log('Preview URL:', item.preview_url);
+          console.log('Has preview:', !!item.preview_url);
+          console.log('Search type:', searchType);
+          console.log('Full item:', item);
+          console.log('===================');
+          
+          return (
+            <Card key={`${item.id}-${index}`} className="hover:bg-muted transition-colors">
+              <CardContent className="p-4">
+                <div className="flex items-center space-x-4">
+                  {/* Album artwork */}
+                  <div className="w-16 h-16 bg-muted rounded-lg flex items-center justify-center overflow-hidden flex-shrink-0">
+                    {item.album?.images?.[0] ? (
+                      <img
+                        src={item.album.images[0].url}
+                        alt={item.name}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : item.images?.[0] ? (
+                      <img
+                        src={item.images[0].url}
+                        alt={item.name}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <Music className="h-6 w-6 text-muted-foreground" />
                     )}
-                    {item.genres && item.genres.length > 0 && (
-                      <span className="text-xs text-muted-foreground">
-                        {' • '}{item.genres.slice(0, 2).join(', ')}
-                      </span>
+                  </div>
+                  
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-lg font-semibold text-foreground truncate">{item.name}</h3>
+                    <p className="text-muted-foreground truncate">
+                      {item.artists?.map(artist => artist.name).join(', ')}
+                      {item.album && ` • ${item.album.name}`}
+                      {item.followers && (
+                        <span className="text-xs text-muted-foreground">
+                          {' • '}{(item.followers.total / 1000).toFixed(1)}K followers
+                        </span>
+                      )}
+                      {item.genres && item.genres.length > 0 && (
+                        <span className="text-xs text-muted-foreground">
+                          {' • '}{item.genres.slice(0, 2).join(', ')}
+                        </span>
+                      )}
+                    </p>
+                    {item.description && (
+                      <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{item.description}</p>
                     )}
-                  </p>
-                  {item.description && (
-                    <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{item.description}</p>
-                  )}
-                  {item.total_tracks && (
-                    <p className="text-xs text-muted-foreground mt-1">{item.total_tracks} tracks</p>
-                  )}
-                </div>
+                    {item.total_tracks && (
+                      <p className="text-xs text-muted-foreground mt-1">{item.total_tracks} tracks</p>
+                    )}
+                  </div>
 
-                <div className="flex items-center space-x-2 flex-shrink-0">
-                  <Button 
-                    onClick={() => navigate(`/music/${item.id}`)}
-                    variant="outline"
-                    size="sm"
-                  >
-                    View Details
-                  </Button>
+                  <div className="flex items-center space-x-2 flex-shrink-0">
+                    {/* Preview Button - always render for tracks */}
+                    {searchType === 'track' && (
+                      <Button 
+                        onClick={() => playPreview(item)}
+                        size="sm"
+                        className={`${item.preview_url 
+                          ? 'bg-green-600 hover:bg-green-700 text-white' 
+                          : 'bg-gray-400 text-gray-200 cursor-not-allowed'
+                        }`}
+                        disabled={!item.preview_url}
+                        title={item.preview_url ? 'Play preview' : 'No preview available'}
+                      >
+                        <Play className="h-4 w-4 mr-1" />
+                        {item.preview_url ? 'Preview' : 'No Preview'}
+                      </Button>
+                    )}
+                    <Button 
+                      onClick={() => navigate(`/music/${item.id}`)}
+                      variant="outline"
+                      size="sm"
+                    >
+                      View Details
+                    </Button>
+                  </div>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+              </CardContent>
+            </Card>
+          );
+        })}
       </div>
     );
   };
@@ -246,6 +323,8 @@ const Search = () => {
           </TabsList>
         </Tabs>
       </div>
+
+
 
       {renderSearchResults()}
       
