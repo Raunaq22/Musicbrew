@@ -6,8 +6,7 @@ import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
 import { Card, CardContent } from '../components/ui/card';
-import { Search as SearchIcon, Music, Disc, User, Play, Plus, Clock } from 'lucide-react';
-import { useMusicPlayer } from '../context/MusicPlayerContext';
+import { Search as SearchIcon, Music, Disc, User } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
 
@@ -16,6 +15,7 @@ const Search = () => {
   const [query, setQuery] = useState(searchParams.get('q') || '');
   const [searchType, setSearchType] = useState('track');
   const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
 
   const { data: searchResults, isLoading, error } = useQuery(
     ['search', query, searchType],
@@ -43,9 +43,39 @@ const Search = () => {
     }
 
     if (error) {
+      const errorMessage = error.response?.data?.error || error.message || 'Search failed';
+      
+      // Show authentication prompt for Spotify-required errors
+      if (errorMessage.includes('Spotify access token required') || error.response?.status === 401) {
+        return (
+          <div className="text-center py-12">
+            <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-6 max-w-md mx-auto">
+              <Music className="h-16 w-16 text-amber-400 mx-auto mb-4" />
+              <h3 className="text-lg font-semibold text-amber-400 mb-2">Spotify Authentication Required</h3>
+              <p className="text-amber-400/80 mb-4">
+                You need to sign in with Spotify to search for music.
+              </p>
+              <Button 
+                onClick={() => navigate('/login')}
+                className="bg-amber-600 hover:bg-amber-700"
+              >
+                Sign in with Spotify
+              </Button>
+            </div>
+          </div>
+        );
+      }
+      
       return (
         <div className="text-center py-12">
-          <p className="text-destructive">Failed to search. Please try again.</p>
+          <p className="text-destructive">Failed to search: {errorMessage}</p>
+          <Button 
+            onClick={() => window.location.reload()} 
+            variant="outline" 
+            className="mt-4"
+          >
+            Try Again
+          </Button>
         </div>
       );
     }
@@ -59,22 +89,30 @@ const Search = () => {
       );
     }
 
-    // Get results from the combined response
-    const results = searchResults.combined || searchResults.spotify?.tracks?.items || searchResults.audius || [];
+    // Extract results based on search type
+    let results = [];
+    if (searchType === 'track') {
+      results = searchResults.tracks?.items || [];
+    } else if (searchType === 'album') {
+      results = searchResults.albums?.items || [];
+    } else if (searchType === 'artist') {
+      results = searchResults.artists?.items || [];
+    }
 
     if (results.length === 0) {
       return (
         <div className="text-center py-12">
           <Music className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
           <p className="text-muted-foreground">No results found for "{query}"</p>
+          <p className="text-sm text-muted-foreground mt-2">Try different keywords or check your spelling</p>
         </div>
       );
     }
 
     return (
       <div className="space-y-4">
-        {results.map((item) => (
-          <Card key={`${item.id}-${item.source || 'spotify'}`} className="hover:bg-muted transition-colors">
+        {results.map((item, index) => (
+          <Card key={`${item.id}-${index}`} className="hover:bg-muted transition-colors">
             <CardContent className="p-4">
               <div className="flex items-center space-x-4">
                 {/* Album artwork */}
@@ -85,10 +123,10 @@ const Search = () => {
                       alt={item.name}
                       className="w-full h-full object-cover"
                     />
-                  ) : item.artwork ? (
+                  ) : item.images?.[0] ? (
                     <img
-                      src={item.artwork}
-                      alt={item.title}
+                      src={item.images[0].url}
+                      alt={item.name}
                       className="w-full h-full object-cover"
                     />
                   ) : (
@@ -97,50 +135,37 @@ const Search = () => {
                 </div>
                 
                 <div className="flex-1 min-w-0">
-                  <h3 className="text-lg font-semibold text-foreground truncate">{item.name || item.title}</h3>
+                  <h3 className="text-lg font-semibold text-foreground truncate">{item.name}</h3>
                   <p className="text-muted-foreground truncate">
-                    {item.source === 'audius' ? (
-                      <>
-                        {item.artist}
-                        {item.genre && ` • ${item.genre}`}
-                      </>
-                    ) : (
-                      <>
-                        {item.artists?.map(artist => artist.name).join(', ')}
-                        {item.album && ` • ${item.album.name}`}
-                      </>
+                    {item.artists?.map(artist => artist.name).join(', ')}
+                    {item.album && ` • ${item.album.name}`}
+                    {item.followers && (
+                      <span className="text-xs text-muted-foreground">
+                        {' • '}{(item.followers.total / 1000).toFixed(1)}K followers
+                      </span>
+                    )}
+                    {item.genres && item.genres.length > 0 && (
+                      <span className="text-xs text-muted-foreground">
+                        {' • '}{item.genres.slice(0, 2).join(', ')}
+                      </span>
                     )}
                   </p>
                   {item.description && (
                     <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{item.description}</p>
                   )}
-                  {item.streamUrl && (
-                    <div className="flex items-center mt-2">
-                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-500/20 text-green-400">
-                        Streamable
-                      </span>
-                    </div>
+                  {item.total_tracks && (
+                    <p className="text-xs text-muted-foreground mt-1">{item.total_tracks} tracks</p>
                   )}
                 </div>
 
                 <div className="flex items-center space-x-2 flex-shrink-0">
-                  {item.streamUrl ? (
-                    <Button 
-                      onClick={() => {
-                        // For Audius tracks, you could implement direct playback
-                        console.log('Play track:', item);
-                      }}
-                      className="bg-green-600 hover:bg-green-700"
-                    >
-                      Play
-                    </Button>
-                  ) : (
-                    <Button 
-                      onClick={() => navigate(`/music/${item.id}`)}
-                    >
-                      View Details
-                    </Button>
-                  )}
+                  <Button 
+                    onClick={() => navigate(`/music/${item.id}`)}
+                    variant="outline"
+                    size="sm"
+                  >
+                    View Details
+                  </Button>
                 </div>
               </div>
             </CardContent>
@@ -176,6 +201,33 @@ const Search = () => {
           </div>
         </form>
 
+        {/* Authentication Notice */}
+        {!isAuthenticated && (
+          <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-4 mb-6">
+            <div className="flex items-center space-x-3">
+              <div className="flex-shrink-0">
+                <div className="w-8 h-8 bg-amber-500/20 rounded-full flex items-center justify-center">
+                  <Music className="h-4 w-4 text-amber-400" />
+                </div>
+              </div>
+              <div className="flex-1">
+                <p className="text-sm text-amber-400 font-medium">
+                  Sign in to Search
+                </p>
+                <p className="text-xs text-amber-400/80 mt-1">
+                  You need to sign in with Spotify to search for music. 
+                  <button 
+                    onClick={() => navigate('/login')} 
+                    className="underline hover:no-underline ml-1"
+                  >
+                    Sign in now
+                  </button>
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Search Type Tabs */}
         <Tabs value={searchType} onValueChange={setSearchType}>
           <TabsList>
@@ -196,6 +248,22 @@ const Search = () => {
       </div>
 
       {renderSearchResults()}
+      
+      {/* Search Tips */}
+      {!query && isAuthenticated && (
+        <div className="mt-12 text-center">
+          <div className="max-w-md mx-auto">
+            <SearchIcon className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+            <h3 className="text-lg font-semibold text-foreground mb-2">Search Tips</h3>
+            <div className="text-sm text-muted-foreground space-y-1">
+              <p>• Try searching for artists like "Taylor Swift" or "The Beatles"</p>
+              <p>• Search for song titles like "Bohemian Rhapsody"</p>
+              <p>• Look up albums like "Thriller" or "Dark Side of the Moon"</p>
+              <p>• Use specific genres like "indie rock" or "jazz fusion"</p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

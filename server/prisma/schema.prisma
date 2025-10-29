@@ -31,7 +31,6 @@ model User {
   likes       Like[]
   followers   Follow[] @relation("UserFollowers")
   following   Follow[] @relation("UserFollowing")
-  listeningRooms ListeningRoom[] @relation("RoomHost")
 
   @@map("users")
 }
@@ -112,21 +111,4 @@ model Follow {
 
   @@unique([followerId, followingId])
   @@map("follows")
-}
-
-model ListeningRoom {
-  id          String   @id @default(cuid())
-  hostId      String
-  name        String
-  description String?
-  currentTrack String?
-  queue       Json?
-  isActive    Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  // Relations
-  host User @relation("RoomHost", fields: [hostId], references: [id], onDelete: Cascade)
-
-  @@map("listening_rooms")
 }

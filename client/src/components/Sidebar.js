@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Home, Search, Music, Users, Compass, BarChart3, User, LogOut } from 'lucide-react';
+import { Home, Search, Music, Compass, BarChart3, User, LogOut } from 'lucide-react';
 
 export default function Sidebar() {
   const { user, logout } = useAuth();
@@ -11,7 +11,6 @@ export default function Sidebar() {
     { path: '/', icon: Home, label: 'Home' },
     { path: '/search', icon: Search, label: 'Search' },
     { path: '/playlists', icon: Music, label: 'Playlists' },
-    { path: '/listening-rooms', icon: Users, label: 'Listening Rooms' },
     { path: '/discovery', icon: Compass, label: 'Discovery' },
     { path: '/analytics', icon: BarChart3, label: 'Analytics' },
   ];

@@ -155,54 +155,6 @@ async function addDemoData() {
       }
     }
 
-    // Create some demo listening rooms
-    const demoRooms = [
-      { name: 'Chill Study Session', description: 'Quiet music for focused studying' },
-      { name: 'Workout Motivation', description: 'High energy tracks for exercise' },
-      { name: 'Jazz Evening', description: 'Smooth jazz for relaxation' },
-      { name: 'Indie Discovery', description: 'Exploring new indie music' },
-      { name: 'Rock Party', description: 'Classic rock anthems' }
-    ];
-
-    for (let i = 0; i < demoRooms.length; i++) {
-      const roomData = demoRooms[i];
-      const randomUser = createdUsers[Math.floor(Math.random() * createdUsers.length)];
-      
-      // Create queue with demo tracks
-      const demoQueue = [
-        {
-          id: `demo-track-${i}-1`,
-          name: `Popular Track ${i + 1}`,
-          artist: `Artist ${i + 1}`,
-          album: 'Demo Album',
-          duration: 180000,
-          artwork: `https://picsum.photos/64/64?random=${i * 10 + 1}`,
-          addedBy: randomUser.id
-        },
-        {
-          id: `demo-track-${i}-2`,
-          name: `Chill Vibes ${i + 1}`,
-          artist: `Chill Artist ${i + 1}`,
-          album: 'Relax Album',
-          duration: 210000,
-          artwork: `https://picsum.photos/64/64?random=${i * 10 + 2}`,
-          addedBy: randomUser.id
-        }
-      ];
-
-      const listeningRoom = await prisma.listeningRoom.create({
-        data: {
-          ...roomData,
-          hostId: randomUser.id,
-          isActive: true,
-          queue: demoQueue,
-          currentTrack: demoQueue[0].id, // Just store the ID
-          createdAt: new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000) // Random date within last 7 days
-        }
-      });
-      console.log(`Created listening room: ${roomData.name}`);
-    }
-
     // Create some follows
     for (let i = 0; i < 100; i++) {
       const follower = createdUsers[Math.floor(Math.random() * createdUsers.length)];
@@ -231,7 +183,6 @@ async function addDemoData() {
     console.log(`Created ${createdUsers.length} users`);
     console.log(`Created ${createdPlaylists.length} playlists`);
     console.log(`Created ${createdReviews.length} reviews`);
-    console.log('Created demo listening rooms');
     console.log('Created demo follows');
 
   } catch (error) {

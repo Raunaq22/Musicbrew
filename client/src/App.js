@@ -20,10 +20,8 @@ import Search from './pages/Search';
 import Playlists from './pages/Playlists';
 import Admin from './pages/Admin';
 import PlaylistDetails from './pages/PlaylistDetails';
-import ListeningRoom from './pages/ListeningRoom';
 import Analytics from './pages/Analytics';
 import Discovery from './pages/Discovery';
-import ListeningRooms from './pages/ListeningRooms';
 
 // Components
 import Sidebar from './components/Sidebar';
@@ -108,14 +106,6 @@ function App() {
                       } 
                     />
                     <Route 
-                      path="/room/:id" 
-                      element={
-                        <ProtectedRoute>
-                          <ListeningRoom />
-                        </ProtectedRoute>
-                      } 
-                    />
-                    <Route 
                       path="/analytics" 
                       element={
                         <ProtectedRoute>
@@ -126,14 +116,6 @@ function App() {
                     <Route 
                       path="/discovery" 
                       element={<Discovery />} 
-                    />
-                    <Route 
-                      path="/listening-rooms" 
-                      element={
-                        <ProtectedRoute>
-                          <ListeningRooms />
-                        </ProtectedRoute>
-                      } 
                     />
                   </Routes>
                 </main>

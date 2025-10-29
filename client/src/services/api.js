@@ -16,6 +16,7 @@ api.interceptors.request.use(
       config.headers.Authorization = `Bearer ${token}`;
     }
     
+    // Add Spotify token for all music endpoints including search
     const spotifyToken = localStorage.getItem('spotifyToken');
     if (spotifyToken) {
       config.headers.accesstoken = spotifyToken;

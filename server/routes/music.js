@@ -4,7 +4,7 @@ const { authenticateToken } = require('../middleware/auth');
 
 const router = express.Router();
 
-// Search for music (Spotify only)
+// Search for music (Spotify only - requires authentication)
 router.get('/search', async (req, res) => {
   try {
     const { q, type = 'track', limit = 20, offset = 0 } = req.query;
@@ -15,14 +15,14 @@ router.get('/search', async (req, res) => {
 
     const { accesstoken } = req.headers;
     if (!accesstoken) {
-      return res.status(400).json({ error: 'Spotify access token required' });
+      return res.status(401).json({ error: 'Spotify access token required for music search. Please sign in with Spotify.' });
     }
 
     const results = await spotifyService.search(q, type, parseInt(limit), parseInt(offset), accesstoken);
     res.json(results);
   } catch (error) {
     console.error('Search error:', error);
-    res.status(500).json({ error: 'Search failed' });
+    res.status(500).json({ error: 'Search failed: ' + error.message });
   }
 });
 
@@ -126,7 +126,7 @@ router.get('/trending', async (req, res) => {
     const { accesstoken } = req.headers;
 
     if (!accesstoken) {
-      return res.status(400).json({ error: 'Spotify access token required for trending' });
+      return res.status(401).json({ error: 'Spotify access token required for trending music. Please sign in with Spotify.' });
     }
 
     // Search for trending music
@@ -136,7 +136,7 @@ router.get('/trending', async (req, res) => {
     res.json(trending);
   } catch (error) {
     console.error('Get trending error:', error);
-    res.status(500).json({ error: 'Failed to get trending music' });
+    res.status(500).json({ error: 'Failed to get trending music: ' + error.message });
   }
 });
 

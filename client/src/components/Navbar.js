@@ -19,7 +19,6 @@ const Navbar = () => {
 
   const navigationLinks = [
     { to: '/discovery', label: 'Discover', icon: Compass },
-    { to: '/listening-rooms', label: 'Rooms', icon: Users },
     { to: '/playlists', label: 'Playlists', icon: ListMusic },
     { to: '/analytics', label: 'Analytics', icon: BarChart3 },
   ];

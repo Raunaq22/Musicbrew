@@ -121,25 +121,6 @@ router.get('/home', authenticateToken, async (req, res) => {
       })
     );
 
-    // Get active listening rooms
-    const listeningRooms = await prisma.listeningRoom.findMany({
-      where: { isActive: true },
-      include: {
-        host: {
-          select: {
-            id: true,
-            username: true,
-            displayName: true,
-            avatar: true
-          }
-        }
-      },
-      orderBy: {
-        createdAt: 'desc'
-      },
-      take: 6
-    });
-
     res.json({
       popularThisWeek: popularThisWeek.map(review => ({
         id: review.musicId,
@@ -172,8 +153,7 @@ router.get('/home', authenticateToken, async (req, res) => {
         artwork: item.latestReview?.user.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${item.latestReview?.user.username || 'user'}`,
         plays: item.reviewCount,
         latestReview: item.latestReview
-      })),
-      listeningRooms
+      }))
     });
 
   } catch (error) {

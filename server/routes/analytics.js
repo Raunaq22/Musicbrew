@@ -130,7 +130,6 @@ router.get('/global', authenticateToken, async (req, res) => {
     const totalUsers = await prisma.user.count();
     const totalReviews = await prisma.review.count();
     const totalPlaylists = await prisma.playlist.count();
-    const totalListeningRooms = await prisma.listeningRoom.count();
 
     // Get active users (last 30 days)
     const thirtyDaysAgo = new Date();
@@ -179,7 +178,6 @@ router.get('/global', authenticateToken, async (req, res) => {
       totalUsers,
       totalReviews,
       totalPlaylists,
-      totalListeningRooms,
       activeUsers,
       recentReviews
     });
