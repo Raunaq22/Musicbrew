@@ -5,6 +5,7 @@ import { useQuery } from 'react-query';
 import { usePerformanceMonitor } from '../components/LazyComponent';
 import { Button } from '../components/ui/button';
 import { Card } from '../components/ui/card';
+import { useAudio } from '../context/AudioContext';
 import api from '../services/api';
 import toast from 'react-hot-toast';
 
@@ -13,6 +14,8 @@ const Home = () => {
   
   // Performance monitoring
   usePerformanceMonitor('Home');
+
+  const { playPreview } = useAudio();
 
   // Fetch popular tracks for authenticated users
   const { data: popularTracks, isLoading: popularLoading } = useQuery(
@@ -67,9 +70,8 @@ const Home = () => {
     }
 
     try {
-      const audio = new Audio(track.preview_url);
       toast.success(`Playing preview: ${track.name}`);
-      await audio.play();
+      await playPreview(track);
     } catch (error) {
       console.error('❌ Error playing preview:', error);
       toast.error('Failed to play preview');

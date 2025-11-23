@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs'
 import { Card, CardContent } from '../components/ui/card';
 import { Search as SearchIcon, Music, Disc, User, Play } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { useAudio } from '../context/AudioContext';
 import toast from 'react-hot-toast';
 
 const Search = () => {
@@ -17,21 +18,17 @@ const Search = () => {
 
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
+  const { playPreview } = useAudio();
 
-  const playPreview = async (track) => {
+const handlePlayPreview = async (track) => {
     if (!track.preview_url) {
       toast.error('No preview available for this track');
       return;
     }
 
     try {
-      // Create a simple audio element for preview
-      const audio = new Audio(track.preview_url);
-      
-      // Show playing status
-toast.success(`Playing preview: ${track.name}`);
-      await audio.play();
-      
+      toast.success(`Playing preview: ${track.name}`);
+      await playPreview(track);
     } catch (error) {
       console.error('❌ Error playing preview:', error);
       toast.error('Failed to play preview');
@@ -188,7 +185,7 @@ toast.success(`Playing preview: ${track.name}`);
                     {/* Preview Button - always render for tracks */}
 {searchType === 'track' && (
                        <Button 
-                         onClick={() => playPreview(item)}
+                         onClick={() => handlePlayPreview(item)}
                          size="sm"
                          className={`${
                            item.preview_url 

@@ -6,6 +6,7 @@ import { Toaster } from 'react-hot-toast';
 // Context
 import { AuthProvider } from './context/AuthContext';
 import { MusicPlayerProvider } from './context/MusicPlayerContext';
+import { AudioProvider } from './context/AudioContext';
 
 // Components
 import { PerformanceMonitor, NetworkStatus } from './components/PerformanceMonitor';
@@ -49,7 +50,8 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <MusicPlayerProvider>
+        <AudioProvider>
+          <MusicPlayerProvider>
           <Router>
             <div className="min-h-screen bg-background text-foreground">
               <NetworkStatus />
@@ -136,6 +138,7 @@ function App() {
             </div>
           </Router>
         </MusicPlayerProvider>
+        </AudioProvider>
       </AuthProvider>
     </QueryClientProvider>
   );
