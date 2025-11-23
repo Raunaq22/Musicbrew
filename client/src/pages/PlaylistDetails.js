@@ -28,7 +28,6 @@ const PlaylistDetails = () => {
     (uris) => api.post(`/playlists/${id}/tracks`, { uris }).then(res => res.data),
     {
       onSuccess: () => {
-        toast.success('Tracks added to playlist');
         queryClient.invalidateQueries(['playlistTracks', id]);
       },
       onError: (error) => {
@@ -41,7 +40,6 @@ const PlaylistDetails = () => {
     () => api.post(`/playlists/${id}/sync-cover`).then(res => res.data),
     {
       onSuccess: (data) => {
-        toast.success(data.message || 'Cover image synced successfully');
         queryClient.invalidateQueries(['playlist', id]);
       },
       onError: (error) => {

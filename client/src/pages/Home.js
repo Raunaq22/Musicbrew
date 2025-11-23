@@ -70,7 +70,6 @@ const Home = () => {
     }
 
     try {
-      toast.success(`Playing preview: ${track.name}`);
       await playPreview(track);
     } catch (error) {
       console.error('❌ Error playing preview:', error);

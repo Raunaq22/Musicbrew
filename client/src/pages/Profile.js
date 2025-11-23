@@ -32,7 +32,6 @@ const Profile = () => {
     {
       onSuccess: (data) => {
         queryClient.setQueryData(['user'], data);
-        toast.success('Profile updated successfully!');
         setIsEditing(false);
       },
       onError: (error) => {

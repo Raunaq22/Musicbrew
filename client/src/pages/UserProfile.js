@@ -52,7 +52,6 @@ const UserProfile = () => {
     {
       onSuccess: () => {
         queryClient.invalidateQueries(['userProfile', username]);
-        toast.success(profileData?.user?.isFollowing ? 'Unfollowed successfully' : 'Following!');
       },
       onError: (error) => {
         toast.error(error.response?.data?.error || 'Failed to follow/unfollow');

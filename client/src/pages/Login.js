@@ -48,7 +48,6 @@ const Login = () => {
         const newSearchParams = new URLSearchParams(searchParams);
         newSearchParams.delete('code');
         setSearchParams(newSearchParams, { replace: true });
-        toast.success('Successfully logged in!');
         navigate('/');
       } else {
         toast.error('Login failed. Please try again.');
@@ -85,7 +84,6 @@ const Login = () => {
       const { success } = await login(response.data);
       
       if (success) {
-        toast.success('Welcome back!');
         navigate('/');
       } else {
         toast.error('Login failed. Please try again.');
@@ -107,7 +105,6 @@ const Login = () => {
       const { success } = await login(response.data);
       
       if (success) {
-        toast.success('Account created successfully!');
         navigate('/');
       } else {
         toast.error('Registration failed. Please try again.');

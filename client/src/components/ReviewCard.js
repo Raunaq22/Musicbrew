@@ -39,7 +39,6 @@ const ReviewCard = ({ review }) => {
         queryClient.invalidateQueries(['comments', review.id]);
         queryClient.invalidateQueries(['reviews']);
         setCommentContent('');
-        toast.success('Comment added!');
       },
       onError: (error) => {
         toast.error(error.response?.data?.error || 'Failed to add comment');
@@ -54,7 +53,6 @@ const ReviewCard = ({ review }) => {
       onSuccess: () => {
         queryClient.invalidateQueries(['comments', review.id]);
         queryClient.invalidateQueries(['reviews']);
-        toast.success('Comment deleted');
       },
     }
   );

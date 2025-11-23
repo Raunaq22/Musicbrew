@@ -42,7 +42,6 @@ const Admin = () => {
       onSuccess: () => {
         queryClient.invalidateQueries(['adminReviews']);
         queryClient.invalidateQueries(['reviews']);
-        toast.success('Review deleted');
       },
     }
   );
@@ -52,7 +51,6 @@ const Admin = () => {
     {
       onSuccess: () => {
         queryClient.invalidateQueries(['adminUsers']);
-        toast.success('User deleted');
       },
     }
   );

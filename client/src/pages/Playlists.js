@@ -33,7 +33,6 @@ const Playlists = () => {
         queryClient.invalidateQueries(['playlists', user?.id]);
         setIsCreating(false);
         setFormData({ name: '', description: '', isPublic: true });
-        toast.success('Playlist created!');
       },
       onError: (error) => {
         toast.error(error.response?.data?.error || 'Failed to create playlist');
@@ -47,7 +46,6 @@ const Playlists = () => {
     {
       onSuccess: () => {
         queryClient.invalidateQueries(['playlists', user?.id]);
-        toast.success('Playlist deleted');
       },
       onError: (error) => {
         toast.error(error.response?.data?.error || 'Failed to delete playlist');

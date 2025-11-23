@@ -42,7 +42,6 @@ const MusicDetails = () => {
         queryClient.invalidateQueries(['reviews', id]);
         setRating(0);
         setReviewContent('');
-        toast.success('Review submitted successfully!');
       },
       onError: (error) => {
         toast.error(error.response?.data?.error || 'Failed to submit review');
