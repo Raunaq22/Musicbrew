@@ -11,8 +11,6 @@ export default function Sidebar() {
     { path: '/', icon: Home, label: 'Home' },
     { path: '/search', icon: Search, label: 'Search' },
     { path: '/playlists', icon: Music, label: 'Playlists' },
-    { path: '/discovery', icon: Compass, label: 'Discovery' },
-    { path: '/analytics', icon: BarChart3, label: 'Analytics' },
   ];
 
   return (

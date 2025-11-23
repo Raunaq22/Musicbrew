@@ -18,9 +18,7 @@ const Navbar = () => {
   };
 
   const navigationLinks = [
-    { to: '/discovery', label: 'Discover', icon: Compass },
     { to: '/playlists', label: 'Playlists', icon: ListMusic },
-    { to: '/analytics', label: 'Analytics', icon: BarChart3 },
   ];
 
   return (

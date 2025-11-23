@@ -30,24 +30,10 @@
   "dir": "ltr",
   "shortcuts": [
     {
-      "name": "Discover Music",
-      "short_name": "Discover",
-      "description": "Find new music recommendations",
-      "url": "/discovery",
-      "icons": [{ "src": "logo192.png", "sizes": "192x192" }]
-    },
-    {
       "name": "My Profile",
       "short_name": "Profile", 
       "description": "View your music profile and stats",
       "url": "/profile",
-      "icons": [{ "src": "logo192.png", "sizes": "192x192" }]
-    },
-    {
-      "name": "Analytics",
-      "short_name": "Stats",
-      "description": "View your music listening analytics",
-      "url": "/analytics",
       "icons": [{ "src": "logo192.png", "sizes": "192x192" }]
     }
   ],

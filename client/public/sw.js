@@ -9,9 +9,7 @@ const STATIC_ASSETS = [
 
 // API endpoints to cache
 const API_CACHE_PATTERNS = [
-  /\/api\/music\/search/,
-  /\/api\/discovery\/recommendations/,
-  /\/api\/analytics\/trends/
+  /\/api\/music\/search/
 ];
 
 // Install event - cache static assets
@@ -187,10 +185,8 @@ self.addEventListener('notificationclick', (event) => {
 
   if (event.action === 'explore') {
     event.waitUntil(
-      clients.openWindow('/discovery')
+      clients.openWindow('/')
     );
-  } else if (event.action === 'close') {
-    // Do nothing, just close
   } else {
     // Default action - open the app
     event.waitUntil(

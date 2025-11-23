@@ -21,8 +21,6 @@ import Search from './pages/Search';
 import Playlists from './pages/Playlists';
 import Admin from './pages/Admin';
 import PlaylistDetails from './pages/PlaylistDetails';
-import Analytics from './pages/Analytics';
-import Discovery from './pages/Discovery';
 
 // Components
 import Sidebar from './components/Sidebar';
@@ -106,18 +104,6 @@ function App() {
                           <Admin />
                         </ProtectedRoute>
                       } 
-                    />
-                    <Route 
-                      path="/analytics" 
-                      element={
-                        <ProtectedRoute>
-                          <Analytics />
-                        </ProtectedRoute>
-                      } 
-                    />
-                    <Route 
-                      path="/discovery" 
-                      element={<Discovery />} 
                     />
                   </Routes>
                 </main>

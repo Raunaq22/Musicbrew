@@ -15,8 +15,6 @@ const reviewRoutes = require('./routes/reviews');
 const userRoutes = require('./routes/users');
 const playlistRoutes = require('./routes/playlists');
 const adminRoutes = require('./routes/admin');
-const analyticsRoutes = require('./routes/analytics');
-const discoveryRoutes = require('./routes/discovery');
 const homeRoutes = require('./routes/home');
 
 const app = express();
@@ -154,8 +152,6 @@ app.use('/api/reviews', reviewRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/playlists', playlistRoutes);
 app.use('/api/admin', adminRoutes);
-app.use('/api/analytics', analyticsRoutes);
-app.use('/api/discovery', discoveryRoutes);
 app.use('/api/home', homeRoutes);
 
 // Health check endpoint
