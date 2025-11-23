@@ -55,8 +55,6 @@ app.get('/api/audio/proxy', async (req, res) => {
       return res.status(400).json({ error: 'URL parameter is required' });
     }
 
-    console.log('🎵 Proxying Deezer request:', url);
-
     // Set CORS headers for audio streaming
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
@@ -90,9 +88,6 @@ app.get('/api/audio/proxy', async (req, res) => {
       maxContentLength: 10 * 1024 * 1024, // 10MB max
     });
 
-    console.log('🎵 Deezer response status:', response.status);
-    console.log('🎵 Deezer content-type:', response.headers['content-type']);
-
     // Set content type and headers for audio
     res.setHeader('Content-Type', response.headers['content-type'] || 'audio/mpeg');
     res.setHeader('Cache-Control', 'public, max-age=3600');
@@ -118,7 +113,6 @@ app.get('/api/audio/proxy', async (req, res) => {
     console.error('❌ Audio proxy error:', error.message);
     
     if (error.response) {
-      console.log('Response status:', error.response.status);
       res.status(error.response.status).json({ 
         error: 'Failed to fetch audio from source',
         details: error.message
@@ -189,8 +183,6 @@ app.use('*', (req, res) => {
 
 // Socket.IO connection handling
 io.on('connection', (socket) => {
-  console.log('User connected:', socket.id);
-
   // Typing indicators
   socket.on('typing-start', ({ roomId, username }) => {
     socket.to(roomId).emit('user-typing', { username, userId: socket.id });
@@ -201,7 +193,6 @@ io.on('connection', (socket) => {
   });
 
   socket.on('disconnect', () => {
-    console.log('User disconnected:', socket.id);
     // Handle cleanup - notify all rooms the user was in
     socket.rooms.forEach((roomId) => {
       if (roomId !== socket.id) {
@@ -218,6 +209,4 @@ const PORT = process.env.PORT || 5001;
 
 server.listen(PORT, () => {
   console.log(`MusicBrew Server running on port ${PORT}`);
-  console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
-  console.log(`Client URL: ${process.env.CLIENT_URL || 'http://localhost:3000'}`);
 });

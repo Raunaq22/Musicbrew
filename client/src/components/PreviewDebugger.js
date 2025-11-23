@@ -17,7 +17,7 @@ const PreviewDebugger = () => {
       console.log('Debug: Full response data:', response.data);
       console.log('Debug: Tracks:', tracks);
       
-      const debugInfo = tracks.map((track, index) => ({
+const debugInfo = tracks.map((track, index) => ({
         index: index + 1,
         name: track.name,
         artists: track.artists?.map(a => a.name).join(', '),
@@ -39,21 +39,11 @@ const PreviewDebugger = () => {
       // Test first preview URL
       const firstTrackWithPreview = tracks.find(t => t.preview_url);
       if (firstTrackWithPreview) {
-        console.log('Testing preview URL:', firstTrackWithPreview.preview_url);
-        
         try {
           const audio = new Audio(firstTrackWithPreview.preview_url);
           audio.crossOrigin = "anonymous";
           
-          audio.addEventListener('loadstart', () => console.log('Audio: loadstart'));
-          audio.addEventListener('loadeddata', () => console.log('Audio: loadeddata'));
-          audio.addEventListener('canplay', () => console.log('Audio: canplay'));
-          audio.addEventListener('error', (e) => console.log('Audio: error', e));
-          audio.addEventListener('ended', () => console.log('Audio: ended'));
-          
           await audio.play();
-          console.log('SUCCESS: Preview audio played!');
-          
         } catch (error) {
           console.log('FAILED: Preview audio error:', error.message);
         }

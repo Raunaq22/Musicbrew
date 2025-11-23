@@ -10,8 +10,6 @@ router.get('/search', async (req, res) => {
   try {
     const { q, type = 'track', limit = 20, offset = 0 } = req.query;
 
-    console.log('Search request:', { q, type, limit, offset });
-
     if (!q) {
       return res.status(400).json({ error: 'Query parameter is required' });
     }
@@ -53,7 +51,6 @@ router.get('/search', async (req, res) => {
       }
 
       const tracksWithPreviewUrls = tracksWithPreviews.filter(track => track.preview_url);
-      console.log(`Search completed: ${tracksWithPreviewUrls.length} of ${tracksWithPreviews.length} tracks have preview URLs`);
     }
 
     res.json(spotifyResults);

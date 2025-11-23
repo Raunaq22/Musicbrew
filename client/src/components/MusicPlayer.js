@@ -28,27 +28,11 @@ export default function MusicPlayer({
     };
   }, []);
 
-  useEffect(() => {
-    if (audioRef.current) {
-      audioRef.current.volume = volume;
-    }
-  }, [volume]);
-
-  useEffect(() => {
-    if (!currentTrack) {
-      setIsPlaying(false);
-      setCurrentTime(0);
-      setDuration(0);
-      setIsLoading(false);
-      if (audioRef.current) {
-        audioRef.current.src = '';
-      }
+useEffect(() => {
+    if (!currentTrack || !audioRef.current) {
       return;
     }
 
-    console.log('🎵 Loading track:', currentTrack.name);
-    console.log('🎵 Preview URL:', currentTrack.preview_url);
-    
     setCurrentTime(0);
     setIsLoading(true);
     setIsPlaying(false);
@@ -60,9 +44,6 @@ export default function MusicPlayer({
         
         audioRef.current.preload = "metadata";
         audioRef.current.src = audioUrl;
-        
-        console.log('🎵 Audio setup complete with direct Deezer URL');
-        console.log('🎵 Audio URL:', audioUrl);
         setIsLoading(false);
         
       } catch (error) {
@@ -80,18 +61,15 @@ export default function MusicPlayer({
     if (!audioRef.current || !currentTrack?.preview_url) return;
 
     if (isPlaying) {
-      console.log('Pausing...');
       setIsPlaying(false);
       audioRef.current.pause();
     } else {
-      console.log('Playing...');
-      setIsLoading(true);
+      setIsPlaying(true);
       
       try {
         await audioRef.current.play();
         setIsPlaying(true);
         setIsLoading(false);
-        console.log('🎵 Successfully playing preview');
       } catch (error) {
         console.error('❌ Error playing audio:', error);
         setIsPlaying(false);
@@ -140,9 +118,7 @@ export default function MusicPlayer({
             setCurrentTime(audioRef.current.currentTime);
           }
         }}
-        onEnded={() => {
-          console.log('Audio ended');
-          setIsPlaying(false);
+onEnded={() => {
           setCurrentTime(0);
           if (onTrackEnd) {
             onTrackEnd();
@@ -151,8 +127,6 @@ export default function MusicPlayer({
           }
         }}
         onError={(error) => {
-          console.error('Audio error:', error);
-          console.error('Audio error details:', audioRef.current?.error);
           setIsPlaying(false);
           setIsLoading(false);
           

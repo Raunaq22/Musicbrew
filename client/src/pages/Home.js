@@ -70,7 +70,6 @@ const Home = () => {
       const audio = new Audio(track.preview_url);
       toast.success(`Playing preview: ${track.name}`);
       await audio.play();
-      console.log('🎵 Preview playing:', track.name);
     } catch (error) {
       console.error('❌ Error playing preview:', error);
       toast.error('Failed to play preview');

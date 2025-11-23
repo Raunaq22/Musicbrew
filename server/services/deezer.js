@@ -53,8 +53,6 @@ class DeezerService {
         source: 'deezer'
       }));
 
-      console.log('Deezer: Found', tracks.length, 'tracks with', tracks.filter(t => t.preview).length, 'previews');
-      console.log('First few preview URLs:', tracks.filter(t => t.preview).slice(0, 3).map(t => t.preview));
       return tracks;
     } catch (error) {
       console.error('Deezer search error:', error.message);
@@ -197,8 +195,6 @@ class DeezerService {
    */
   async getBatchPreviews(spotifyTracks) {
     try {
-      console.log('Processing batch of', spotifyTracks.length, 'tracks for previews');
-      
       const results = await Promise.allSettled(
         spotifyTracks.map(track => this.getPreviewForSpotifyTrack(track))
       );
@@ -208,7 +204,6 @@ class DeezerService {
       ).filter(Boolean);
       
       const tracksWithPreviews = processedTracks.filter(track => track.preview_url);
-      console.log('Batch complete:', tracksWithPreviews.length, 'of', processedTracks.length, 'tracks have previews');
       
       return processedTracks;
     } catch (error) {

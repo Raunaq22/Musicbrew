@@ -29,12 +29,8 @@ const Search = () => {
       const audio = new Audio(track.preview_url);
       
       // Show playing status
-      toast.success(`Playing preview: ${track.name}`);
-      
-      // Play the audio
+toast.success(`Playing preview: ${track.name}`);
       await audio.play();
-      
-      console.log('🎵 Preview playing:', track.name);
       
     } catch (error) {
       console.error('❌ Error playing preview:', error);
@@ -140,22 +136,6 @@ const Search = () => {
       <div className="space-y-4">
         {results.map((item, index) => {
           const hasPreview = item.preview_url && searchType === 'track';
-          
-          // Debug first few items
-          if (index < 3) {
-            console.log(`Result ${index + 1}: ${item.name}`);
-            console.log(`  - Has preview_url: ${!!item.preview_url}`);
-            console.log(`  - Preview URL: ${item.preview_url || 'NONE'}`);
-            console.log(`  - Search type: ${searchType}`);
-            console.log(`  - Should show button: ${searchType === 'track'}`);
-          }
-          console.log('=== SEARCH DEBUG ===');
-          console.log('Track:', item.name);
-          console.log('Preview URL:', item.preview_url);
-          console.log('Has preview:', !!item.preview_url);
-          console.log('Search type:', searchType);
-          console.log('Full item:', item);
-          console.log('===================');
           
           return (
             <Card key={`${item.id}-${index}`} className="hover:bg-muted transition-colors">
