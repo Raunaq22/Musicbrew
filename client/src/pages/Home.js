@@ -6,11 +6,10 @@ import { usePerformanceMonitor } from '../components/LazyComponent';
 import { Button } from '../components/ui/button';
 import { Card } from '../components/ui/card';
 import api from '../services/api';
-import { useMusicPlayer } from '../context/MusicPlayerContext';
+import toast from 'react-hot-toast';
 
 const Home = () => {
   const { isAuthenticated, user } = useAuth();
-  const { playTrack } = useMusicPlayer();
   
   // Performance monitoring
   usePerformanceMonitor('Home');
@@ -61,15 +60,21 @@ const Home = () => {
     }
   );
 
-  const handlePlayTrack = (track) => {
-    console.log('Playing track:', track);
-    playTrack({
-      id: track.id,
-      name: track.name,
-      artist: track.artist,
-      artwork: track.album?.cover || track.cover,
-      preview_url: track.preview_url
-    });
+  const handlePlayTrack = async (track) => {
+    if (!track.preview_url) {
+      toast.error('No preview available for this track');
+      return;
+    }
+
+    try {
+      const audio = new Audio(track.preview_url);
+      toast.success(`Playing preview: ${track.name}`);
+      await audio.play();
+      console.log('🎵 Preview playing:', track.name);
+    } catch (error) {
+      console.error('❌ Error playing preview:', error);
+      toast.error('Failed to play preview');
+    }
   };
 
   const AlbumCard = ({ album, showPlayCount, showFriend }) => (

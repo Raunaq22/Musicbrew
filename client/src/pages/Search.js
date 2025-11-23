@@ -8,7 +8,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs'
 import { Card, CardContent } from '../components/ui/card';
 import { Search as SearchIcon, Music, Disc, User, Play } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { useMusicPlayer } from '../context/MusicPlayerContext';
 import toast from 'react-hot-toast';
 
 const Search = () => {
@@ -18,41 +17,28 @@ const Search = () => {
 
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
-  const { playTrack } = useMusicPlayer();
 
-  const playPreview = (track) => {
-    console.log('=== PLAY PREVIEW CLICKED ===');
-    console.log('Track object received:', track);
-    console.log('Track ID:', track.id);
-    console.log('Track name:', track.name);
-    console.log('Has preview_url:', !!track.preview_url);
-    console.log('Preview URL:', track.preview_url);
-    console.log('Preview source:', track.preview_source);
-    console.log('Full track object:', track);
-    console.log('==========================');
-    
-    if (track.preview_url) {
-      // Format track for music player
-      const playerTrack = {
-        id: track.id,
-        name: track.name,
-        artist: track.artists?.map(a => a.name).join(', ') || 'Unknown Artist',
-        artwork: track.album?.images?.[0]?.url || track.images?.[0]?.url,
-        preview_url: track.preview_url,
-        source: track.preview_source || 'deezer'
-      };
-      
-      console.log('=== FORMATTED TRACK FOR PLAYER ===');
-      console.log('Player track object:', playerTrack);
-      console.log('Formatted track preview URL:', playerTrack.preview_url);
-      console.log('===================================');
-      
-      playTrack(playerTrack);
-      console.log('✅ Track sent to music player');
-      toast.success(`Playing preview: ${track.name}`);
-    } else {
-      console.log('❌ No preview URL available for:', track.name);
+  const playPreview = async (track) => {
+    if (!track.preview_url) {
       toast.error('No preview available for this track');
+      return;
+    }
+
+    try {
+      // Create a simple audio element for preview
+      const audio = new Audio(track.preview_url);
+      
+      // Show playing status
+      toast.success(`Playing preview: ${track.name}`);
+      
+      // Play the audio
+      await audio.play();
+      
+      console.log('🎵 Preview playing:', track.name);
+      
+    } catch (error) {
+      console.error('❌ Error playing preview:', error);
+      toast.error('Failed to play preview');
     }
   };
 
@@ -220,21 +206,22 @@ const Search = () => {
 
                   <div className="flex items-center space-x-2 flex-shrink-0">
                     {/* Preview Button - always render for tracks */}
-                    {searchType === 'track' && (
-                      <Button 
-                        onClick={() => playPreview(item)}
-                        size="sm"
-                        className={`${item.preview_url 
-                          ? 'bg-green-600 hover:bg-green-700 text-white' 
-                          : 'bg-gray-400 text-gray-200 cursor-not-allowed'
-                        }`}
-                        disabled={!item.preview_url}
-                        title={item.preview_url ? 'Play preview' : 'No preview available'}
-                      >
-                        <Play className="h-4 w-4 mr-1" />
-                        {item.preview_url ? 'Preview' : 'No Preview'}
-                      </Button>
-                    )}
+{searchType === 'track' && (
+                       <Button 
+                         onClick={() => playPreview(item)}
+                         size="sm"
+                         className={`${
+                           item.preview_url 
+                             ? 'bg-green-600 hover:bg-green-700 text-white' 
+                             : 'bg-gray-400 text-gray-200 cursor-not-allowed'
+                         }`}
+                         disabled={!item.preview_url}
+                         title={item.preview_url ? 'Play preview' : 'No preview available'}
+                       >
+                         <Play className="h-4 w-4 mr-1" />
+                         Preview
+                       </Button>
+                     )}
                     <Button 
                       onClick={() => navigate(`/music/${item.id}`)}
                       variant="outline"
