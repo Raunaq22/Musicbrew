@@ -75,21 +75,6 @@ export default function NewsCard({ article }) {
               <time dateTime={article.pubDate}>
                 {formatDate(article.pubDate)}
               </time>
-              {article.categories && article.categories.length > 0 && (
-                <div className="flex items-center space-x-1">
-                  <span>Tags:</span>
-                  <div className="flex space-x-1">
-                    {article.categories.slice(0, 3).map((category, index) => (
-                      <span
-                        key={index}
-                        className="px-1.5 py-0.5 bg-muted rounded-md text-xs"
-                      >
-                        {category}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
             </div>
             
             <div className="flex items-center space-x-2">
