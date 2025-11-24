@@ -104,10 +104,15 @@ const MusicDetails = () => {
             )}
             
             <div className="flex items-center space-x-4">
-              <button className="bg-primary hover:bg-primary-hover text-white px-6 py-2 rounded-lg transition-colors flex items-center space-x-2">
+              <a 
+                href={track.external_urls?.spotify || `https://open.spotify.com/track/${track.id}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-primary hover:bg-primary-hover text-white px-6 py-2 rounded-lg transition-colors flex items-center space-x-2"
+              >
                 <Play className="h-4 w-4" />
-                <span>Play on Spotify</span>
-              </button>
+                <span>Open on Spotify</span>
+              </a>
             </div>
           </div>
         </div>

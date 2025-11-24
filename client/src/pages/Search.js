@@ -112,6 +112,8 @@ const handlePlayPreview = async (track) => {
     let results = [];
     if (searchType === 'track') {
       results = searchResults.tracks?.items || [];
+      // Filter out tracks without preview URLs for track searches
+      results = results.filter(track => track.preview_url);
     } else if (searchType === 'album') {
       results = searchResults.albums?.items || [];
     } else if (searchType === 'artist') {
@@ -122,8 +124,15 @@ const handlePlayPreview = async (track) => {
       return (
         <div className="text-center py-12">
           <Music className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-          <p className="text-muted-foreground">No results found for "{query}"</p>
-          <p className="text-sm text-muted-foreground mt-2">Try different keywords or check your spelling</p>
+          <p className="text-muted-foreground">
+            {searchType === 'track' 
+              ? 'No tracks with previews found for "' + query + '"' 
+              : 'No results found for "' + query + '"'
+            }
+          </p>
+          {searchType === 'track' && (
+            <p className="text-sm text-muted-foreground mt-2">Try searching for a different song</p>
+          )}
         </div>
       );
     }
@@ -180,32 +189,27 @@ const handlePlayPreview = async (track) => {
                     )}
                   </div>
 
-                  <div className="flex items-center space-x-2 flex-shrink-0">
-                    {/* Preview Button - always render for tracks */}
-{searchType === 'track' && (
+<div className="flex items-center space-x-2 flex-shrink-0">
+                     {/* Preview Button - only show for tracks with preview */}
+                     {searchType === 'track' && item.preview_url && (
                        <Button 
                          onClick={() => handlePlayPreview(item)}
                          size="sm"
-                         className={`${
-                           item.preview_url 
-                             ? 'bg-green-600 hover:bg-green-700 text-white' 
-                             : 'bg-gray-400 text-gray-200 cursor-not-allowed'
-                         }`}
-                         disabled={!item.preview_url}
-                         title={item.preview_url ? 'Play preview' : 'No preview available'}
+                         className="bg-green-600 hover:bg-green-700 text-white"
+                         title="Play preview"
                        >
                          <Play className="h-4 w-4 mr-1" />
                          Preview
                        </Button>
                      )}
-                    <Button 
-                      onClick={() => navigate(`/music/${item.id}`)}
-                      variant="outline"
-                      size="sm"
-                    >
-                      View Details
-                    </Button>
-                  </div>
+                     <Button 
+                       onClick={() => navigate(`/music/${item.id}`)}
+                       variant="outline"
+                       size="sm"
+                     >
+                       View Details
+                     </Button>
+                   </div>
                 </div>
               </CardContent>
             </Card>

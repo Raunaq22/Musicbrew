@@ -123,10 +123,18 @@ class DeezerService {
         };
       }
 
-      return spotifyTrack;
+      // Return track without preview_url so it gets filtered out
+      return {
+        ...spotifyTrack,
+        preview_url: null
+      };
     } catch (error) {
       console.error('Error matching track with Deezer:', error.message);
-      return spotifyTrack;
+      // Return track without preview_url so it gets filtered out
+      return {
+        ...spotifyTrack,
+        preview_url: null
+      };
     }
   }
 

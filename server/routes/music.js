@@ -39,7 +39,7 @@ router.get('/search', async (req, res) => {
       ];
     }
 
-    // For tracks, add Deezer preview URLs
+    // For tracks, add Deezer preview URLs and filter results
     if (type === 'track' || type === 'all') {
       const tracksToProcess = tracks.filter(item => !item.type || item.type === 'track');
       
@@ -50,7 +50,10 @@ router.get('/search', async (req, res) => {
         spotifyResults.tracks.items = tracksWithPreviews;
       }
 
-      const tracksWithPreviewUrls = tracksWithPreviews.filter(track => track.preview_url);
+      // Filter tracks to only include those with preview URLs for track searches
+      if (type === 'track') {
+        spotifyResults.tracks.items = spotifyResults.tracks.items.filter(track => track.preview_url);
+      }
     }
 
     res.json(spotifyResults);
