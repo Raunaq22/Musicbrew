@@ -202,13 +202,21 @@ const handlePlayPreview = async (track) => {
                          Preview
                        </Button>
                      )}
-                     <Button 
-                       onClick={() => navigate(`/music/${item.id}`)}
-                       variant="outline"
-                       size="sm"
-                     >
-                       View Details
-                     </Button>
+<Button 
+                        onClick={() => {
+                          if (searchType === 'album') {
+                            navigate(`/music/${item.id}/album`);
+                          } else if (searchType === 'artist') {
+                            navigate(`/music/${item.id}/artist`);
+                          } else {
+                            navigate(`/music/${item.id}/track`);
+                          }
+                        }}
+                        variant="outline"
+                        size="sm"
+                      >
+                        View Details
+                      </Button>
                    </div>
                 </div>
               </CardContent>

@@ -70,7 +70,7 @@ function App() {
                       } 
                     />
                     <Route 
-                      path="/music/:id" 
+                      path="/music/:id/:type?" 
                       element={
                         <ProtectedRoute>
                           <MusicDetails />

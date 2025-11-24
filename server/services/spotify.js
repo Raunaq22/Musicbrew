@@ -134,6 +134,42 @@ class SpotifyService {
     }
   }
 
+  // Get artist's top tracks
+  async getArtistTopTracks(artistId, accessToken, limit = 5) {
+    try {
+      const response = await axios.get(`${this.baseURL}/artists/${artistId}/top-tracks`, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+        params: {
+          market: 'US', // Required for top tracks
+        },
+      });
+      return response.data;
+    } catch (error) {
+      throw new Error('Failed to get artist top tracks: ' + error.message);
+    }
+  }
+
+  // Get artist's albums
+  async getArtistAlbums(artistId, accessToken, limit = 20) {
+    try {
+      const response = await axios.get(`${this.baseURL}/artists/${artistId}/albums`, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+        params: {
+          limit: limit,
+          include_groups: 'album,single', // Include both albums and singles
+          market: 'US',
+        },
+      });
+      return response.data;
+    } catch (error) {
+      throw new Error('Failed to get artist albums: ' + error.message);
+    }
+  }
+
   // Get user's top tracks
   async getTopTracks(accessToken, timeRange = 'medium_term', limit = 20) {
     try {

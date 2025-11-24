@@ -120,6 +120,52 @@ router.get('/artist/:id', authenticateToken, async (req, res) => {
   }
 });
 
+// Get artist's top tracks
+router.get('/artist/:id/top-tracks', authenticateToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { limit = 5 } = req.query;
+    const { accesstoken } = req.headers;
+
+    if (!accesstoken) {
+      return res.status(400).json({ error: 'Spotify access token required' });
+    }
+
+    // Get artist's top tracks from Spotify
+    const topTracks = await spotifyService.getArtistTopTracks(id, accesstoken, parseInt(limit));
+    
+    // Add Deezer preview URLs for tracks
+    const tracksWithPreviews = await deezerService.getBatchPreviews(topTracks.tracks || []);
+    
+    res.json({
+      ...topTracks,
+      tracks: tracksWithPreviews
+    });
+  } catch (error) {
+    console.error('Get artist top tracks error:', error);
+    res.status(500).json({ error: 'Failed to get artist top tracks' });
+  }
+});
+
+// Get artist's albums
+router.get('/artist/:id/albums', authenticateToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { limit = 20 } = req.query;
+    const { accesstoken } = req.headers;
+
+    if (!accesstoken) {
+      return res.status(400).json({ error: 'Spotify access token required' });
+    }
+
+    const albums = await spotifyService.getArtistAlbums(id, accesstoken, parseInt(limit));
+    res.json(albums);
+  } catch (error) {
+    console.error('Get artist albums error:', error);
+    res.status(500).json({ error: 'Failed to get artist albums' });
+  }
+});
+
 // Get user's top tracks (Spotify - requires authentication)
 router.get('/top/tracks', authenticateToken, async (req, res) => {
   try {
