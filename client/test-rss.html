@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test RSS Service</title>
+</head>
+<body>
+    <div id="output">Testing RSS service...</div>
+    
+    <script>
+        async function testRSS() {
+            try {
+                console.log('Starting RSS test...');
+                
+                const response = await fetch('/api/public/album-reviews');
+                console.log('Response status:', response.status);
+                console.log('Response headers:', Object.fromEntries(response.headers.entries()));
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                console.log('Response data:', data);
+                
+                if (data.success && data.items) {
+                    document.getElementById('output').innerHTML = 
+                        `Success! Found ${data.items.length} items. First item: ${data.items[0].title}`;
+                } else {
+                    document.getElementById('output').innerHTML = 
+                        'Error: Invalid response format';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('output').innerHTML = 
+                    `Error: ${error.message}`;
+            }
+        }
+        
+        testRSS();
+    </script>
+</body>
+</html>

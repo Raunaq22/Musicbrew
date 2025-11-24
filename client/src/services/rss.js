@@ -1,14 +1,11 @@
 class RSSService {
   constructor() {
-    this.baseUrl = 'https://api.rss2json.com/v1/api.json';
-    this.feedUrl = 'https://pitchfork.com/feed/feed-album-reviews/rss';
+    this.baseUrl = '/api/rss';
   }
 
   async fetchRSSFeed() {
     try {
-      const response = await fetch(
-        `${this.baseUrl}?rss_url=${encodeURIComponent(this.feedUrl)}`
-      );
+      const response = await fetch('/api/public/album-reviews');
       
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -16,7 +13,7 @@ class RSSService {
       
       const data = await response.json();
       
-      if (data.status !== 'ok') {
+      if (!data.success) {
         throw new Error('Failed to fetch RSS feed');
       }
       
@@ -29,11 +26,20 @@ class RSSService {
 
   parseFeedItems(items) {
     return items.map(item => {
-      // Extract image from content if available
+      // Extract image from multiple possible sources
       let imageUrl = null;
-      const imgMatch = item.content.match(/<img[^>]+src=["']([^"']+)["']/i);
-      if (imgMatch && imgMatch[1]) {
-        imageUrl = imgMatch[1];
+      
+      // Try RSS2JSON thumbnail first (most reliable)
+      if (item.thumbnail) {
+        imageUrl = item.thumbnail;
+      } else if (item.enclosure && item.enclosure.thumbnail) {
+        imageUrl = item.enclosure.thumbnail;
+      } else {
+        // Fallback to content parsing for images
+        const imgMatch = item.content.match(/<img[^>]+src=["']([^"']+)["']/i);
+        if (imgMatch && imgMatch[1]) {
+          imageUrl = imgMatch[1];
+        }
       }
 
       return {
