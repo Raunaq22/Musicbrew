@@ -19,8 +19,9 @@ import UserProfile from './pages/UserProfile';
 import MusicDetails from './pages/MusicDetails';
 import Search from './pages/Search';
 import Playlists from './pages/Playlists';
-import Admin from './pages/Admin';
 import PlaylistDetails from './pages/PlaylistDetails';
+import Admin from './pages/Admin';
+import News from './pages/News';
 
 // Components
 import Sidebar from './components/Sidebar';
@@ -94,6 +95,14 @@ function App() {
                       element={
                         <ProtectedRoute>
                           <PlaylistDetails />
+                        </ProtectedRoute>
+                      } 
+                    />
+                    <Route 
+                      path="/news" 
+                      element={
+                        <ProtectedRoute>
+                          <News />
                         </ProtectedRoute>
                       } 
                     />
