@@ -1,7 +1,7 @@
 class RSSService {
   constructor() {
     this.baseUrl = 'https://api.rss2json.com/v1/api.json';
-    this.feedUrl = 'https://pitchfork.com/feed/rss';
+    this.feedUrl = 'https://pitchfork.com/feed/feed-album-reviews/rss';
   }
 
   async fetchRSSFeed() {
@@ -36,20 +36,6 @@ class RSSService {
         imageUrl = imgMatch[1];
       }
 
-      // Extract category from categories
-      let category = 'News';
-      if (item.categories && item.categories.length > 0) {
-        const categories = Array.isArray(item.categories) ? item.categories : [item.categories];
-        const albumCategory = categories.find(cat => 
-          cat.toLowerCase().includes('album') || 
-          cat.toLowerCase().includes('review') ||
-          cat.toLowerCase().includes('record')
-        );
-        if (albumCategory) {
-          category = 'Albums';
-        }
-      }
-
       return {
         id: item.guid || item.link,
         title: item.title,
@@ -58,23 +44,16 @@ class RSSService {
         link: item.link,
         pubDate: item.pubDate,
         author: item.author,
-        category,
+        category: 'Album Review',
         imageUrl,
         categories: item.categories || []
       };
     });
   }
 
-  async getNewsAndAlbums() {
+  async getAlbumReviews() {
     const allItems = await this.fetchRSSFeed();
-    
-    const news = allItems.filter(item => item.category === 'News');
-    const albums = allItems.filter(item => item.category === 'Albums');
-    
-    return {
-      news: news.slice(0, 20), // Limit to 20 items each
-      albums: albums.slice(0, 20)
-    };
+    return allItems;
   }
 }
 
