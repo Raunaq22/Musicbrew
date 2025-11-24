@@ -5,7 +5,7 @@ import { useQuery } from 'react-query';
 import { usePerformanceMonitor } from '../components/LazyComponent';
 import { Button } from '../components/ui/button';
 import { Card } from '../components/ui/card';
-import { useAudio } from '../context/AudioContext';
+import { useAudio, useStopPreviewOnRouteChange } from '../context/AudioContext';
 import api from '../services/api';
 import toast from 'react-hot-toast';
 
@@ -16,6 +16,9 @@ const Home = () => {
   usePerformanceMonitor('Home');
 
   const { playPreview } = useAudio();
+
+  // Automatically stop preview when route changes
+  useStopPreviewOnRouteChange();
 
   // Fetch popular tracks for authenticated users
   const { data: popularTracks, isLoading: popularLoading } = useQuery(

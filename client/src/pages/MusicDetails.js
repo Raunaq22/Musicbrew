@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from 'react-query';
 import { useAuth } from '../context/AuthContext';
-import { useAudio } from '../context/AudioContext';
+import { useAudio, useStopPreviewOnRouteChange } from '../context/AudioContext';
 import api from '../services/api';
 import { Star, Play, Music, MessageCircle, Disc, User, ChevronDown, ChevronUp, ExternalLink } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -20,6 +20,9 @@ const MusicDetails = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [expandedTopTracks, setExpandedTopTracks] = useState(false);
   const [expandedAlbums, setExpandedAlbums] = useState(false);
+
+  // Automatically stop preview when route changes
+  useStopPreviewOnRouteChange();
 
   const queryClient = useQueryClient();
 

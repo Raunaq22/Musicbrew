@@ -8,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs'
 import { Card, CardContent } from '../components/ui/card';
 import { Search as SearchIcon, Music, Disc, User, Play } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { useAudio } from '../context/AudioContext';
+import { useAudio, useStopPreviewOnRouteChange } from '../context/AudioContext';
 import toast from 'react-hot-toast';
 
 const Search = () => {
@@ -19,6 +19,9 @@ const Search = () => {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
   const { playPreview } = useAudio();
+
+  // Automatically stop preview when route changes
+  useStopPreviewOnRouteChange();
 
 const handlePlayPreview = async (track) => {
     if (!track.preview_url) {

@@ -1,5 +1,5 @@
 import React from 'react';
-import { useAudio } from '../context/AudioContext';
+import { useAudio, useStopPreviewOnRouteChange } from '../context/AudioContext';
 import { useNavigate } from 'react-router-dom';
 import { Button } from './ui/button';
 import { Play, Music } from 'lucide-react';
@@ -17,6 +17,9 @@ const TrackPreview = ({
 }) => {
   const { playPreview } = useAudio();
   const navigate = useNavigate();
+
+  // Automatically stop preview when route changes
+  useStopPreviewOnRouteChange();
 
   const handlePlayPreview = async (e) => {
     e.preventDefault();

@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useRef } from 'react';
+import React, { createContext, useContext, useRef, useCallback, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 
 const AudioContext = createContext();
 
@@ -12,6 +13,22 @@ export const useAudio = () => {
 
 export const AudioProvider = ({ children }) => {
   const currentAudioRef = useRef(null);
+  const routeChangeListeners = useRef(new Set());
+
+  // Function to notify all listeners about route changes
+  const notifyRouteChange = useCallback(() => {
+    routeChangeListeners.current.forEach(listener => {
+      if (typeof listener === 'function') {
+        listener();
+      }
+    });
+  }, []);
+
+  // Function to add a route change listener
+  const addRouteChangeListener = useCallback((listener) => {
+    routeChangeListeners.current.add(listener);
+    return () => routeChangeListeners.current.delete(listener);
+  }, []);
 
   const playPreview = async (track) => {
     if (!track.preview_url) {
@@ -50,6 +67,12 @@ export const AudioProvider = ({ children }) => {
     }
   };
 
+  // Enhanced stop function that also notifies route change listeners
+  const stopCurrentPreviewAndNotify = useCallback(() => {
+    stopCurrentPreview();
+    notifyRouteChange();
+  }, [notifyRouteChange]);
+
   const isPreviewPlaying = (track) => {
     return currentAudioRef.current?.src === track.preview_url;
   };
@@ -59,8 +82,10 @@ export const AudioProvider = ({ children }) => {
       value={{
         playPreview,
         stopCurrentPreview,
+        stopCurrentPreviewAndNotify,
         isPreviewPlaying,
         currentAudio: currentAudioRef.current,
+        addRouteChangeListener,
       }}
     >
       {children}
@@ -69,3 +94,16 @@ export const AudioProvider = ({ children }) => {
 };
 
 export default AudioContext;
+
+// Custom hook for automatic preview stopping on route changes
+export const useStopPreviewOnRouteChange = () => {
+  const { stopCurrentPreviewAndNotify, addRouteChangeListener } = useAudio();
+  const location = useLocation();
+
+  useEffect(() => {
+    // Stop preview when route changes
+    stopCurrentPreviewAndNotify();
+  }, [location.pathname, stopCurrentPreviewAndNotify]);
+
+  return null;
+};
