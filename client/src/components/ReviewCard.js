@@ -6,18 +6,18 @@ import api from '../services/api';
 import { Star, Heart, MessageCircle, Trash2, Send, Music } from 'lucide-react';
 import toast from 'react-hot-toast';
 
-const ReviewCard = ({ review }) => {
+const ReviewCard = ({ review, showMusicInfo = false }) => {
   const { user } = useAuth();
   const [showComments, setShowComments] = useState(false);
   const [commentContent, setCommentContent] = useState('');
   const queryClient = useQueryClient();
 
-  // Fetch music details
+  // Fetch music details only if showMusicInfo is true
   const { data: musicData, isLoading: musicLoading } = useQuery(
     ['music', review.musicId],
     () => api.get(`/music/track/${review.musicId}`).then(res => res.data),
     {
-      enabled: !!review.musicId,
+      enabled: showMusicInfo && !!review.musicId,
     }
   );
 
@@ -77,8 +77,8 @@ const ReviewCard = ({ review }) => {
 
   return (
     <div className="bg-gray-700 rounded-lg p-4 hover:bg-gray-600 transition-colors">
-      {/* Music Info Section - Clickable */}
-      {music && (
+      {/* Music Info Section - Only show if showMusicInfo is true */}
+      {showMusicInfo && music && (
         <Link 
           to={`/music/${review.musicId}`}
           className="block mb-3 p-3 bg-gray-600 rounded-lg hover:bg-gray-500 transition-colors"
@@ -86,12 +86,9 @@ const ReviewCard = ({ review }) => {
           <div className="flex items-center space-x-3">
             <div className="relative">
               <img
-                src={music.album?.images?.[0]?.url || music.images?.[0]?.url || '/placeholder-cover.jpg'}
+                src={music.album?.images?.[0]?.url || music.images?.[0]?.url || 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" fill="none"><rect width="64" height="64" fill="%23374151"/><path d="M20 44V20l24-6v24" stroke="%239CA3AF" stroke-width="2" fill="none"/><circle cx="44" cy="24" r="4" fill="%239CA3AF"/></svg>'}
                 alt={music.name}
                 className="w-16 h-16 rounded-lg object-cover"
-                onError={(e) => {
-                  e.target.src = '/placeholder-cover.jpg';
-                }}
               />
               <div className="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-20 rounded-lg transition-colors flex items-center justify-center">
                 <Music className="h-8 w-8 text-white opacity-0 hover:opacity-100 transition-opacity" />

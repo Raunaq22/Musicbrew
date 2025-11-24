@@ -189,11 +189,11 @@ const Profile = () => {
             </p>
           </div>
         ) : (
-          <div className="space-y-4">
-            {reviews.map((review) => (
-              <ReviewCard key={review.id} review={review} />
-            ))}
-          </div>
+<div className="space-y-4">
+             {reviews.map((review) => (
+               <ReviewCard key={review.id} review={review} showMusicInfo={true} />
+             ))}
+           </div>
         )}
       </div>
     </div>
