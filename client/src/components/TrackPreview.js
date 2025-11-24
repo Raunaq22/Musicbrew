@@ -1,5 +1,6 @@
 import React from 'react';
 import { useAudio } from '../context/AudioContext';
+import { useNavigate } from 'react-router-dom';
 import { Button } from './ui/button';
 import { Play, Music } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -11,9 +12,11 @@ const TrackPreview = ({
   showIndex = true, 
   showPreviewButton = true,
   compact = false,
-  className = ""
+  className = "",
+  onClick = null // Optional custom onClick handler
 }) => {
   const { playPreview } = useAudio();
+  const navigate = useNavigate();
 
   const handlePlayPreview = async (e) => {
     e.preventDefault();
@@ -33,6 +36,20 @@ const TrackPreview = ({
     }
   };
 
+  const handleTrackClick = (e) => {
+    // Only handle click if it wasn't on the button
+    if (!e.target.closest('button')) {
+      // If custom onClick provided, use it
+      if (onClick) {
+        onClick(e, track);
+        return;
+      }
+      
+      // Default behavior: navigate to track details
+      navigate(`/music/${track.id}/track`);
+    }
+  };
+
   const baseClasses = compact 
     ? "flex items-center space-x-3 p-2 hover:bg-muted rounded transition-colors"
     : "flex items-center space-x-4 p-3 hover:bg-muted rounded-lg transition-colors";
@@ -40,12 +57,7 @@ const TrackPreview = ({
   return (
     <div 
       className={`${baseClasses} ${className}`}
-      onClick={(e) => {
-        // Only play preview if the click wasn't on the button
-        if (!e.target.closest('button')) {
-          handlePlayPreview(e);
-        }
-      }}
+      onClick={handleTrackClick}
     >
       {showIndex && (
         <span className="text-muted-foreground w-8 text-sm font-mono">
