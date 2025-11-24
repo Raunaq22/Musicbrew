@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from 'react-query';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
-import { Star, Heart, MessageCircle, Trash2, Send } from 'lucide-react';
+import { Star, Heart, MessageCircle, Trash2, Send, Music } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 const ReviewCard = ({ review }) => {
@@ -11,6 +11,15 @@ const ReviewCard = ({ review }) => {
   const [showComments, setShowComments] = useState(false);
   const [commentContent, setCommentContent] = useState('');
   const queryClient = useQueryClient();
+
+  // Fetch music details
+  const { data: musicData, isLoading: musicLoading } = useQuery(
+    ['music', review.musicId],
+    () => api.get(`/music/track/${review.musicId}`).then(res => res.data),
+    {
+      enabled: !!review.musicId,
+    }
+  );
 
   // Fetch comments
   const { data: commentsData, isLoading: commentsLoading } = useQuery(
@@ -64,9 +73,48 @@ const ReviewCard = ({ review }) => {
   };
 
   const comments = commentsData?.comments || [];
+  const music = musicData || null;
 
   return (
-    <div className="bg-gray-700 rounded-lg p-4">
+    <div className="bg-gray-700 rounded-lg p-4 hover:bg-gray-600 transition-colors">
+      {/* Music Info Section - Clickable */}
+      {music && (
+        <Link 
+          to={`/music/${review.musicId}`}
+          className="block mb-3 p-3 bg-gray-600 rounded-lg hover:bg-gray-500 transition-colors"
+        >
+          <div className="flex items-center space-x-3">
+            <div className="relative">
+              <img
+                src={music.album?.images?.[0]?.url || music.images?.[0]?.url || '/placeholder-cover.jpg'}
+                alt={music.name}
+                className="w-16 h-16 rounded-lg object-cover"
+                onError={(e) => {
+                  e.target.src = '/placeholder-cover.jpg';
+                }}
+              />
+              <div className="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-20 rounded-lg transition-colors flex items-center justify-center">
+                <Music className="h-8 w-8 text-white opacity-0 hover:opacity-100 transition-opacity" />
+              </div>
+            </div>
+            <div className="flex-1 min-w-0">
+              <h3 className="font-semibold text-foreground text-lg truncate">
+                {music.name}
+              </h3>
+              <p className="text-text-muted text-sm truncate">
+                {music.artists?.[0]?.name || music.artist?.name || 'Unknown Artist'}
+              </p>
+              {music.album?.name && (
+                <p className="text-text-muted text-xs truncate">
+                  from "{music.album.name}"
+                </p>
+              )}
+            </div>
+          </div>
+        </Link>
+      )}
+
+      {/* Review Content */}
       <div className="flex items-start justify-between mb-2">
         <div className="flex items-center space-x-3">
           {review.user.avatar ? (
