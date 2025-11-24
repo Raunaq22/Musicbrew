@@ -6,6 +6,7 @@ import toast from 'react-hot-toast';
 
 const TrackPreview = ({ 
   track, 
+  album,
   index, 
   showIndex = true, 
   showPreviewButton = true,
@@ -54,9 +55,9 @@ const TrackPreview = ({
       
       {/* Album Art */}
       <div className="w-12 h-12 bg-muted rounded-lg flex items-center justify-center flex-shrink-0">
-        {track.album?.images?.[0] ? (
+        {track.album?.images?.[0] || album?.images?.[0] ? (
           <img
-            src={track.album.images[0].url}
+            src={track.album?.images?.[0]?.url || album?.images?.[0]?.url}
             alt={track.name}
             className="w-full h-full object-cover rounded-lg"
           />

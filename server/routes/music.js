@@ -95,6 +95,13 @@ router.get('/album/:id', authenticateToken, async (req, res) => {
     }
 
     const album = await spotifyService.getAlbum(id, accesstoken);
+    
+    // Add Deezer preview URLs for album tracks
+    if (album.tracks && album.tracks.items) {
+      const tracksWithPreviews = await deezerService.getBatchPreviews(album.tracks.items);
+      album.tracks.items = tracksWithPreviews;
+    }
+    
     res.json(album);
   } catch (error) {
     console.error('Get album error:', error);

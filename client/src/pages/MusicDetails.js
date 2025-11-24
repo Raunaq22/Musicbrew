@@ -265,20 +265,21 @@ const MusicDetails = () => {
         </div>
       </div>
 
-      {/* Tracklist */}
-      <div className="bg-card rounded-lg p-6">
-        <h2 className="text-xl font-semibold text-foreground mb-6">Tracklist</h2>
-        <div className="space-y-2">
-          {album.tracks?.items?.map((track, index) => (
-            <TrackPreview
-              key={track.id}
-              track={track}
-              index={index}
-              showPreviewButton={true}
-            />
-          ))}
-        </div>
-      </div>
+{/* Tracklist */}
+       <div className="bg-card rounded-lg p-6">
+         <h2 className="text-xl font-semibold text-foreground mb-6">Tracklist</h2>
+         <div className="space-y-2">
+           {album.tracks?.items?.map((track, index) => (
+             <TrackPreview
+               key={track.id}
+               track={track}
+               album={album}
+               index={index}
+               showPreviewButton={true}
+             />
+           ))}
+         </div>
+       </div>
     </div>
   );
 
