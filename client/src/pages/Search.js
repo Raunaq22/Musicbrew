@@ -305,22 +305,6 @@ const handlePlayPreview = async (track) => {
 
 
       {renderSearchResults()}
-      
-      {/* Search Tips */}
-      {!query && isAuthenticated && (
-        <div className="mt-12 text-center">
-          <div className="max-w-md mx-auto">
-            <SearchIcon className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-foreground mb-2">Search Tips</h3>
-            <div className="text-sm text-muted-foreground space-y-1">
-              <p>• Try searching for artists like "Taylor Swift" or "The Beatles"</p>
-              <p>• Search for song titles like "Bohemian Rhapsody"</p>
-              <p>• Look up albums like "Thriller" or "Dark Side of the Moon"</p>
-              <p>• Use specific genres like "indie rock" or "jazz fusion"</p>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
