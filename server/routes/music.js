@@ -74,8 +74,12 @@ router.get('/track/:id', authenticateToken, async (req, res) => {
     }
 
     const track = await spotifyService.getTrack(id, accesstoken);
+    
+    // Add Deezer preview URL for the track
+    const trackWithPreview = await deezerService.getPreviewForSpotifyTrack(track);
+    
     res.json({
-      ...track,
+      ...trackWithPreview,
       source: 'spotify'
     });
   } catch (error) {

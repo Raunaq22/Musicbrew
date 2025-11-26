@@ -196,6 +196,16 @@ const MusicDetails = () => {
                 <span>Open on Spotify</span>
                 <ExternalLink className="h-3 w-3" />
               </a>
+              {track.preview_url && (
+                <button
+                  onClick={() => handlePlayPreview(track)}
+                  className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg transition-colors flex items-center space-x-2"
+                  disabled={false}
+                >
+                  <Play className="h-4 w-4" />
+                  <span>Preview</span>
+                </button>
+              )}
             </div>
           </div>
         </div>
