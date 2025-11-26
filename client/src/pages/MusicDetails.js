@@ -74,12 +74,12 @@ const MusicDetails = () => {
     }
   );
 
-  // Fetch reviews for this track
+  // Fetch reviews for this track (only for tracks, not albums or artists)
   const { data: reviewsData, isLoading: reviewsLoading } = useQuery(
     ['reviews', id],
     () => api.get(`/reviews?musicId=${id}`).then(res => res.data),
     {
-      enabled: !!id,
+      enabled: !!id && contentType === 'track',
     }
   );
 
@@ -447,82 +447,86 @@ const MusicDetails = () => {
     <div className="max-w-6xl mx-auto">
       {renderContent()}
 
-      {/* Review Form */}
-      <div className="bg-card rounded-lg p-6 mb-8">
-        <h2 className="text-xl font-semibold text-foreground mb-4">Write a Review</h2>
-        
-        <form onSubmit={handleSubmitReview} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-muted-foreground mb-2">
-              Rating
-            </label>
-            <div className="flex space-x-1">
-              {[1, 2, 3, 4, 5].map((star) => (
-                <button
-                  key={star}
-                  type="button"
-                  onClick={() => setRating(star)}
-                  className="focus:outline-none"
-                >
-                  <Star
-                    className={`h-6 w-6 ${
-                      star <= rating ? 'text-accent fill-current' : 'text-muted-foreground'
-                    }`}
-                  />
-                </button>
+      {/* Review Form - Only show for tracks */}
+      {contentType === 'track' && (
+        <div className="bg-card rounded-lg p-6 mb-8">
+          <h2 className="text-xl font-semibold text-foreground mb-4">Write a Review</h2>
+          
+          <form onSubmit={handleSubmitReview} className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-muted-foreground mb-2">
+                Rating
+              </label>
+              <div className="flex space-x-1">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <button
+                    key={star}
+                    type="button"
+                    onClick={() => setRating(star)}
+                    className="focus:outline-none"
+                  >
+                    <Star
+                      className={`h-6 w-6 ${
+                        star <= rating ? 'text-accent fill-current' : 'text-muted-foreground'
+                      }`}
+                    />
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-muted-foreground mb-2">
+                Review (optional)
+              </label>
+              <textarea
+                value={reviewContent}
+                onChange={(e) => setReviewContent(e.target.value)}
+                rows={4}
+                className="w-full px-3 py-2 bg-background border border-border rounded-lg text-foreground placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-primary"
+                placeholder={`Share your thoughts about this ${contentType}...`}
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={submitReviewMutation.isLoading || rating === 0}
+              className="bg-primary hover:bg-primary-hover disabled:bg-gray-600 disabled:cursor-not-allowed text-white px-6 py-2 rounded-lg transition-colors"
+            >
+              {submitReviewMutation.isLoading ? 'Submitting...' : 'Submit Review'}
+            </button>
+          </form>
+        </div>
+      )}
+
+      {/* Reviews List - Only show for tracks */}
+      {contentType === 'track' && (
+        <div className="bg-card rounded-lg p-6">
+          <h2 className="text-xl font-semibold text-foreground mb-4">
+            Reviews ({reviews.length})
+          </h2>
+          
+          {reviewsLoading ? (
+            <div className="flex items-center justify-center py-8">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+            </div>
+          ) : reviews.length === 0 ? (
+            <div className="text-center py-8">
+              <MessageCircle className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+              <p className="text-muted-foreground">No reviews yet</p>
+              <p className="text-sm text-muted-foreground mt-2">
+                Be the first to review this {contentType}!
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {reviews.map((review) => (
+                <ReviewCard key={review.id} review={review} />
               ))}
             </div>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-muted-foreground mb-2">
-              Review (optional)
-            </label>
-            <textarea
-              value={reviewContent}
-              onChange={(e) => setReviewContent(e.target.value)}
-              rows={4}
-              className="w-full px-3 py-2 bg-background border border-border rounded-lg text-foreground placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-primary"
-              placeholder={`Share your thoughts about this ${contentType}...`}
-            />
-          </div>
-
-          <button
-            type="submit"
-            disabled={submitReviewMutation.isLoading || rating === 0}
-            className="bg-primary hover:bg-primary-hover disabled:bg-gray-600 disabled:cursor-not-allowed text-white px-6 py-2 rounded-lg transition-colors"
-          >
-            {submitReviewMutation.isLoading ? 'Submitting...' : 'Submit Review'}
-          </button>
-        </form>
-      </div>
-
-      {/* Reviews List */}
-      <div className="bg-card rounded-lg p-6">
-        <h2 className="text-xl font-semibold text-foreground mb-4">
-          Reviews ({reviews.length})
-        </h2>
-        
-        {reviewsLoading ? (
-          <div className="flex items-center justify-center py-8">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-          </div>
-        ) : reviews.length === 0 ? (
-          <div className="text-center py-8">
-            <MessageCircle className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-            <p className="text-muted-foreground">No reviews yet</p>
-            <p className="text-sm text-muted-foreground mt-2">
-              Be the first to review this {contentType}!
-            </p>
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {reviews.map((review) => (
-              <ReviewCard key={review.id} review={review} />
-            ))}
-          </div>
-        )}
-      </div>
+          )}
+        </div>
+      )}
     </div>
   );
 };
