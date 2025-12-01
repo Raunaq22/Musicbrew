@@ -245,208 +245,93 @@ const Home = () => {
 
   return (
     <div className="max-w-7xl mx-auto">
-      {!isAuthenticated ? (
-        /* Welcome screen for non-authenticated users */
-        <div className="space-y-12">
-          {/* Hero Section */}
-          <div className="text-center py-16">
-            <div className="mb-8">
-              <div className="inline-flex items-center gap-3 mb-6">
-                <Sparkles className="h-8 w-8 text-yellow-400" />
-                <h1 className="text-5xl md:text-7xl font-bold text-foreground">
-                  <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-                    MusicBrew
-                  </span>
-                </h1>
-                <Sparkles className="h-8 w-8 text-yellow-400" />
-              </div>
-              <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-                Discover, share, and connect through music. Join thousands of music lovers 
-                in the ultimate social music experience where every track tells a story.
-              </p>
+      {/* Unified Header - Always show welcome message */}
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-foreground">
+              {isAuthenticated ? `${getWelcomeMessage()}, ${user?.displayName || user?.username}! 🎵` : 'Welcome to MusicBrew! 🎵'}
+            </h1>
+            <p className="text-muted-foreground">
+              {isAuthenticated ? "Here's what's happening in your music world" : 'Discover, share, and connect through music'}
+            </p>
+          </div>
+          {!isAuthenticated && (
+            <div className="hidden md:flex items-center gap-3">
+              <Button asChild size="lg" className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-8 py-3 rounded-full text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+                <a href="/login">
+                  <Music className="mr-3 h-5 w-5" />
+                  Connect with Spotify
+                </a>
+              </Button>
             </div>
-            
-            <div className="space-y-4">
-              <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-                <Button asChild size="lg" className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-8 py-3 rounded-full text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
-                  <a href="/login">
-                    <Music className="mr-3 h-5 w-5" />
-                    Connect with Spotify
-                  </a>
-                </Button>
-                <Button 
-                  variant="outline" 
-                  size="lg" 
-                  className="border-2 border-primary/30 text-primary hover:bg-primary/10 px-8 py-3 rounded-full text-lg font-semibold transition-all duration-300"
-                  onClick={() => window.scrollTo({ top: document.getElementById('features').offsetTop - 20, behavior: 'smooth' })}
-                >
-                  <Zap className="mr-3 h-5 w-5" />
-                  Explore Features
-                </Button>
-              </div>
-              <p className="text-sm text-muted-foreground">
-                Connect your Spotify account to unlock millions of tracks and personalized recommendations
-              </p>
+          )}
+          {isAuthenticated && (
+            <div className="hidden md:flex items-center gap-3">
+              <Badge variant="outline" className="text-green-400 border-green-400/30">
+                <Heart className="mr-2 h-3 w-3" />
+                Active Listener
+              </Badge>
+              <Badge variant="outline" className="text-blue-400 border-blue-400/30">
+                <Calendar className="mr-2 h-3 w-3" />
+                Member since {new Date(user.createdAt).getFullYear()}
+              </Badge>
             </div>
-          </div>
-
-          {/* Stats Section */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
-            <StatCard 
-              title="Tracks Available" 
-              value="10M+" 
-              icon={Music}
-              color="primary"
-            />
-            <StatCard 
-              title="Weekly Listeners" 
-              value="50K+" 
-              icon={Users}
-              color="green"
-            />
-            <StatCard 
-              title="Reviews" 
-              value="100K+" 
-              icon={Star}
-              color="yellow"
-            />
-          </div>
-
-          {/* Featured Tracks */}
-          <div className="mb-12">
-            <SectionHeader 
-              title="Trending Now" 
-              subtitle="Discover what everyone's listening to" 
-              actionText="View all"
-              onAction={() => navigate('/search')}
-            />
-            {isDataLoading ? (
-              <LoadingGrid count={8} />
-            ) : displayTracks && displayTracks.length > 0 ? (
-              <ResponsiveGrid columns={{ mobile: 1, tablet: 2, desktop: 3, wide: 4 }} gap={6}>
-                {displayTracks.map((track, index) => (
-                  <TrackCard key={track.id} track={track} index={index} />
-                ))}
-              </ResponsiveGrid>
-            ) : (
-              <Card className="text-center py-12">
-                <p className="text-muted-foreground">No trending tracks available at the moment.</p>
-              </Card>
-            )}
-          </div>
-
-          {/* Features Section */}
-          <div id="features" className="mb-16">
-            <SectionHeader 
-              title="Why MusicBrew?" 
-              subtitle="Everything you need in one place" 
-            />
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <Card className="p-6">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="p-2 bg-primary/10 rounded-lg">
-                    <Music className="h-6 w-6 text-primary" />
-                  </div>
-                  <h3 className="font-semibold text-foreground">Massive Music Library</h3>
-                </div>
-                <p className="text-sm text-muted-foreground">
-                  Access millions of tracks from all your favorite artists and genres.
-                </p>
-              </Card>
-              
-              <Card className="p-6">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="p-2 bg-green-500/10 rounded-lg">
-                    <TrendingUp className="h-6 w-6 text-green-500" />
-                  </div>
-                  <h3 className="font-semibold text-foreground">Smart Recommendations</h3>
-                </div>
-                <p className="text-sm text-muted-foreground">
-                  Personalized playlists and recommendations based on your taste.
-                </p>
-              </Card>
-              
-              <Card className="p-6">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="p-2 bg-blue-500/10 rounded-lg">
-                    <Users className="h-6 w-6 text-blue-500" />
-                  </div>
-                  <h3 className="font-semibold text-foreground">Social Features</h3>
-                </div>
-                <p className="text-sm text-muted-foreground">
-                  Share reviews, follow friends, and discover music together.
-                </p>
-              </Card>
-            </div>
-          </div>
+          )}
         </div>
-      ) : (
-        /* Rich content for authenticated users */
-        <div className="space-y-12">
-          {/* Welcome Header */}
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <h1 className="text-3xl font-bold text-foreground">
-                  {getWelcomeMessage()}, {user?.displayName || user?.username}! 🎵
-                </h1>
-                <p className="text-muted-foreground">Here's what's happening in your music world</p>
-              </div>
-              <div className="hidden md:flex items-center gap-3">
-                <Badge variant="outline" className="text-green-400 border-green-400/30">
-                  <Heart className="mr-2 h-3 w-3" />
-                  Active Listener
-                </Badge>
-                <Badge variant="outline" className="text-blue-400 border-blue-400/30">
-                  <Calendar className="mr-2 h-3 w-3" />
-                  Member since {new Date(user.createdAt).getFullYear()}
-                </Badge>
-              </div>
-            </div>
-            
-            {/* Quick Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <Card className="p-4">
-                <p className="text-sm text-muted-foreground">Recent Reviews</p>
-                <p className="text-2xl font-bold text-foreground mt-1">
-                  {latestReviews ? latestReviews.length : 0}
-                </p>
-              </Card>
-              <Card className="p-4">
-                <p className="text-sm text-muted-foreground">Tracks Discovered</p>
-                <p className="text-2xl font-bold text-foreground mt-1">
-                  {displayTracks ? displayTracks.length : 0}
-                </p>
-              </Card>
-              <Card className="p-4">
-                <p className="text-sm text-muted-foreground">News Articles</p>
-                <p className="text-2xl font-bold text-foreground mt-1">
-                  {newsArticles ? newsArticles.length : 0}
-                </p>
-              </Card>
-              <Card className="p-4">
-                <p className="text-sm text-muted-foreground">Quick Actions</p>
-                <div className="flex gap-2 mt-2">
-                  <Button size="sm" variant="outline" onClick={() => navigate('/search')}>
-                    Search
-                  </Button>
+        
+        {/* Quick Stats - Always show */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <StatCard 
+            title="Tracks Available" 
+            value="10M+" 
+            icon={Music}
+            color="primary"
+          />
+          <StatCard 
+            title="Weekly Listeners" 
+            value="50K+" 
+            icon={Users}
+            color="green"
+          />
+          <StatCard 
+            title="Reviews" 
+            value="100K+" 
+            icon={Star}
+            color="yellow"
+          />
+          <Card className="p-4">
+            <p className="text-sm text-muted-foreground">Quick Actions</p>
+            <div className="flex gap-2 mt-2">
+              <Button size="sm" variant="outline" onClick={() => navigate('/search')}>
+                Search
+              </Button>
+              {isAuthenticated && (
+                <>
                   <Button size="sm" variant="outline" onClick={() => navigate('/reviews')}>
                     Review
                   </Button>
-                </div>
-              </Card>
+                  <Button size="sm" variant="outline" onClick={() => navigate('/news')}>
+                    News
+                  </Button>
+                </>
+              )}
             </div>
-          </div>
+          </Card>
+        </div>
+      </div>
 
-          {/* Quick Actions */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <QuickActionCard 
-              title="Discover New Music" 
-              description="Find tracks based on your listening history" 
-              icon={Music}
-              color="primary"
-              onClick={() => navigate('/search')}
-            />
+      {/* Quick Actions */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 my-8">
+        <QuickActionCard 
+          title="Discover New Music" 
+          description="Find tracks based on your listening history" 
+          icon={Music}
+          color="primary"
+          onClick={() => navigate('/search')}
+        />
+        {isAuthenticated && (
+          <>
             <QuickActionCard 
               title="Read Latest Reviews" 
               description="See what the community is saying" 
@@ -461,78 +346,152 @@ const Home = () => {
               color="green"
               onClick={() => navigate('/news')}
             />
-          </div>
+          </>
+        )}
+      </div>
 
-          {/* Popular Tracks */}
-          <div className="mb-12">
-            <SectionHeader 
-              title="Popular This Week" 
-              subtitle="Trending tracks everyone's listening to" 
-              actionText="View all"
-              onAction={() => navigate('/search')}
-            />
-            {isDataLoading ? (
-              <LoadingGrid count={8} />
-            ) : displayTracks && displayTracks.length > 0 ? (
-              <ResponsiveGrid columns={{ mobile: 1, tablet: 2, desktop: 3, wide: 4 }} gap={6}>
-                {displayTracks.map((track, index) => (
-                  <TrackCard key={track.id} track={track} index={index} />
-                ))}
-              </ResponsiveGrid>
-            ) : (
-              <Card className="text-center py-12">
-                <p className="text-muted-foreground">No popular tracks available at the moment.</p>
-              </Card>
-            )}
-          </div>
+      {/* Featured Tracks */}
+      <div className="mb-12">
+        <SectionHeader 
+          title={isAuthenticated ? "Popular This Week" : "Trending Now"} 
+          subtitle={isAuthenticated ? "Trending tracks everyone's listening to" : "Discover what everyone's listening to"} 
+          actionText="View all"
+          onAction={() => navigate('/search')}
+        />
+        {isDataLoading ? (
+          <LoadingGrid count={8} />
+        ) : displayTracks && displayTracks.length > 0 ? (
+          <ResponsiveGrid columns={{ mobile: 1, tablet: 2, desktop: 3, wide: 4 }} gap={6}>
+            {displayTracks.map((track, index) => (
+              <TrackCard key={track.id} track={track} index={index} />
+            ))}
+          </ResponsiveGrid>
+        ) : (
+          <Card className="text-center py-12">
+            <p className="text-muted-foreground">No tracks available at the moment.</p>
+          </Card>
+        )}
+      </div>
 
-          {/* Latest Reviews */}
-          <div className="mb-12">
-            <SectionHeader 
-              title="Latest Reviews" 
-              subtitle="What our community is saying about new music" 
-              actionText="View all"
-              onAction={() => navigate('/reviews')}
-            />
-            {reviewsLoading ? (
-              <LoadingGrid count={3} />
-            ) : latestReviews && latestReviews.length > 0 ? (
-              <div className="space-y-4">
-                {latestReviews.slice(0, 3).map((review) => (
-                  <ReviewCard key={review.id} review={review} showMusicInfo />
-                ))}
+      {/* Latest Reviews - Only for authenticated users */}
+      {isAuthenticated && (
+        <div className="mb-12">
+          <SectionHeader 
+            title="Latest Reviews" 
+            subtitle="What our community is saying about new music" 
+            actionText="View all"
+            onAction={() => navigate('/reviews')}
+          />
+          {reviewsLoading ? (
+            <LoadingGrid count={3} />
+          ) : latestReviews && latestReviews.length > 0 ? (
+            <div className="space-y-4">
+              {latestReviews.slice(0, 3).map((review) => (
+                <ReviewCard key={review.id} review={review} showMusicInfo />
+              ))}
+            </div>
+          ) : (
+            <Card className="text-center py-12">
+              <p className="text-muted-foreground">No reviews yet. Be the first to review a track!</p>
+              <Button className="mt-4" onClick={() => navigate('/search')}>
+                Find Music to Review
+              </Button>
+            </Card>
+          )}
+        </div>
+      )}
+
+      {/* Music News - Only for authenticated users */}
+      {isAuthenticated && (
+        <div className="mb-12">
+          <SectionHeader 
+            title="Music News" 
+            subtitle="Latest album reviews from Pitchfork" 
+            actionText="View all"
+            onAction={() => navigate('/news')}
+          />
+          {newsLoading ? (
+            <LoadingGrid count={2} />
+          ) : newsArticles && newsArticles.length > 0 ? (
+            <div className="space-y-4">
+              {newsArticles.slice(0, 2).map((article) => (
+                <NewsCard key={article.id} article={article} />
+              ))}
+            </div>
+          ) : (
+            <Card className="text-center py-12">
+              <p className="text-muted-foreground">No news articles available at the moment.</p>
+            </Card>
+          )}
+        </div>
+      )}
+
+      {/* Features Section - Only for non-authenticated users */}
+      {!isAuthenticated && (
+        <div className="mb-16">
+          <SectionHeader 
+            title="Why MusicBrew?" 
+            subtitle="Everything you need in one place" 
+          />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <Card className="p-6">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="p-2 bg-primary/10 rounded-lg">
+                  <Music className="h-6 w-6 text-primary" />
+                </div>
+                <h3 className="font-semibold text-foreground">Massive Music Library</h3>
               </div>
-            ) : (
-              <Card className="text-center py-12">
-                <p className="text-muted-foreground">No reviews yet. Be the first to review a track!</p>
-                <Button className="mt-4" onClick={() => navigate('/search')}>
-                  Find Music to Review
-                </Button>
-              </Card>
-            )}
-          </div>
-
-          {/* Music News */}
-          <div className="mb-12">
-            <SectionHeader 
-              title="Music News" 
-              subtitle="Latest album reviews from Pitchfork" 
-              actionText="View all"
-              onAction={() => navigate('/news')}
-            />
-            {newsLoading ? (
-              <LoadingGrid count={2} />
-            ) : newsArticles && newsArticles.length > 0 ? (
-              <div className="space-y-4">
-                {newsArticles.slice(0, 2).map((article) => (
-                  <NewsCard key={article.id} article={article} />
-                ))}
+              <p className="text-sm text-muted-foreground">
+                Access millions of tracks from all your favorite artists and genres.
+              </p>
+            </Card>
+            
+            <Card className="p-6">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="p-2 bg-green-500/10 rounded-lg">
+                  <TrendingUp className="h-6 w-6 text-green-500" />
+                </div>
+                <h3 className="font-semibold text-foreground">Smart Recommendations</h3>
               </div>
-            ) : (
-              <Card className="text-center py-12">
-                <p className="text-muted-foreground">No news articles available at the moment.</p>
-              </Card>
-            )}
+              <p className="text-sm text-muted-foreground">
+                Personalized playlists and recommendations based on your taste.
+              </p>
+            </Card>
+            
+            <Card className="p-6">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="p-2 bg-blue-500/10 rounded-lg">
+                  <Users className="h-6 w-6 text-blue-500" />
+                </div>
+                <h3 className="font-semibold text-foreground">Social Features</h3>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                Share reviews, follow friends, and discover music together.
+              </p>
+            </Card>
+          </div>
+          
+          {/* Call to Action */}
+          <div className="mt-12 text-center">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+              <Button asChild size="lg" className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-8 py-3 rounded-full text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+                <a href="/login">
+                  <Music className="mr-3 h-5 w-5" />
+                  Connect with Spotify
+                </a>
+              </Button>
+              <Button 
+                variant="outline" 
+                size="lg" 
+                className="border-2 border-primary/30 text-primary hover:bg-primary/10 px-8 py-3 rounded-full text-lg font-semibold transition-all duration-300"
+              >
+                <Zap className="mr-3 h-5 w-5" />
+                Explore More
+              </Button>
+            </div>
+            <p className="text-sm text-muted-foreground mt-4">
+              Connect your Spotify account to unlock millions of tracks and personalized recommendations
+            </p>
           </div>
         </div>
       )}
