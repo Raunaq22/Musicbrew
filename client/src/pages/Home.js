@@ -82,7 +82,7 @@ const Home = () => {
   const { data: latestReviews, isLoading: reviewsLoading } = useQuery(
     'latest-reviews',
     async () => {
-      const response = await api.get('/reviews/latest', { params: { limit: 6 } });
+      const response = await api.get('/reviews/latest', { params: { limit: 2 } });
       return response.data.reviews || [];
     },
     {
@@ -344,12 +344,12 @@ const Home = () => {
           />
           {reviewsLoading ? (
             <LoadingGrid count={3} />
-          ) : latestReviews && latestReviews.length > 0 ? (
-            <div className="space-y-4">
-              {latestReviews.slice(0, 3).map((review) => (
-                <ReviewCard key={review.id} review={review} showMusicInfo />
-              ))}
-            </div>
+) : latestReviews && latestReviews.length > 0 ? (
+             <div className="space-y-4">
+               {latestReviews.slice(0, 2).map((review) => (
+                 <ReviewCard key={review.id} review={review} showMusicInfo />
+               ))}
+             </div>
           ) : (
             <Card className="text-center py-12">
               <p className="text-muted-foreground">No reviews yet. Be the first to review a track!</p>

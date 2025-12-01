@@ -5,6 +5,41 @@ const { authenticateToken } = require('../middleware/auth');
 
 const router = express.Router();
 
+// Get latest reviews
+router.get('/latest', async (req, res) => {
+  try {
+    const { limit = 10 } = req.query;
+
+    const reviews = await prisma.review.findMany({
+      include: {
+        user: {
+          select: {
+            id: true,
+            username: true,
+            displayName: true,
+            avatar: true,
+          },
+        },
+        _count: {
+          select: {
+            likes: true,
+            comments: true,
+          },
+        },
+      },
+      orderBy: {
+        createdAt: 'desc'
+      },
+      take: parseInt(limit),
+    });
+
+    res.json({ reviews });
+  } catch (error) {
+    console.error('Get latest reviews error:', error);
+    res.status(500).json({ error: 'Failed to get latest reviews' });
+  }
+});
+
 // Get reviews with optional filters
 router.get('/', async (req, res) => {
   try {
