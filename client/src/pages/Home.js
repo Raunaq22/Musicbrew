@@ -102,7 +102,12 @@ const Home = () => {
     }
   );
 
-  const handlePlayTrack = async (track) => {
+  const handlePlayTrackFromList = (track) => {
+    playTrack(track);
+    toast.success(`Added to queue: ${track.name}`);
+  };
+
+  const handlePlayPreview = async (track) => {
     if (!track.preview_url) {
       toast.error('No preview available for this track');
       return;
@@ -115,11 +120,6 @@ const Home = () => {
       console.error('Error playing preview:', error);
       toast.error('Failed to play preview');
     }
-  };
-
-  const handlePlayTrackFromList = (track) => {
-    playTrack(track);
-    toast.success(`Added to queue: ${track.name}`);
   };
 
   const displayTracks = isAuthenticated ? popularTracks : trendingTracks;
@@ -136,7 +136,7 @@ const Home = () => {
   const TrackCard = ({ track, index, compact = false }) => (
     <Card 
       className="group cursor-pointer hover:shadow-lg transition-all duration-300 hover:border-primary/20"
-      onClick={() => handlePlayTrack(track)}
+      onClick={() => navigate(`/music/${track.id}/track`)}
     >
       <div className="relative overflow-hidden">
         <img
@@ -168,6 +168,20 @@ const Home = () => {
             <Clock className="inline w-3 h-3 mr-1" />
             {Math.floor(track.duration_ms / 60000)}:{Math.floor((track.duration_ms % 60000) / 1000).toString().padStart(2, '0')}
           </p>
+        )}
+        {track.preview_url && (
+          <Button
+            onClick={(e) => {
+              e.stopPropagation();
+              handlePlayPreview(track);
+            }}
+            size="sm"
+            variant="outline"
+            className="mt-2 text-green-400 border-green-400 hover:bg-green-400/10 w-full"
+          >
+            <Play className="h-3 w-3 mr-1" />
+            Preview
+          </Button>
         )}
       </div>
     </Card>
