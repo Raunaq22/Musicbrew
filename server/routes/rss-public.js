@@ -3,6 +3,10 @@ const axios = require('axios');
 
 const router = express.Router();
 
+// Cache for RSS feeds (cache for 10 minutes)
+const cache = new Map();
+const CACHE_DURATION = 10 * 60 * 1000; // 10 minutes
+
 // Parse RSS XML to JSON
 function parseRSSXML(xml) {
   const items = [];
@@ -63,6 +67,18 @@ function parseRSSXML(xml) {
 
 // Public album reviews endpoint
 router.get('/album-reviews', async (req, res) => {
+  const cacheKey = 'album-reviews';
+  const now = Date.now();
+  
+  // Check cache first
+  if (cache.has(cacheKey)) {
+    const cached = cache.get(cacheKey);
+    if (now - cached.timestamp < CACHE_DURATION) {
+      console.log('Serving from cache');
+      return res.json(cached.data);
+    }
+  }
+  
   try {
     console.log('Fetching album reviews...');
     const response = await axios.get('https://pitchfork.com/feed/feed-album-reviews/rss');
@@ -74,13 +90,21 @@ router.get('/album-reviews', async (req, res) => {
     // Sort by publication date (newest first)
     items.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
     
-    res.json({
+    const responseData = {
       success: true,
       items: items.map(item => ({
         ...item,
         category: 'Album Review'
       }))
+    };
+    
+    // Cache the response
+    cache.set(cacheKey, {
+      data: responseData,
+      timestamp: now
     });
+    
+    res.json(responseData);
     
   } catch (error) {
     console.error('Error fetching album reviews:', error);

@@ -5,6 +5,10 @@ const { authenticateToken } = require('../middleware/auth');
 
 const router = express.Router();
 
+// Cache for reviews (cache for 5 minutes)
+const cache = new Map();
+const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+
 // Get latest reviews
 router.get('/latest', async (req, res) => {
   try {

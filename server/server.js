@@ -133,9 +133,17 @@ app.get('/api/audio/proxy', async (req, res) => {
 // Rate limiting
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each IP to 100 requests per windowMs
+  max: 1000, // limit each IP to 1000 requests per windowMs
   message: 'Too many requests from this IP, please try again later.',
 });
+
+const rssLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 50, // limit each IP to 50 requests per windowMs for RSS feeds
+  message: 'Too many RSS requests from this IP, please try again later.',
+});
+
+app.use('/api/public', rssLimiter);
 app.use('/api/', limiter);
 
 // Routes
