@@ -26,8 +26,8 @@ const navItems = [
       {/* Logo */}
       <div className="flex items-center justify-center h-16 border-b border-border">
         <NavLink to="/" className="flex items-center justify-center hover:bg-accent hover:text-accent-foreground transition-all duration-200 rounded-lg px-2 py-1 -mx-2">
-          <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white font-bold shadow-sm">
-            <img src="/icon.png" alt="MusicBrew" className="w-8 h-8 object-contain" />
+          <div className="w-26 h-26 rounded-full flex items-center justify-center">
+            <img src="/icon.png" alt="MusicBrew" className="w-14 h-14 object-contain self-center" />
           </div>
           {isExpanded && (
             <span className="ml-3 text-xl font-semibold text-foreground">MusicBrew</span>

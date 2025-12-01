@@ -28,14 +28,6 @@ A modern music discovery and review platform built with React and Node.js, featu
 - **React Router** for client-side routing
 - **Axios** for API communication
 
-## Project Structure
-
-
-musicbrew/ ├── client/                 # React frontend application │   ├── public/            # Static assets │   └── src/               # Source code │       ├──
-components/    # React components │       ├── context/       # React context providers │       ├── pages/         # Page components │       ├── services/      # API service
-functions │       └── config/        # Configuration files ├── server/                # Node.js backend server │   ├── routes/           # API route handlers │   ├──
-services/         # Business logic and API integrations │   ├── middleware/       # Express middleware │   ├── config/           # Database configuration │   └── prisma/# Database schema └── README.md             # Project documentation
-
 ## Installation
 
 ### Prerequisites
@@ -44,8 +36,8 @@ services/         # Business logic and API integrations │   ├── middlewa
 - PostgreSQL database
 
 ### Backend Setup
-1. Clone the repository:
 ```bash
+1. Clone the repository:
 git clone <repository-url>
 cd musicbrew/server
 
@@ -70,8 +62,10 @@ npx prisma migrate dev
 5. Start the server:
 
 npm start
+```
 
 ### Frontend Setup
+```bash
 
 1. Navigate to the client directory:
 
@@ -86,6 +80,7 @@ npm install
 npm start
 
 The application will be available at http://localhost:3000
+```
 
 ## API Endpoints
 
@@ -159,51 +154,6 @@ The application uses Prisma ORM with the following main models:
 • REACT_APP_API_URL: Backend API URL (default: http://localhost:5000)
 • REACT_APP_SPOTIFY_CLIENT_ID: Spotify client ID for frontend
 
-## Development
+## Author 👨‍💻
 
-### Running Tests
-
-# Backend tests
-npm test
-
-# Frontend tests
-npm test
-
-### Building for Production
-
-# Build frontend
-npm run build
-
-# Start production server
-npm start
-
-### Linting and Formatting
-
-# Lint code
-npm run lint
-
-# Format code
-npm run format
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch (git checkout -b feature/AmazingFeature)
-3. Commit your changes (git commit -m 'Add some AmazingFeature')
-4. Push to the branch (git push origin feature/AmazingFeature)
-5. Open a Pull Request
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## Contact
-
-For questions and support, please open an issue in the repository.
-
-## Acknowledgments
-
-• Spotify API for music data
-• Deezer API for additional music content
-• React and Tailwind CSS communities
-• Prisma ORM team
+Raunaq Singh Gandhi
