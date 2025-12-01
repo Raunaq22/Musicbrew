@@ -1,16 +1,26 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useQuery } from 'react-query';
 import { usePerformanceMonitor } from '../components/LazyComponent';
 import { Button } from '../components/ui/button';
 import { Card } from '../components/ui/card';
 import { useAudio, useStopPreviewOnRouteChange } from '../context/AudioContext';
+import { useMusicPlayer } from '../context/MusicPlayerContext';
 import api from '../services/api';
 import toast from 'react-hot-toast';
+import { ResponsiveGrid, CardGrid } from '../components/ResponsiveGrid';
+import { Badge } from '../components/ui/badge';
+import { Star, Music, TrendingUp, Users, Play, Clock, Calendar, Sparkles, Zap, Heart, MessageCircle } from 'lucide-react';
+import LoadingSpinner from '../components/LoadingSpinner';
+import NewsCard from '../components/NewsCard';
+import ReviewCard from '../components/ReviewCard';
+import TrackPreview from '../components/TrackPreview';
 
 const Home = () => {
   const { isAuthenticated, user } = useAuth();
+  const navigate = useNavigate();
+  const { playTrack } = useMusicPlayer();
   
   // Performance monitoring
   usePerformanceMonitor('Home');
@@ -25,16 +35,17 @@ const Home = () => {
     'popular-tracks',
     async () => {
       const response = await api.get('/music/search', {
-        params: { q: 'popular music', type: 'track', limit: 6 }
+        params: { q: 'popular music', type: 'track', limit: 12 }
       });
       const tracks = response.data?.tracks?.items || response.data?.tracks || [];
-      // Convert tracks to album format
       return tracks.map(track => ({
         id: track.id,
         name: track.name,
         artist: track.artists?.map(a => a.name).join(', ') || 'Unknown Artist',
         cover: track.album?.images?.[0]?.url || track.album?.cover || '/default-album.png',
-        preview_url: track.preview_url
+        preview_url: track.preview_url,
+        duration_ms: track.duration_ms,
+        album: track.album
       }));
     },
     {
@@ -48,20 +59,45 @@ const Home = () => {
     'trending-tracks',
     async () => {
       const response = await api.get('/music/search', {
-        params: { q: 'trending', type: 'track', limit: 6 }
+        params: { q: 'trending', type: 'track', limit: 12 }
       });
       const tracks = response.data?.tracks?.items || response.data?.tracks || [];
-      // Convert tracks to album format
       return tracks.map(track => ({
         id: track.id,
         name: track.name,
         artist: track.artists?.map(a => a.name).join(', ') || 'Unknown Artist',
         cover: track.album?.images?.[0]?.url || track.album?.cover || '/default-album.png',
-        preview_url: track.preview_url
+        preview_url: track.preview_url,
+        duration_ms: track.duration_ms,
+        album: track.album
       }));
     },
     {
       enabled: !isAuthenticated,
+      refetchOnWindowFocus: false,
+    }
+  );
+
+  // Fetch latest reviews
+  const { data: latestReviews, isLoading: reviewsLoading } = useQuery(
+    'latest-reviews',
+    async () => {
+      const response = await api.get('/reviews/latest', { params: { limit: 6 } });
+      return response.data.reviews || [];
+    },
+    {
+      refetchOnWindowFocus: false,
+    }
+  );
+
+  // Fetch RSS news
+  const { data: newsArticles, isLoading: newsLoading } = useQuery(
+    'news-articles',
+    async () => {
+      const response = await api.get('/public/album-reviews');
+      return response.data.items || [];
+    },
+    {
       refetchOnWindowFocus: false,
     }
   );
@@ -74,162 +110,436 @@ const Home = () => {
 
     try {
       await playPreview(track);
+      toast.success(`Playing preview: ${track.name}`);
     } catch (error) {
       console.error('Error playing preview:', error);
       toast.error('Failed to play preview');
     }
   };
 
-  const AlbumCard = ({ album, showPlayCount, showFriend }) => (
-    <div 
-      className="group cursor-pointer transform hover:scale-105 transition-all duration-200"
-      onClick={() => handlePlayTrack(album)}
-    >
-      <div className="relative">
-        <img
-          src={album.album?.cover || album.cover || '/default-album.png'}
-          alt={album.name}
-          className="w-full aspect-square object-cover rounded-lg shadow-lg group-hover:shadow-xl transition-shadow"
-        />
-        <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-200 rounded-lg flex items-center justify-center">
-          <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-            <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center shadow-lg">
-              <span className="text-white text-lg">▶️</span>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div className="mt-3">
-        <h3 className="font-semibold text-foreground truncate group-hover:text-primary transition-colors">
-          {album.name}
-        </h3>
-        <p className="text-sm text-muted-foreground truncate">{album.artist}</p>
-        {showPlayCount && (
-          <p className="text-xs text-muted-foreground">{album.play_count || album.plays || '0'} plays</p>
-        )}
-        {showFriend && (
-          <p className="text-xs text-blue-400">by {album.friend || 'Friend'}</p>
-        )}
-      </div>
-    </div>
-  );
-
-  const AlbumSection = ({ title, albums = [], showPlayCount = false, showFriend = false, isLoading = false }) => {
-    // Ensure albums is always an array
-    const albumList = Array.isArray(albums) ? albums : [];
-    
-    return (
-      <section className="mb-12">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-bold text-foreground">{title}</h2>
-          <Button variant="ghost" size="sm" className="text-primary hover:text-primary/80">
-            View all →
-          </Button>
-        </div>
-        
-        {isLoading ? (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="animate-pulse">
-                <div className="w-full aspect-square bg-gray-700 rounded-lg mb-3"></div>
-                <div className="h-4 bg-gray-700 rounded mb-2"></div>
-                <div className="h-3 bg-gray-700 rounded w-2/3"></div>
-              </div>
-            ))}
-          </div>
-        ) : albumList.length > 0 ? (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
-            {albumList.map((album) => (
-              <AlbumCard 
-                key={album.id} 
-                album={album} 
-                showPlayCount={showPlayCount}
-                showFriend={showFriend}
-              />
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-8 text-muted-foreground">
-            <p>No {title.toLowerCase()} available at the moment.</p>
-          </div>
-        )}
-      </section>
-    );
+  const handlePlayTrackFromList = (track) => {
+    playTrack(track);
+    toast.success(`Added to queue: ${track.name}`);
   };
 
   const displayTracks = isAuthenticated ? popularTracks : trendingTracks;
   const isDataLoading = isAuthenticated ? popularLoading : trendingLoading;
 
+  // Welcome message based on time of day
+  const getWelcomeMessage = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return 'Good morning';
+    if (hour < 18) return 'Good afternoon';
+    return 'Good evening';
+  };
+
+  const TrackCard = ({ track, index, compact = false }) => (
+    <Card 
+      className="group cursor-pointer hover:shadow-lg transition-all duration-300 hover:border-primary/20"
+      onClick={() => handlePlayTrack(track)}
+    >
+      <div className="relative overflow-hidden">
+        <img
+          src={track.cover}
+          alt={track.name}
+          className="w-full aspect-square object-cover group-hover:scale-105 transition-transform duration-300"
+        />
+        <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-300 flex items-center justify-center">
+          <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+            <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center shadow-lg border-4 border-white/20">
+              <Play className="h-8 w-8 text-white" />
+            </div>
+          </div>
+        </div>
+        {track.preview_url && (
+          <Badge className="absolute top-3 left-3 bg-black/60 text-white border border-white/20">
+            Preview Available
+          </Badge>
+        )}
+      </div>
+      
+      <div className="p-4">
+        <h3 className="font-semibold text-foreground text-lg truncate group-hover:text-primary transition-colors">
+          {track.name}
+        </h3>
+        <p className="text-sm text-muted-foreground truncate">{track.artist}</p>
+        {track.duration_ms && (
+          <p className="text-xs text-muted-foreground mt-1">
+            <Clock className="inline w-3 h-3 mr-1" />
+            {Math.floor(track.duration_ms / 60000)}:{Math.floor((track.duration_ms % 60000) / 1000).toString().padStart(2, '0')}
+          </p>
+        )}
+      </div>
+    </Card>
+  );
+
+  const StatCard = ({ title, value, icon, color = "primary" }) => {
+    const IconComponent = icon;
+    return (
+      <Card className="p-6 hover:shadow-lg transition-all duration-300">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-sm text-muted-foreground">{title}</p>
+            <p className="text-2xl font-bold text-foreground mt-1">{value}</p>
+          </div>
+          <div className={`p-3 rounded-full bg-${color}/10`}>
+            <IconComponent className={`h-8 w-8 text-${color}`} />
+          </div>
+        </div>
+      </Card>
+    );
+  };
+
+  const QuickActionCard = ({ title, description, icon, onClick, color = "primary" }) => {
+    const IconComponent = icon;
+    return (
+      <Card 
+        className="p-6 hover:shadow-lg transition-all duration-300 cursor-pointer group"
+        onClick={onClick}
+      >
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="font-semibold text-foreground">{title}</h3>
+            <p className="text-sm text-muted-foreground mt-1">{description}</p>
+          </div>
+          <div className={`p-3 rounded-full bg-${color}/10 group-hover:bg-${color}/20 transition-colors`}>
+            <IconComponent className={`h-8 w-8 text-${color} group-hover:text-${color}/80 transition-colors`} />
+          </div>
+        </div>
+      </Card>
+    );
+  };
+
+  const SectionHeader = ({ title, subtitle, actionText, onAction }) => (
+    <div className="flex items-center justify-between mb-6">
+      <div>
+        <h2 className="text-2xl font-bold text-foreground">{title}</h2>
+        {subtitle && <p className="text-sm text-muted-foreground mt-1">{subtitle}</p>}
+      </div>
+      {onAction && (
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          className="text-primary hover:text-primary/80"
+          onClick={onAction}
+        >
+          {actionText} →
+        </Button>
+      )}
+    </div>
+  );
+
+  const LoadingGrid = ({ count = 6 }) => (
+    <ResponsiveGrid columns={{ mobile: 1, tablet: 2, desktop: 3, wide: 4 }} gap={6}>
+      {Array.from({ length: count }).map((_, i) => (
+        <Card key={i} className="animate-pulse">
+          <div className="aspect-square bg-gray-700 rounded-t-lg"></div>
+          <div className="p-4 space-y-2">
+            <div className="h-4 bg-gray-700 rounded w-3/4"></div>
+            <div className="h-3 bg-gray-700 rounded w-1/2"></div>
+          </div>
+        </Card>
+      ))}
+    </ResponsiveGrid>
+  );
+
   return (
     <div className="max-w-7xl mx-auto">
       {!isAuthenticated ? (
         /* Welcome screen for non-authenticated users */
-        <div className="text-center py-20">
-          <div className="mb-8">
-            <h1 className="text-5xl md:text-7xl font-bold text-foreground mb-4">
-              <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-                MusicBrew
-              </span>
-            </h1>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Discover, share, and connect through music. Join thousands of music lovers in the ultimate social music experience.
-            </p>
-          </div>
-          
-          <div className="space-y-6">
-            <Button asChild size="lg" className="bg-green-500 hover:bg-green-600">
-              <a href="/login">
-                Connect with Spotify
-              </a>
-            </Button>
-            <p className="text-sm text-muted-foreground">
-              Connect your Spotify account to get started
-            </p>
+        <div className="space-y-12">
+          {/* Hero Section */}
+          <div className="text-center py-16">
+            <div className="mb-8">
+              <div className="inline-flex items-center gap-3 mb-6">
+                <Sparkles className="h-8 w-8 text-yellow-400" />
+                <h1 className="text-5xl md:text-7xl font-bold text-foreground">
+                  <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+                    MusicBrew
+                  </span>
+                </h1>
+                <Sparkles className="h-8 w-8 text-yellow-400" />
+              </div>
+              <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+                Discover, share, and connect through music. Join thousands of music lovers 
+                in the ultimate social music experience where every track tells a story.
+              </p>
+            </div>
+            
+            <div className="space-y-4">
+              <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                <Button asChild size="lg" className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-8 py-3 rounded-full text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+                  <a href="/login">
+                    <Music className="mr-3 h-5 w-5" />
+                    Connect with Spotify
+                  </a>
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="lg" 
+                  className="border-2 border-primary/30 text-primary hover:bg-primary/10 px-8 py-3 rounded-full text-lg font-semibold transition-all duration-300"
+                  onClick={() => window.scrollTo({ top: document.getElementById('features').offsetTop - 20, behavior: 'smooth' })}
+                >
+                  <Zap className="mr-3 h-5 w-5" />
+                  Explore Features
+                </Button>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                Connect your Spotify account to unlock millions of tracks and personalized recommendations
+              </p>
+            </div>
           </div>
 
-          {/* Preview sections for non-authenticated users */}
-          <div className="mt-16 space-y-8">
-            <AlbumSection 
-              title="Trending Now" 
-              albums={displayTracks || []} 
-              isLoading={isDataLoading}
+          {/* Stats Section */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
+            <StatCard 
+              title="Tracks Available" 
+              value="10M+" 
+              icon={Music}
+              color="primary"
             />
+            <StatCard 
+              title="Weekly Listeners" 
+              value="50K+" 
+              icon={Users}
+              color="green"
+            />
+            <StatCard 
+              title="Reviews" 
+              value="100K+" 
+              icon={Star}
+              color="yellow"
+            />
+          </div>
+
+          {/* Featured Tracks */}
+          <div className="mb-12">
+            <SectionHeader 
+              title="Trending Now" 
+              subtitle="Discover what everyone's listening to" 
+              actionText="View all"
+              onAction={() => navigate('/search')}
+            />
+            {isDataLoading ? (
+              <LoadingGrid count={8} />
+            ) : displayTracks && displayTracks.length > 0 ? (
+              <ResponsiveGrid columns={{ mobile: 1, tablet: 2, desktop: 3, wide: 4 }} gap={6}>
+                {displayTracks.map((track, index) => (
+                  <TrackCard key={track.id} track={track} index={index} />
+                ))}
+              </ResponsiveGrid>
+            ) : (
+              <Card className="text-center py-12">
+                <p className="text-muted-foreground">No trending tracks available at the moment.</p>
+              </Card>
+            )}
+          </div>
+
+          {/* Features Section */}
+          <div id="features" className="mb-16">
+            <SectionHeader 
+              title="Why MusicBrew?" 
+              subtitle="Everything you need in one place" 
+            />
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <Card className="p-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="p-2 bg-primary/10 rounded-lg">
+                    <Music className="h-6 w-6 text-primary" />
+                  </div>
+                  <h3 className="font-semibold text-foreground">Massive Music Library</h3>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Access millions of tracks from all your favorite artists and genres.
+                </p>
+              </Card>
+              
+              <Card className="p-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="p-2 bg-green-500/10 rounded-lg">
+                    <TrendingUp className="h-6 w-6 text-green-500" />
+                  </div>
+                  <h3 className="font-semibold text-foreground">Smart Recommendations</h3>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Personalized playlists and recommendations based on your taste.
+                </p>
+              </Card>
+              
+              <Card className="p-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="p-2 bg-blue-500/10 rounded-lg">
+                    <Users className="h-6 w-6 text-blue-500" />
+                  </div>
+                  <h3 className="font-semibold text-foreground">Social Features</h3>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Share reviews, follow friends, and discover music together.
+                </p>
+              </Card>
+            </div>
           </div>
         </div>
       ) : (
         /* Rich content for authenticated users */
-        <>
-          {/* Welcome header */}
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-foreground mb-2">
-              Good {new Date().getHours() < 12 ? 'morning' : new Date().getHours() < 18 ? 'afternoon' : 'evening'}, {user?.displayName || user?.username}!
-            </h1>
-            <p className="text-muted-foreground">Here's what's happening in your music world</p>
-          </div>
-
-          {/* Album sections with real data */}
-          <AlbumSection 
-            title="Popular This Week" 
-            albums={displayTracks || []} 
-            isLoading={isDataLoading}
-          />
-          
-          {/* Add more sections as needed */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div className="bg-card rounded-lg p-6">
-              <h3 className="text-lg font-semibold mb-4">Recommended for You</h3>
-              <p className="text-muted-foreground">Based on your listening history</p>
+        <div className="space-y-12">
+          {/* Welcome Header */}
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-3xl font-bold text-foreground">
+                  {getWelcomeMessage()}, {user?.displayName || user?.username}! 🎵
+                </h1>
+                <p className="text-muted-foreground">Here's what's happening in your music world</p>
+              </div>
+              <div className="hidden md:flex items-center gap-3">
+                <Badge variant="outline" className="text-green-400 border-green-400/30">
+                  <Heart className="mr-2 h-3 w-3" />
+                  Active Listener
+                </Badge>
+                <Badge variant="outline" className="text-blue-400 border-blue-400/30">
+                  <Calendar className="mr-2 h-3 w-3" />
+                  Member since {new Date(user.createdAt).getFullYear()}
+                </Badge>
+              </div>
             </div>
             
-            <div className="bg-card rounded-lg p-6">
-              <h3 className="text-lg font-semibold mb-4">Friends' Activity</h3>
-              <p className="text-muted-foreground">See what your friends are playing</p>
+            {/* Quick Stats */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <Card className="p-4">
+                <p className="text-sm text-muted-foreground">Recent Reviews</p>
+                <p className="text-2xl font-bold text-foreground mt-1">
+                  {latestReviews ? latestReviews.length : 0}
+                </p>
+              </Card>
+              <Card className="p-4">
+                <p className="text-sm text-muted-foreground">Tracks Discovered</p>
+                <p className="text-2xl font-bold text-foreground mt-1">
+                  {displayTracks ? displayTracks.length : 0}
+                </p>
+              </Card>
+              <Card className="p-4">
+                <p className="text-sm text-muted-foreground">News Articles</p>
+                <p className="text-2xl font-bold text-foreground mt-1">
+                  {newsArticles ? newsArticles.length : 0}
+                </p>
+              </Card>
+              <Card className="p-4">
+                <p className="text-sm text-muted-foreground">Quick Actions</p>
+                <div className="flex gap-2 mt-2">
+                  <Button size="sm" variant="outline" onClick={() => navigate('/search')}>
+                    Search
+                  </Button>
+                  <Button size="sm" variant="outline" onClick={() => navigate('/reviews')}>
+                    Review
+                  </Button>
+                </div>
+              </Card>
             </div>
           </div>
-        </>
+
+          {/* Quick Actions */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <QuickActionCard 
+              title="Discover New Music" 
+              description="Find tracks based on your listening history" 
+              icon={Music}
+              color="primary"
+              onClick={() => navigate('/search')}
+            />
+            <QuickActionCard 
+              title="Read Latest Reviews" 
+              description="See what the community is saying" 
+              icon={Star}
+              color="yellow"
+              onClick={() => navigate('/reviews')}
+            />
+            <QuickActionCard 
+              title="Check News" 
+              description="Latest album reviews and music news" 
+              icon={TrendingUp}
+              color="green"
+              onClick={() => navigate('/news')}
+            />
+          </div>
+
+          {/* Popular Tracks */}
+          <div className="mb-12">
+            <SectionHeader 
+              title="Popular This Week" 
+              subtitle="Trending tracks everyone's listening to" 
+              actionText="View all"
+              onAction={() => navigate('/search')}
+            />
+            {isDataLoading ? (
+              <LoadingGrid count={8} />
+            ) : displayTracks && displayTracks.length > 0 ? (
+              <ResponsiveGrid columns={{ mobile: 1, tablet: 2, desktop: 3, wide: 4 }} gap={6}>
+                {displayTracks.map((track, index) => (
+                  <TrackCard key={track.id} track={track} index={index} />
+                ))}
+              </ResponsiveGrid>
+            ) : (
+              <Card className="text-center py-12">
+                <p className="text-muted-foreground">No popular tracks available at the moment.</p>
+              </Card>
+            )}
+          </div>
+
+          {/* Latest Reviews */}
+          <div className="mb-12">
+            <SectionHeader 
+              title="Latest Reviews" 
+              subtitle="What our community is saying about new music" 
+              actionText="View all"
+              onAction={() => navigate('/reviews')}
+            />
+            {reviewsLoading ? (
+              <LoadingGrid count={3} />
+            ) : latestReviews && latestReviews.length > 0 ? (
+              <div className="space-y-4">
+                {latestReviews.slice(0, 3).map((review) => (
+                  <ReviewCard key={review.id} review={review} showMusicInfo />
+                ))}
+              </div>
+            ) : (
+              <Card className="text-center py-12">
+                <p className="text-muted-foreground">No reviews yet. Be the first to review a track!</p>
+                <Button className="mt-4" onClick={() => navigate('/search')}>
+                  Find Music to Review
+                </Button>
+              </Card>
+            )}
+          </div>
+
+          {/* Music News */}
+          <div className="mb-12">
+            <SectionHeader 
+              title="Music News" 
+              subtitle="Latest album reviews from Pitchfork" 
+              actionText="View all"
+              onAction={() => navigate('/news')}
+            />
+            {newsLoading ? (
+              <LoadingGrid count={2} />
+            ) : newsArticles && newsArticles.length > 0 ? (
+              <div className="space-y-4">
+                {newsArticles.slice(0, 2).map((article) => (
+                  <NewsCard key={article.id} article={article} />
+                ))}
+              </div>
+            ) : (
+              <Card className="text-center py-12">
+                <p className="text-muted-foreground">No news articles available at the moment.</p>
+              </Card>
+            )}
+          </div>
+        </div>
       )}
     </div>
   );
 };
 
 export default Home;
+
+
