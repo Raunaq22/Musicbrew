@@ -252,8 +252,8 @@ const Home = () => {
             <h1 className="text-3xl font-bold text-foreground">
               {isAuthenticated ? `${getWelcomeMessage()}, ${user?.displayName || user?.username}! 🎵` : 'Welcome to MusicBrew! 🎵'}
             </h1>
-            <p className="text-muted-foreground">
-              {isAuthenticated ? "Here's what's happening in your music world" : 'Discover, share, and connect through music'}
+<p className="text-muted-foreground">
+              {isAuthenticated ? 'Welcome back' : 'Discover, share, and connect through music'}
             </p>
           </div>
           {!isAuthenticated && (
@@ -278,46 +278,6 @@ const Home = () => {
               </Badge>
             </div>
           )}
-        </div>
-        
-        {/* Quick Stats - Always show */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <StatCard 
-            title="Tracks Available" 
-            value="10M+" 
-            icon={Music}
-            color="primary"
-          />
-          <StatCard 
-            title="Weekly Listeners" 
-            value="50K+" 
-            icon={Users}
-            color="green"
-          />
-          <StatCard 
-            title="Reviews" 
-            value="100K+" 
-            icon={Star}
-            color="yellow"
-          />
-          <Card className="p-4">
-            <p className="text-sm text-muted-foreground">Quick Actions</p>
-            <div className="flex gap-2 mt-2">
-              <Button size="sm" variant="outline" onClick={() => navigate('/search')}>
-                Search
-              </Button>
-              {isAuthenticated && (
-                <>
-                  <Button size="sm" variant="outline" onClick={() => navigate('/reviews')}>
-                    Review
-                  </Button>
-                  <Button size="sm" variant="outline" onClick={() => navigate('/news')}>
-                    News
-                  </Button>
-                </>
-              )}
-            </div>
-          </Card>
         </div>
       </div>
 
