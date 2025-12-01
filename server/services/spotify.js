@@ -12,7 +12,7 @@ class SpotifyService {
   async getAccessToken(code) {
     try {
       // Debug logging (can be removed in production)
-      console.log('🔍 Spotify Token Exchange Debug:');
+      console.log('Spotify Token Exchange Debug:');
       console.log('  - Code:', code.substring(0, 20) + '...');
       console.log('  - Redirect URI:', this.redirectUri);
       
@@ -30,10 +30,10 @@ class SpotifyService {
           },
         }
       );
-      console.log('✅ Token exchange successful');
+      console.log('Token exchange successful');
       return response.data;
     } catch (error) {
-      console.error('❌ Spotify Token Exchange Error:');
+      console.error('Spotify Token Exchange Error:');
       console.error('  - Status:', error.response?.status);
       console.error('  - Status Text:', error.response?.statusText);
       console.error('  - Response Data:', error.response?.data);
@@ -51,16 +51,16 @@ class SpotifyService {
   // Get user profile from Spotify
   async getUserProfile(accessToken) {
     try {
-      console.log('🔍 Getting user profile with token:', accessToken.substring(0, 20) + '...');
+      console.log('Getting user profile with token:', accessToken.substring(0, 20) + '...');
       const response = await axios.get(`${this.baseURL}/me`, {
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
       });
-      console.log('✅ User profile retrieved successfully');
+      console.log('User profile retrieved successfully');
       return response.data;
     } catch (error) {
-      console.error('❌ User Profile Error:');
+      console.error('User Profile Error:');
       console.error('  - Status:', error.response?.status);
       console.error('  - Status Text:', error.response?.statusText);
       console.error('  - Response Data:', error.response?.data);

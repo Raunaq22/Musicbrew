@@ -34,7 +34,7 @@ const TrackPreview = ({
       await playPreview(track);
       toast.success(`Playing preview: ${track.name}`);
     } catch (error) {
-      console.error('❌ Error playing preview:', error);
+      console.error('Error playing preview:', error);
       toast.error('Failed to play preview');
     }
   };

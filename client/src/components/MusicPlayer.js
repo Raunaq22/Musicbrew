@@ -47,7 +47,7 @@ useEffect(() => {
         setIsLoading(false);
         
       } catch (error) {
-        console.error('❌ Error setting up audio:', error);
+        console.error('Error setting up audio:', error);
         setIsLoading(false);
         toast.error('Failed to load audio');
       }
@@ -71,7 +71,7 @@ useEffect(() => {
         setIsPlaying(true);
         setIsLoading(false);
       } catch (error) {
-        console.error('❌ Error playing audio:', error);
+        console.error('Error playing audio:', error);
         setIsPlaying(false);
         setIsLoading(false);
         
@@ -226,7 +226,7 @@ onEnded={() => {
         {/* Volume and Queue */}
         <div className="flex items-center gap-3 flex-1 justify-end">
           <div className="flex items-center gap-2">
-            <span className="text-gray-400">🔊</span>
+            <span className="text-gray-400">Volume</span>
             <input
               type="range"
               min="0"

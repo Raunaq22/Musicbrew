@@ -75,7 +75,7 @@ const Home = () => {
     try {
       await playPreview(track);
     } catch (error) {
-      console.error('❌ Error playing preview:', error);
+      console.error('Error playing preview:', error);
       toast.error('Failed to play preview');
     }
   };
@@ -179,7 +179,7 @@ const Home = () => {
           <div className="space-y-6">
             <Button asChild size="lg" className="bg-green-500 hover:bg-green-600">
               <a href="/login">
-                🔗 Connect with Spotify
+                Connect with Spotify
               </a>
             </Button>
             <p className="text-sm text-muted-foreground">
@@ -190,7 +190,7 @@ const Home = () => {
           {/* Preview sections for non-authenticated users */}
           <div className="mt-16 space-y-8">
             <AlbumSection 
-              title="🔥 Trending Now" 
+              title="Trending Now" 
               albums={displayTracks || []} 
               isLoading={isDataLoading}
             />
@@ -209,7 +209,7 @@ const Home = () => {
 
           {/* Album sections with real data */}
           <AlbumSection 
-            title="🔥 Popular This Week" 
+            title="Popular This Week" 
             albums={displayTracks || []} 
             isLoading={isDataLoading}
           />
@@ -217,12 +217,12 @@ const Home = () => {
           {/* Add more sections as needed */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div className="bg-card rounded-lg p-6">
-              <h3 className="text-lg font-semibold mb-4">🎯 Recommended for You</h3>
+              <h3 className="text-lg font-semibold mb-4">Recommended for You</h3>
               <p className="text-muted-foreground">Based on your listening history</p>
             </div>
             
             <div className="bg-card rounded-lg p-6">
-              <h3 className="text-lg font-semibold mb-4">👥 Friends' Activity</h3>
+              <h3 className="text-lg font-semibold mb-4">Friends' Activity</h3>
               <p className="text-muted-foreground">See what your friends are playing</p>
             </div>
           </div>

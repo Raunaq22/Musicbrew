@@ -108,7 +108,7 @@ const MusicDetails = () => {
     try {
       await playPreview(track);
     } catch (error) {
-      console.error('❌ Error playing preview:', error);
+      console.error('Error playing preview:', error);
       toast.error('Failed to play preview');
     }
   };

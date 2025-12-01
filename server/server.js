@@ -106,10 +106,10 @@ app.get('/api/audio/proxy', async (req, res) => {
       }
     });
 
-    console.log('✅ Successfully proxying Deezer audio stream');
+    console.log('Successfully proxying Deezer audio stream');
 
   } catch (error) {
-    console.error('❌ Audio proxy error:', error.message);
+    console.error('Audio proxy error:', error.message);
     
     if (error.response) {
       res.status(error.response.status).json({ 
