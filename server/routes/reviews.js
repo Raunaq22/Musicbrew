@@ -313,6 +313,81 @@ router.post('/:id/like', authenticateToken, async (req, res) => {
   }
 });
 
+// Get friends' reviews
+router.get('/friends/:userId', async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { limit = 20, offset = 0 } = req.query;
+
+    // Get users that the current user is following
+    const following = await prisma.follow.findMany({
+      where: { followerId: userId },
+      select: { followingId: true },
+    });
+
+    const followingIds = following.map(f => f.followingId);
+
+    if (followingIds.length === 0) {
+      return res.json({ reviews: [] });
+    }
+
+    const reviews = await prisma.review.findMany({
+      where: {
+        userId: { in: followingIds },
+        user: {
+          isPublic: true,
+        },
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+            username: true,
+            displayName: true,
+            avatar: true,
+          },
+        },
+        music: {
+          select: {
+            id: true,
+            name: true,
+            artists: true,
+            album: true,
+            images: true,
+          },
+        },
+        comments: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                username: true,
+                displayName: true,
+                avatar: true,
+              },
+            },
+          },
+          orderBy: { createdAt: 'asc' },
+        },
+        _count: {
+          select: {
+            likes: true,
+            comments: true,
+          },
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+      take: parseInt(limit),
+      skip: parseInt(offset),
+    });
+
+    res.json({ reviews });
+  } catch (error) {
+    console.error('Get friends reviews error:', error);
+    res.status(500).json({ error: 'Failed to get friends reviews' });
+  }
+});
+
 // Get comments for a review
 router.get('/:id/comments', async (req, res) => {
   try {

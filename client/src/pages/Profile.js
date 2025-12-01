@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useQuery, useMutation, useQueryClient } from 'react-query';
 import api from '../services/api';
@@ -172,30 +173,33 @@ const Profile = () => {
         </div>
       </div>
 
-      {/* Reviews Section */}
-      <div className="bg-card rounded-lg p-6">
-        <h2 className="text-xl font-semibold text-foreground mb-4">My Reviews</h2>
-        
-        {reviewsLoading ? (
-          <div className="flex items-center justify-center py-8">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-          </div>
-        ) : reviews.length === 0 ? (
-          <div className="text-center py-8">
-            <Star className="h-16 w-16 text-text-muted mx-auto mb-4" />
-            <p className="text-text-muted">You haven't reviewed any music yet</p>
-            <p className="text-sm text-text-muted mt-2">
-              Start by searching for music and adding your first review
-            </p>
-          </div>
-        ) : (
-<div className="space-y-4">
-             {reviews.map((review) => (
-               <ReviewCard key={review.id} review={review} showMusicInfo={true} />
-             ))}
+{/* Reviews Section */}
+       <div className="bg-card rounded-lg p-6">
+         <Link to="/reviews" className="flex items-center space-x-2 hover:text-primary transition-colors">
+           <h2 className="text-xl font-semibold text-foreground">My Reviews</h2>
+           <span className="text-text-muted text-sm">View all</span>
+         </Link>
+         
+         {reviewsLoading ? (
+           <div className="flex items-center justify-center py-8">
+             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
            </div>
-        )}
-      </div>
+         ) : reviews.length === 0 ? (
+           <div className="text-center py-8">
+             <Star className="h-16 w-16 text-text-muted mx-auto mb-4" />
+             <p className="text-text-muted">You haven't reviewed any music yet</p>
+             <p className="text-sm text-text-muted mt-2">
+               Start by searching for music and adding your first review
+             </p>
+           </div>
+         ) : (
+ <div className="space-y-4">
+              {reviews.map((review) => (
+                <ReviewCard key={review.id} review={review} showMusicInfo={true} />
+              ))}
+            </div>
+         )}
+       </div>
     </div>
   );
 };

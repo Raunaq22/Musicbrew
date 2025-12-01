@@ -15,6 +15,7 @@ import { PerformanceMonitor, NetworkStatus } from './components/PerformanceMonit
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Profile from './pages/Profile';
+import Reviews from './pages/Reviews';
 import UserProfile from './pages/UserProfile';
 import MusicDetails from './pages/MusicDetails';
 import Search from './pages/Search';
@@ -98,22 +99,30 @@ function App() {
                         </ProtectedRoute>
                       } 
                     />
-                    <Route 
-                      path="/news" 
-                      element={
-                        <ProtectedRoute>
-                          <News />
-                        </ProtectedRoute>
-                      } 
-                    />
-                    <Route 
-                      path="/admin" 
-                      element={
-                        <ProtectedRoute>
-                          <Admin />
-                        </ProtectedRoute>
-                      } 
-                    />
+<Route 
+                       path="/news" 
+                       element={
+                         <ProtectedRoute>
+                           <News />
+                         </ProtectedRoute>
+                       } 
+                     />
+                     <Route 
+                       path="/reviews" 
+                       element={
+                         <ProtectedRoute>
+                           <Reviews />
+                         </ProtectedRoute>
+                       } 
+                     />
+                     <Route 
+                       path="/admin" 
+                       element={
+                         <ProtectedRoute>
+                           <Admin />
+                         </ProtectedRoute>
+                       } 
+                     />
                   </Routes>
                 </main>
               </div>
