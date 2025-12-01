@@ -1,11 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import { useParams, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { useMutation, useQuery, useQueryClient } from 'react-query';
+import { useQuery, useMutation, useQueryClient } from 'react-query';
 import api from '../services/api';
-import { Star, Heart, MessageCircle, Edit3, Trash2, Send, X, Music } from 'lucide-react';
+import { Star, Heart, MessageCircle, Edit3, Trash2, Send, ArrowLeft } from 'lucide-react';
 import toast from 'react-hot-toast';
 
-const ReviewDetail = ({ reviewId, onClose }) => {
+const ReviewDetailPage = () => {
+  const { id } = useParams();
   const { user } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
@@ -15,12 +17,12 @@ const ReviewDetail = ({ reviewId, onClose }) => {
   const [commentContent, setCommentContent] = useState('');
   const queryClient = useQueryClient();
 
-  // Fetch full review data
+  // Fetch review data
   const { data: reviewData, isLoading: reviewLoading } = useQuery(
-    ['review', reviewId],
-    () => api.get(`/reviews/${reviewId}`).then(res => res.data),
+    ['review', id],
+    () => api.get(`/reviews/${id}`).then(res => res.data),
     {
-      enabled: !!reviewId,
+      enabled: !!id,
     }
   );
 
@@ -39,9 +41,10 @@ const ReviewDetail = ({ reviewId, onClose }) => {
 
   // Edit review mutation
   const editReviewMutation = useMutation(
-    (data) => api.put(`/reviews/${review.id}`, data).then(res => res.data),
+    (data) => api.put(`/reviews/${id}`, data).then(res => res.data),
     {
       onSuccess: () => {
+        queryClient.invalidateQueries(['review', id]);
         queryClient.invalidateQueries(['reviews']);
         queryClient.invalidateQueries(['userReviews']);
         queryClient.invalidateQueries(['friendsReviews']);
@@ -56,14 +59,15 @@ const ReviewDetail = ({ reviewId, onClose }) => {
 
   // Delete review mutation
   const deleteReviewMutation = useMutation(
-    () => api.delete(`/reviews/${review.id}`).then(res => res.data),
+    () => api.delete(`/reviews/${id}`).then(res => res.data),
     {
       onSuccess: () => {
         queryClient.invalidateQueries(['reviews']);
         queryClient.invalidateQueries(['userReviews']);
         queryClient.invalidateQueries(['friendsReviews']);
         toast.success('Review deleted successfully');
-        onClose();
+        // Redirect back to reviews page
+        window.history.back();
       },
       onError: (error) => {
         toast.error(error.response?.data?.error || 'Failed to delete review');
@@ -73,9 +77,10 @@ const ReviewDetail = ({ reviewId, onClose }) => {
 
   // Like/unlike mutation
   const likeMutation = useMutation(
-    () => api.post(`/reviews/${review.id}/like`).then(res => res.data),
+    () => api.post(`/reviews/${id}/like`).then(res => res.data),
     {
       onSuccess: () => {
+        queryClient.invalidateQueries(['review', id]);
         queryClient.invalidateQueries(['reviews']);
         queryClient.invalidateQueries(['userReviews']);
         queryClient.invalidateQueries(['friendsReviews']);
@@ -85,9 +90,10 @@ const ReviewDetail = ({ reviewId, onClose }) => {
 
   // Add comment mutation
   const addCommentMutation = useMutation(
-    (content) => api.post(`/reviews/${review.id}/comment`, { content }).then(res => res.data),
+    (content) => api.post(`/reviews/${id}/comment`, { content }).then(res => res.data),
     {
       onSuccess: () => {
+        queryClient.invalidateQueries(['review', id]);
         queryClient.invalidateQueries(['reviews']);
         queryClient.invalidateQueries(['userReviews']);
         queryClient.invalidateQueries(['friendsReviews']);
@@ -102,9 +108,10 @@ const ReviewDetail = ({ reviewId, onClose }) => {
 
   // Delete comment mutation
   const deleteCommentMutation = useMutation(
-    (commentId) => api.delete(`/reviews/${review.id}/comments/${commentId}`).then(res => res.data),
+    (commentId) => api.delete(`/reviews/${id}/comments/${commentId}`).then(res => res.data),
     {
       onSuccess: () => {
+        queryClient.invalidateQueries(['review', id]);
         queryClient.invalidateQueries(['reviews']);
         queryClient.invalidateQueries(['userReviews']);
         queryClient.invalidateQueries(['friendsReviews']);
@@ -143,7 +150,7 @@ const ReviewDetail = ({ reviewId, onClose }) => {
 
   if (reviewLoading || !review) {
     return (
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="max-w-6xl mx-auto">
         <div className="bg-card rounded-lg p-6">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
         </div>
@@ -152,22 +159,27 @@ const ReviewDetail = ({ reviewId, onClose }) => {
   }
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-card rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+    <div className="max-w-4xl mx-auto">
+      {/* Back Button */}
+      <div className="mb-6">
+        <Link
+          to="/reviews"
+          className="flex items-center space-x-2 text-text-muted hover:text-foreground transition-colors"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          <span>Back to Reviews</span>
+        </Link>
+      </div>
+
+      <div className="bg-card rounded-lg p-6">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-border">
-          <h2 className="text-xl font-semibold text-foreground">
+        <div className="flex items-center justify-between mb-6">
+          <h1 className="text-2xl font-bold text-foreground">
             {isOwner ? 'My Review' : `${review.user.displayName || review.user.username}'s Review`}
-          </h2>
-          <button
-            onClick={onClose}
-            className="text-text-muted hover:text-foreground transition-colors"
-          >
-            <X className="h-6 w-6" />
-          </button>
+          </h1>
         </div>
 
-        <div className="p-6 space-y-6">
+        <div className="space-y-6">
           {/* Music Info */}
           <div className="bg-gray-700 rounded-lg p-4">
             <div className="flex items-center space-x-4">
@@ -403,4 +415,4 @@ const ReviewDetail = ({ reviewId, onClose }) => {
   );
 };
 
-export default ReviewDetail;
+export default ReviewDetailPage;

@@ -1,15 +1,14 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useQuery } from 'react-query';
 import api from '../services/api';
 import { User, Users, Star } from 'lucide-react';
 import ReviewCard from '../components/ReviewCard';
-import ReviewDetail from '../components/ReviewDetail';
 
 const Reviews = () => {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('my'); // 'my' or 'friends'
-  const [selectedReviewId, setSelectedReviewId] = useState(null);
 
   // Fetch user's reviews
   const { data: myReviewsData, isLoading: myReviewsLoading } = useQuery(
@@ -31,14 +30,6 @@ const Reviews = () => {
 
   const myReviews = myReviewsData?.reviews || [];
   const friendsReviews = friendsReviewsData?.reviews || [];
-
-  const handleReviewClick = (review) => {
-    setSelectedReviewId(review.id);
-  };
-
-  const handleCloseReview = () => {
-    setSelectedReviewId(null);
-  };
 
   return (
     <div className="max-w-6xl mx-auto">
@@ -76,29 +67,19 @@ const Reviews = () => {
           <MyReviewsTab
             reviews={myReviews}
             loading={myReviewsLoading}
-            onReviewClick={handleReviewClick}
           />
         ) : (
           <FriendsReviewsTab
             reviews={friendsReviews}
             loading={friendsReviewsLoading}
-            onReviewClick={handleReviewClick}
           />
         )}
       </div>
-
-      {/* Review Detail Modal */}
-      {selectedReviewId && (
-        <ReviewDetail
-          reviewId={selectedReviewId}
-          onClose={handleCloseReview}
-        />
-      )}
     </div>
   );
 };
 
-const MyReviewsTab = ({ reviews, loading, onReviewClick }) => {
+const MyReviewsTab = ({ reviews, loading }) => {
   return (
     <div>
       {loading ? (
@@ -116,9 +97,9 @@ const MyReviewsTab = ({ reviews, loading, onReviewClick }) => {
       ) : (
         <div className="space-y-4">
           {reviews.map((review) => (
-            <div key={review.id} onClick={() => onReviewClick(review)} className="cursor-pointer">
+            <Link key={review.id} to={`/reviews/${review.id}`} className="block">
               <ReviewCard review={review} showMusicInfo={true} />
-            </div>
+            </Link>
           ))}
         </div>
       )}
@@ -126,7 +107,7 @@ const MyReviewsTab = ({ reviews, loading, onReviewClick }) => {
   );
 };
 
-const FriendsReviewsTab = ({ reviews, loading, onReviewClick }) => {
+const FriendsReviewsTab = ({ reviews, loading }) => {
   return (
     <div>
       {loading ? (
@@ -144,9 +125,9 @@ const FriendsReviewsTab = ({ reviews, loading, onReviewClick }) => {
       ) : (
         <div className="space-y-4">
           {reviews.map((review) => (
-            <div key={review.id} onClick={() => onReviewClick(review)} className="cursor-pointer">
+            <Link key={review.id} to={`/reviews/${review.id}`} className="block">
               <ReviewCard review={review} showMusicInfo={true} />
-            </div>
+            </Link>
           ))}
         </div>
       )}

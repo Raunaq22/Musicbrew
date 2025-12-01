@@ -164,7 +164,58 @@ router.get('/:id', async (req, res) => {
       return res.status(404).json({ error: 'Review not found' });
     }
 
-    res.json({ review });
+    // Fetch music details from Spotify API
+    let musicData = null;
+    try {
+      const { accesstoken } = req.headers;
+      if (accesstoken) {
+        const spotifyService = require('../services/spotify');
+        const deezerService = require('../services/deezer');
+        
+        // Get track details from Spotify
+        const track = await spotifyService.getTrack(review.musicId, accesstoken);
+        
+        // Add Deezer preview URL for the track
+        const trackWithPreview = await deezerService.getPreviewForSpotifyTrack(track);
+        
+        musicData = {
+          id: trackWithPreview.id,
+          name: trackWithPreview.name,
+          artists: trackWithPreview.artists,
+          album: trackWithPreview.album,
+          images: trackWithPreview.album?.images || [],
+          preview_url: trackWithPreview.preview_url,
+        };
+      } else {
+        // Fallback for demo data - create basic music info from musicId
+        musicData = {
+          id: review.musicId,
+          name: `Track ${review.musicId.substring(0, 8)}`,
+          artists: [{ name: 'Unknown Artist' }],
+          album: { name: 'Unknown Album' },
+          images: [],
+          preview_url: null,
+        };
+      }
+    } catch (error) {
+      console.error('Failed to fetch music data:', error);
+      // Fallback for demo data
+      musicData = {
+        id: review.musicId,
+        name: `Track ${review.musicId.substring(0, 8)}`,
+        artists: [{ name: 'Unknown Artist' }],
+        album: { name: 'Unknown Album' },
+        images: [],
+        preview_url: null,
+      };
+    }
+
+    res.json({ 
+      review: {
+        ...review,
+        music: musicData
+      }
+    });
   } catch (error) {
     console.error('Get review error:', error);
     res.status(500).json({ error: 'Failed to get review' });

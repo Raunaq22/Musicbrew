@@ -16,6 +16,7 @@ import Home from './pages/Home';
 import Login from './pages/Login';
 import Profile from './pages/Profile';
 import Reviews from './pages/Reviews';
+import ReviewDetailPage from './pages/ReviewDetailPage';
 import UserProfile from './pages/UserProfile';
 import MusicDetails from './pages/MusicDetails';
 import Search from './pages/Search';
@@ -112,6 +113,14 @@ function App() {
                        element={
                          <ProtectedRoute>
                            <Reviews />
+                         </ProtectedRoute>
+                       } 
+                     />
+                     <Route 
+                       path="/reviews/:id" 
+                       element={
+                         <ProtectedRoute>
+                           <ReviewDetailPage />
                          </ProtectedRoute>
                        } 
                      />
