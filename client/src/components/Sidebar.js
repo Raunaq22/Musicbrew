@@ -7,12 +7,13 @@ export default function Sidebar() {
   const { user, logout } = useAuth();
   const [isExpanded, setIsExpanded] = useState(false);
 
-  const navItems = [
-    { path: '/', icon: Home, label: 'Home' },
-    { path: '/search', icon: Search, label: 'Search' },
-    { path: '/playlists', icon: Music, label: 'Playlists' },
-    { path: '/news', icon: Newspaper, label: 'News' },
-  ];
+const navItems = [
+     { path: '/', icon: Home, label: 'Home' },
+     { path: '/search', icon: Search, label: 'Search' },
+     { path: '/playlists', icon: Music, label: 'Playlists' },
+     { path: '/reviews', icon: BarChart3, label: 'Reviews' },
+     { path: '/news', icon: Newspaper, label: 'News' },
+   ];
 
   return (
     <aside 

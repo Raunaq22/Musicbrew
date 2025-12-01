@@ -119,7 +119,7 @@ const UserProfile = () => {
                   <span>{user._count?.following || 0} following</span>
                 </span>
                 <span className="flex items-center space-x-1">
-                  <Star className="h-4 w-4" />
+                  <Star className="h-4 w-4 text-yellow-400" />
                   <span>{user._count?.reviews || 0} reviews</span>
                 </span>
                 <span className="flex items-center space-x-1">
@@ -189,7 +189,7 @@ const UserProfile = () => {
             </div>
           ) : reviews.length === 0 ? (
             <div className="text-center py-8 bg-card rounded-lg">
-              <Star className="h-16 w-16 text-text-muted mx-auto mb-4" />
+              <Star className="h-16 w-16 text-yellow-400 mx-auto mb-4" />
               <p className="text-text-muted">No reviews yet</p>
             </div>
           ) : (

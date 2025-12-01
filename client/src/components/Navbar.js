@@ -17,9 +17,10 @@ const Navbar = () => {
     setIsMobileMenuOpen(false);
   };
 
-  const navigationLinks = [
-    { to: '/playlists', label: 'Playlists', icon: ListMusic },
-  ];
+const navigationLinks = [
+     { to: '/playlists', label: 'Playlists', icon: ListMusic },
+     { to: '/reviews', label: 'Reviews', icon: BarChart3 },
+   ];
 
   return (
     <nav className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">

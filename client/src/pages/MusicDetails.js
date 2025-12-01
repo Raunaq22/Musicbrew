@@ -475,11 +475,11 @@ const MusicDetails = () => {
                     onClick={() => setRating(star)}
                     className="focus:outline-none"
                   >
-                    <Star
-                      className={`h-6 w-6 ${
-                        star <= rating ? 'text-accent fill-current' : 'text-muted-foreground'
-                      }`}
-                    />
+<Star
+                       className={`h-6 w-6 ${
+                         star <= rating ? 'text-yellow-400 fill-current' : 'text-muted-foreground'
+                       }`}
+                     />
                   </button>
                 ))}
               </div>

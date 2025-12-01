@@ -98,7 +98,7 @@ const Admin = () => {
               : 'text-text-muted hover:text-foreground'
           }`}
         >
-          <Star className="h-4 w-4" />
+          <Star className="h-4 w-4 text-yellow-400" />
           <span>Reviews</span>
         </button>
       </div>
@@ -112,7 +112,7 @@ const Admin = () => {
             <p className="text-text-muted">Total Users</p>
           </div>
           <div className="bg-card rounded-lg p-6">
-            <Star className="h-8 w-8 text-accent mb-2" />
+            <Star className="h-8 w-8 text-yellow-400 mb-2" />
             <h3 className="text-2xl font-bold text-foreground">{stats.totalReviews || 0}</h3>
             <p className="text-text-muted">Total Reviews</p>
           </div>

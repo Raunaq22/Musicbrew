@@ -120,13 +120,16 @@ const ReviewDetailPage = () => {
     }
   );
 
-  const handleSave = () => {
-    if (!formData.content.trim()) {
-      toast.error('Review content cannot be empty');
-      return;
-    }
-    editReviewMutation.mutate(formData);
-  };
+const handleSave = () => {
+     if (!formData.content.trim()) {
+       toast.error('Review content cannot be empty');
+       return;
+     }
+     editReviewMutation.mutate({
+       ...formData,
+       rating: parseInt(formData.rating, 10)
+     });
+   };
 
   const handleDelete = () => {
     if (window.confirm('Are you sure you want to delete this review?')) {
@@ -231,27 +234,27 @@ const ReviewDetailPage = () => {
               </div>
             </div>
 
-            {/* Rating */}
-            <div className="flex items-center space-x-2">
-              <div className="flex">
-                {[...Array(5)].map((_, i) => (
-                  <Star
-                    key={i}
-                    className={`h-5 w-5 ${
-                      i < review.rating ? 'text-accent fill-current' : 'text-text-muted'
-                    }`}
-                  />
-                ))}
-              </div>
-              {isOwner && (
-                <button
-                  onClick={() => setIsEditing(!isEditing)}
-                  className="text-text-muted hover:text-primary transition-colors"
-                >
-                  <Edit3 className="h-4 w-4" />
-                </button>
-              )}
-            </div>
+{/* Rating */}
+             <div className="flex items-center space-x-2">
+               <div className="flex">
+                 {[...Array(5)].map((_, i) => (
+                   <Star
+                     key={i}
+                     className={`h-5 w-5 ${
+                       i < review.rating ? 'text-yellow-400 fill-current' : 'text-text-muted'
+                     }`}
+                   />
+                 ))}
+               </div>
+               {isOwner && (
+                 <button
+                   onClick={() => setIsEditing(!isEditing)}
+                   className="text-text-muted hover:text-primary transition-colors"
+                 >
+                   <Edit3 className="h-4 w-4" />
+                 </button>
+               )}
+             </div>
 
             {/* Review Content */}
             {isEditing ? (

@@ -88,7 +88,7 @@ const MyReviewsTab = ({ reviews, loading }) => {
         </div>
       ) : reviews.length === 0 ? (
         <div className="text-center py-8">
-          <Star className="h-16 w-16 text-text-muted mx-auto mb-4" />
+          <Star className="h-16 w-16 text-yellow-400 mx-auto mb-4" />
           <p className="text-text-muted">You haven't reviewed any music yet</p>
           <p className="text-sm text-text-muted mt-2">
             Start by searching for music and adding your first review
