@@ -14,7 +14,7 @@ const musicRoutes = require('./routes/music');
 const reviewRoutes = require('./routes/reviews');
 const userRoutes = require('./routes/users');
 const playlistRoutes = require('./routes/playlists');
-const adminRoutes = require('./routes/admin');
+
 const homeRoutes = require('./routes/home');
 const rssPublicRoutes = require('./routes/rss-public');
 
@@ -160,7 +160,7 @@ app.use('/api/music', musicRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/playlists', playlistRoutes);
-app.use('/api/admin', adminRoutes);
+
 app.use('/api/home', homeRoutes);
 app.use('/api/public', rssPublicRoutes);
 

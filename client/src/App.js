@@ -22,7 +22,7 @@ import MusicDetails from './pages/MusicDetails';
 import Search from './pages/Search';
 import Playlists from './pages/Playlists';
 import PlaylistDetails from './pages/PlaylistDetails';
-import Admin from './pages/Admin';
+
 import News from './pages/News';
 
 // Components
@@ -124,14 +124,7 @@ function App() {
                          </ProtectedRoute>
                        } 
                      />
-                     <Route 
-                       path="/admin" 
-                       element={
-                         <ProtectedRoute>
-                           <Admin />
-                         </ProtectedRoute>
-                       } 
-                     />
+
                   </Routes>
                 </main>
               </div>

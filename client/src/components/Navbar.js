@@ -64,16 +64,7 @@ const navigationLinks = [
                     </Link>
                   </Button>
                 ))}
-                {(user?.email?.includes('admin') || user?.username?.includes('admin')) && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    asChild
-                    className="text-primary border-primary hover:bg-primary hover:text-primary-foreground"
-                  >
-                    <Link to="/admin">ADMIN</Link>
-                  </Button>
-                )}
+                
                 <Button
                   variant="ghost"
                   size="sm"
@@ -169,16 +160,7 @@ const navigationLinks = [
                       {user?.displayName || user?.username}
                     </Link>
                   </Button>
-                  {(user?.email?.includes('admin') || user?.username?.includes('admin')) && (
-                    <Button
-                      variant="outline"
-                      asChild
-                      className="justify-start text-primary border-primary hover:bg-primary hover:text-primary-foreground"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                    >
-                      <Link to="/admin">Admin Panel</Link>
-                    </Button>
-                  )}
+                  
                   <Button
                     variant="ghost"
                     onClick={() => {
