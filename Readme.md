@@ -1,4 +1,12 @@
-# MusicBrew
+<div align="center">
+  <a href="/" target="_blank">
+    <img src="client/public/icon.png" alt="MusicBrew Webapp Logo" width="150">
+  </a>
+  <h1>MusicBrew</h1>
+  <h3>
+    <a href="/" target="_blank">Live Demo</a>
+  </h3>
+</div>
 
 A modern music discovery and review platform built with React and Node.js, featuring Spotify and Deezer API integrations.
 
@@ -82,65 +90,10 @@ npm start
 The application will be available at http://localhost:3000
 ```
 
-## API Endpoints
-
-### Authentication
-
-• POST /api/auth/register - User registration
-• POST /api/auth/login - User login
-• GET /api/auth/profile - Get user profile (protected)
-• PUT /api/auth/profile - Update user profile (protected)
-
-### Music
-
-• GET /api/music/search - Search for music (Spotify/Deezer)
-• GET /api/music/preview/:id - Get music preview
-• GET /api/music/album/:id - Get album details
-• GET /api/music/artist/:id - Get artist details
-
-### Reviews
-
-• GET /api/reviews - Get all reviews
-• POST /api/reviews - Create a review (protected)
-• GET /api/reviews/:id - Get review by ID
-• PUT /api/reviews/:id - Update review (protected)
-• DELETE /api/reviews/:id - Delete review (protected)
-
-### Playlists
-
-• GET /api/playlists - Get user playlists (protected)
-• POST /api/playlists - Create playlist (protected)
-• GET /api/playlists/:id - Get playlist details
-• PUT /api/playlists/:id - Update playlist (protected)
-• DELETE /api/playlists/:id - Delete playlist (protected)
-
-### Users
-
-• GET /api/users/:id - Get user profile
-• GET /api/users/:id/reviews - Get user reviews
-• GET /api/users/:id/playlists - Get user playlists
-
-
-
-### RSS
-
-• GET /api/rss - Get RSS feed items
-• GET /api/rss/:id - Get RSS item by ID
-
-## Database Schema
-
-The application uses Prisma ORM with the following main models:
-
-• User: User accounts and profiles
-• Review: Music reviews and ratings
-• Playlist: User-created playlists
-• Music: Music metadata from external APIs
-• RSSItem: RSS feed items from music news sources
-
 ## Environment Variables
 
 ### Server
-
+```bash
 • DATABASE_URL: PostgreSQL database connection string
 • SPOTIFY_CLIENT_ID: Spotify API client ID
 • SPOTIFY_CLIENT_SECRET: Spotify API client secret
@@ -148,12 +101,12 @@ The application uses Prisma ORM with the following main models:
 • DEEZER_APP_SECRET: Deezer API app secret
 • JWT_SECRET: JWT signing secret
 • PORT: Server port (default: 5000)
-
+```
 ### Client
-
+```bash
 • REACT_APP_API_URL: Backend API URL (default: http://localhost:5000)
 • REACT_APP_SPOTIFY_CLIENT_ID: Spotify client ID for frontend
-
+```
 ## Author 👨‍💻
 
 Raunaq Singh Gandhi
