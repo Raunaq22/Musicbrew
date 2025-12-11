@@ -1,6 +1,6 @@
 const express = require('express');
 const { body, validationResult } = require('express-validator');
-const prisma = require('../config/database');
+const { getPrisma } = require('../prisma-util');
 const { authenticateToken } = require('../middleware/auth');
 const spotifyService = require('../services/spotify');
 
@@ -20,7 +20,7 @@ router.get('/', async (req, res) => {
     if (userId) where.userId = userId;
     // Privacy filter removed; all playlists are public
 
-    const playlists = await prisma.playlist.findMany({
+    const playlists = await getPrisma().playlist.findMany({
       where,
       include: {
         user: {
@@ -49,7 +49,7 @@ router.get('/:id', async (req, res) => {
   try {
     const { id } = req.params;
 
-    const playlist = await prisma.playlist.findUnique({
+    const playlist = await getPrisma().playlist.findUnique({
       where: { id },
       include: {
         user: {
@@ -82,7 +82,7 @@ router.get('/:id/tracks', authenticateToken, async (req, res) => {
     const { id } = req.params;
     const { accesstoken } = req.headers;
 
-    const playlist = await prisma.playlist.findUnique({ where: { id } });
+    const playlist = await getPrisma().playlist.findUnique({ where: { id } });
 
     if (!playlist) {
       return res.status(404).json({ error: 'Playlist not found' });
@@ -150,7 +150,7 @@ router.post('/',
         }
       }
 
-      const playlist = await prisma.playlist.create({
+      const playlist = await getPrisma().playlist.create({
         data: {
           userId: req.user.id,
           name,
@@ -202,7 +202,7 @@ router.post('/import',
       const spPlaylist = await spotifyService.getPlaylist(spotifyPlaylistId, accesstoken);
 
       // Upsert by spotifyId
-      const playlist = await prisma.playlist.upsert({
+      const playlist = await getPrisma().playlist.upsert({
         where: { spotifyId: spotifyPlaylistId },
         update: {
           name: spPlaylist.name || 'Imported Playlist',
@@ -257,7 +257,7 @@ router.put('/:id',
       const { accesstoken } = req.headers;
 
       // Check if playlist exists and belongs to user
-      const existingPlaylist = await prisma.playlist.findUnique({
+      const existingPlaylist = await getPrisma().playlist.findUnique({
         where: { id },
       });
 
@@ -288,7 +288,7 @@ router.put('/:id',
       // Always public
       updateData.isPublic = true;
 
-      const playlist = await prisma.playlist.update({
+      const playlist = await getPrisma().playlist.update({
         where: { id },
         data: updateData,
         include: {
@@ -328,7 +328,7 @@ router.delete('/:id', authenticateToken, async (req, res) => {
     const { accesstoken } = req.headers;
 
     // Check if playlist exists and belongs to user
-    const existingPlaylist = await prisma.playlist.findUnique({
+    const existingPlaylist = await getPrisma().playlist.findUnique({
       where: { id },
     });
 
@@ -349,7 +349,7 @@ router.delete('/:id', authenticateToken, async (req, res) => {
       }
     }
 
-    await prisma.playlist.delete({
+    await getPrisma().playlist.delete({
       where: { id },
     });
 
@@ -366,7 +366,7 @@ router.post('/:id/sync-cover', authenticateToken, async (req, res) => {
     const { id } = req.params;
     const { accesstoken } = req.headers;
 
-    const playlist = await prisma.playlist.findUnique({ where: { id } });
+    const playlist = await getPrisma().playlist.findUnique({ where: { id } });
     
     if (!playlist) {
       return res.status(404).json({ error: 'Playlist not found' });
@@ -389,7 +389,7 @@ router.post('/:id/sync-cover', authenticateToken, async (req, res) => {
       const coverImage = spotifyService.extractPlaylistCover(spPlaylist);
       
       if (coverImage) {
-        const updatedPlaylist = await prisma.playlist.update({
+        const updatedPlaylist = await getPrisma().playlist.update({
           where: { id },
           data: { coverImage },
           include: {
@@ -432,7 +432,7 @@ router.post('/:id/tracks', authenticateToken, async (req, res) => {
       return res.status(400).json({ error: 'uris must be a non-empty array' });
     }
 
-    const playlist = await prisma.playlist.findUnique({ where: { id } });
+    const playlist = await getPrisma().playlist.findUnique({ where: { id } });
     if (!playlist) return res.status(404).json({ error: 'Playlist not found' });
 
     if (playlist.userId !== req.user.id) {

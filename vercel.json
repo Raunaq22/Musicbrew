@@ -1,11 +1,16 @@
 {
   "version": 2,
+  "buildCommand": "npm --prefix server install && npm --prefix server run build && npm --prefix client run build",
+  "outputDirectory": "client/build",
   "builds": [
     {
       "src": "server/server.js",
       "use": "@vercel/node"
     }
   ],
+  "env": {
+    "PRISMA_SCHEMA_PATH": "server/prisma/schema.prisma"
+  },
   "routes": [
     {
       "src": "/api/(.*)",
@@ -19,10 +24,5 @@
       "src": "/(.*)",
       "dest": "/server/server.js"
     }
-  ],
-  "functions": {
-    "server/server.js": {
-      "maxDuration": 30
-    }
-  }
+  ]
 }

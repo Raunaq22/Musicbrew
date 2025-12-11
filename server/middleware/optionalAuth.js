@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const prisma = require('../config/database');
+const { getPrisma } = require('../prisma-util');
 
 // Optional authentication middleware - doesn't fail if no token
 const optionalAuth = async (req, res, next) => {
@@ -13,7 +13,7 @@ const optionalAuth = async (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await prisma.user.findUnique({
+    const user = await getPrisma().user.findUnique({
       where: { id: decoded.userId },
       select: {
         id: true,

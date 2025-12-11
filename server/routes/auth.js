@@ -2,7 +2,7 @@ const express = require('express');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const { body, validationResult } = require('express-validator');
-const prisma = require('../config/database');
+const { getPrisma } = require('../prisma-util');
 const spotifyService = require('../services/spotify');
 const { authenticateToken } = require('../middleware/auth');
 
@@ -24,7 +24,7 @@ router.post('/register', [
     const { email, username, password, displayName } = req.body;
 
     // Check if user already exists
-    const existingUser = await prisma.user.findFirst({
+    const existingUser = await getPrisma().user.findFirst({
       where: {
         OR: [
           { email },
@@ -43,7 +43,7 @@ router.post('/register', [
     const hashedPassword = await bcrypt.hash(password, 12);
 
     // Create user
-    const user = await prisma.user.create({
+    const user = await getPrisma().user.create({
       data: {
         email,
         username,
@@ -95,7 +95,7 @@ router.post('/login', [
     const { email, password } = req.body;
 
     // Find user
-    const user = await prisma.user.findUnique({
+    const user = await getPrisma().user.findUnique({
       where: { email },
       select: {
         id: true,
@@ -219,13 +219,13 @@ router.post('/spotify/callback', async (req, res) => {
     const spotifyProfile = await spotifyService.getUserProfile(access_token);
 
     // Check if user exists in our database
-    let user = await prisma.user.findUnique({
+    let user = await getPrisma().user.findUnique({
       where: { spotifyId: spotifyProfile.id },
     });
 
     if (!user) {
       // Create new user
-      user = await prisma.user.create({
+      user = await getPrisma().user.create({
         data: {
           email: spotifyProfile.email,
           username: spotifyProfile.display_name || spotifyProfile.id,
@@ -236,7 +236,7 @@ router.post('/spotify/callback', async (req, res) => {
       });
     } else {
       // Update existing user
-      user = await prisma.user.update({
+      user = await getPrisma().user.update({
         where: { id: user.id },
         data: {
           displayName: spotifyProfile.display_name,
@@ -275,7 +275,7 @@ router.post('/spotify/callback', async (req, res) => {
 // Get current user profile
 router.get('/me', authenticateToken, async (req, res) => {
   try {
-    const user = await prisma.user.findUnique({
+    const user = await getPrisma().user.findUnique({
       where: { id: req.user.id },
       select: {
         id: true,
@@ -302,7 +302,7 @@ router.put('/me', authenticateToken, async (req, res) => {
   try {
     const { displayName, bio, isPublic } = req.body;
 
-    const updatedUser = await prisma.user.update({
+    const updatedUser = await getPrisma().user.update({
       where: { id: req.user.id },
       data: {
         displayName,

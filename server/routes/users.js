@@ -1,5 +1,5 @@
 const express = require('express');
-const prisma = require('../config/database');
+const { getPrisma } = require('../prisma-util');
 const { authenticateToken } = require('../middleware/auth');
 const { optionalAuth } = require('../middleware/optionalAuth');
 
@@ -11,7 +11,7 @@ router.get('/:username', optionalAuth, async (req, res) => {
     const { username } = req.params;
     const currentUserId = req.user?.id || null;
 
-    const user = await prisma.user.findUnique({
+    const user = await getPrisma().user.findUnique({
       where: { username },
       select: {
         id: true,
@@ -39,7 +39,7 @@ router.get('/:username', optionalAuth, async (req, res) => {
     // Check if current user is following this user
     let isFollowing = false;
     if (currentUserId && currentUserId !== user.id) {
-      const follow = await prisma.follow.findUnique({
+      const follow = await getPrisma().follow.findUnique({
         where: {
           followerId_followingId: {
             followerId: currentUserId,
@@ -68,7 +68,7 @@ router.get('/:username/activity', async (req, res) => {
     const { username } = req.params;
     const { limit = 20, offset = 0 } = req.query;
 
-    const user = await prisma.user.findUnique({
+    const user = await getPrisma().user.findUnique({
       where: { username },
       select: { id: true },
     });
@@ -78,7 +78,7 @@ router.get('/:username/activity', async (req, res) => {
     }
 
     // Get recent reviews
-    const reviews = await prisma.review.findMany({
+    const reviews = await getPrisma().review.findMany({
       where: { userId: user.id },
       include: {
         user: {
@@ -119,7 +119,7 @@ router.post('/follow/:userId', authenticateToken, async (req, res) => {
     }
 
     // Check if user exists
-    const userToFollow = await prisma.user.findUnique({
+    const userToFollow = await getPrisma().user.findUnique({
       where: { id: userId },
     });
 
@@ -128,7 +128,7 @@ router.post('/follow/:userId', authenticateToken, async (req, res) => {
     }
 
     // Check if already following
-    const existingFollow = await prisma.follow.findUnique({
+    const existingFollow = await getPrisma().follow.findUnique({
       where: {
         followerId_followingId: {
           followerId,
@@ -141,7 +141,7 @@ router.post('/follow/:userId', authenticateToken, async (req, res) => {
       return res.status(400).json({ error: 'Already following this user' });
     }
 
-    const follow = await prisma.follow.create({
+    const follow = await getPrisma().follow.create({
       data: {
         followerId,
         followingId: userId,
@@ -174,7 +174,7 @@ router.delete('/follow/:userId', authenticateToken, async (req, res) => {
     const { userId } = req.params;
     const followerId = req.user.id;
 
-    const follow = await prisma.follow.findUnique({
+    const follow = await getPrisma().follow.findUnique({
       where: {
         followerId_followingId: {
           followerId,
@@ -187,7 +187,7 @@ router.delete('/follow/:userId', authenticateToken, async (req, res) => {
       return res.status(404).json({ error: 'Not following this user' });
     }
 
-    await prisma.follow.delete({
+    await getPrisma().follow.delete({
       where: {
         id: follow.id,
       },
@@ -206,7 +206,7 @@ router.get('/:username/followers', async (req, res) => {
     const { username } = req.params;
     const { limit = 50, offset = 0 } = req.query;
 
-    const user = await prisma.user.findUnique({
+    const user = await getPrisma().user.findUnique({
       where: { username },
       select: { id: true },
     });
@@ -215,7 +215,7 @@ router.get('/:username/followers', async (req, res) => {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    const followers = await prisma.follow.findMany({
+    const followers = await getPrisma().follow.findMany({
       where: { followingId: user.id },
       include: {
         follower: {
@@ -247,7 +247,7 @@ router.get('/:username/following', async (req, res) => {
     const { username } = req.params;
     const { limit = 50, offset = 0 } = req.query;
 
-    const user = await prisma.user.findUnique({
+    const user = await getPrisma().user.findUnique({
       where: { username },
       select: { id: true },
     });
@@ -256,7 +256,7 @@ router.get('/:username/following', async (req, res) => {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    const following = await prisma.follow.findMany({
+    const following = await getPrisma().follow.findMany({
       where: { followerId: user.id },
       include: {
         following: {

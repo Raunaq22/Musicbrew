@@ -234,7 +234,7 @@ class SpotifyService {
       const coverImage = this.extractPlaylistCover(spotifyPlaylistData);
       
       if (coverImage) {
-        await prisma.playlist.update({
+        await getPrisma().playlist.update({
           where: { id: playlistId },
           data: { coverImage },
         });

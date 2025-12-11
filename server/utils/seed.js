@@ -6,7 +6,7 @@ const prisma = new PrismaClient();
 async function seedMusic() {
   try {
     // Get all unique music IDs from reviews
-    const reviews = await prisma.review.findMany({
+    const reviews = await getPrisma().review.findMany({
       select: { musicId: true },
       distinct: ['musicId']
     });
@@ -57,12 +57,12 @@ async function seedMusic() {
         const track = trackResponse.data;
 
         // Check if music already exists
-        const existing = await prisma.music.findUnique({
+        const existing = await getPrisma().music.findUnique({
           where: { spotifyId: track.id }
         });
 
         if (!existing) {
-          await prisma.music.create({
+          await getPrisma().music.create({
             data: {
               spotifyId: track.id,
               name: track.name,
@@ -85,7 +85,7 @@ async function seedMusic() {
   } catch (error) {
     console.error('Seeding failed:', error);
   } finally {
-    await prisma.$disconnect();
+    await getPrisma().$disconnect();
   }
 }
 

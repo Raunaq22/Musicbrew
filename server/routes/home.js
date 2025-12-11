@@ -11,7 +11,7 @@ router.get('/home', authenticateToken, async (req, res) => {
     const userId = req.user.id;
 
     // Get user's following
-    const following = await prisma.follow.findMany({
+    const following = await getPrisma().follow.findMany({
       where: { followerId: userId },
       select: { followingId: true }
     });
@@ -20,7 +20,7 @@ router.get('/home', authenticateToken, async (req, res) => {
     const allUserIds = [userId, ...followingIds];
 
     // Popular This Week - tracks with most recent reviews
-    const popularThisWeek = await prisma.review.findMany({
+    const popularThisWeek = await getPrisma().review.findMany({
       where: {
         createdAt: {
           gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) // Last 7 days
@@ -43,7 +43,7 @@ router.get('/home', authenticateToken, async (req, res) => {
     });
 
     // New From Friends - reviews from users being followed
-    const newFromFriends = followingIds.length > 0 ? await prisma.review.findMany({
+    const newFromFriends = followingIds.length > 0 ? await getPrisma().review.findMany({
       where: {
         userId: {
           in: followingIds
@@ -69,7 +69,7 @@ router.get('/home', authenticateToken, async (req, res) => {
     }) : [];
 
     // Popular With Friends - most reviewed tracks by followed users
-    const popularWithFriends = followingIds.length > 0 ? await prisma.review.groupBy({
+    const popularWithFriends = followingIds.length > 0 ? await getPrisma().review.groupBy({
       by: ['musicId'],
       where: {
         userId: {
@@ -90,7 +90,7 @@ router.get('/home', authenticateToken, async (req, res) => {
     // Get user details for popular with friends
     const popularWithFriendsDetails = await Promise.all(
       popularWithFriends.map(async (item) => {
-        const reviews = await prisma.review.findMany({
+        const reviews = await getPrisma().review.findMany({
           where: {
             musicId: item.musicId,
             userId: {
@@ -165,7 +165,7 @@ router.get('/home', authenticateToken, async (req, res) => {
 // Get trending playlists for home page
 router.get('/home/trending-playlists', authenticateToken, async (req, res) => {
   try {
-    const trendingPlaylists = await prisma.playlist.findMany({
+    const trendingPlaylists = await getPrisma().playlist.findMany({
       include: {
         user: {
           select: {

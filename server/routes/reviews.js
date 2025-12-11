@@ -1,6 +1,6 @@
 const express = require('express');
 const { body, validationResult } = require('express-validator');
-const prisma = require('../config/database');
+const { getPrisma } = require('../prisma-util');
 const { authenticateToken } = require('../middleware/auth');
 
 const router = express.Router();
@@ -14,7 +14,7 @@ router.get('/latest', async (req, res) => {
   try {
     const { limit = 10 } = req.query;
 
-    const reviews = await prisma.review.findMany({
+    const reviews = await getPrisma().review.findMany({
       include: {
         user: {
           select: {
@@ -63,7 +63,7 @@ router.get('/', async (req, res) => {
     if (userId) where.userId = userId;
     if (rating) where.rating = parseInt(rating);
 
-    const reviews = await prisma.review.findMany({
+    const reviews = await getPrisma().review.findMany({
       where,
       include: {
         user: {
@@ -113,7 +113,7 @@ router.post('/',
       const { musicId, rating, content } = req.body;
 
       // Check if user already reviewed this music
-      const existingReview = await prisma.review.findUnique({
+      const existingReview = await getPrisma().review.findUnique({
         where: {
           userId_musicId: {
             userId: req.user.id,
@@ -126,7 +126,7 @@ router.post('/',
         return res.status(400).json({ error: 'You have already reviewed this music' });
       }
 
-      const review = await prisma.review.create({
+      const review = await getPrisma().review.create({
         data: {
           userId: req.user.id,
           musicId,
@@ -164,7 +164,7 @@ router.get('/:id', async (req, res) => {
   try {
     const { id } = req.params;
 
-    const review = await prisma.review.findUnique({
+    const review = await getPrisma().review.findUnique({
       where: { id },
       include: {
         user: {
@@ -279,7 +279,7 @@ router.put('/:id',
       const { rating, content } = req.body;
 
       // Check if review exists and belongs to user
-      const existingReview = await prisma.review.findUnique({
+      const existingReview = await getPrisma().review.findUnique({
         where: { id },
       });
 
@@ -291,7 +291,7 @@ router.put('/:id',
         return res.status(403).json({ error: 'Not authorized to update this review' });
       }
 
-      const review = await prisma.review.update({
+      const review = await getPrisma().review.update({
         where: { id },
         data: {
           rating,
@@ -329,7 +329,7 @@ router.delete('/:id', authenticateToken, async (req, res) => {
     const { id } = req.params;
 
     // Check if review exists and belongs to user
-    const existingReview = await prisma.review.findUnique({
+    const existingReview = await getPrisma().review.findUnique({
       where: { id },
     });
 
@@ -341,7 +341,7 @@ router.delete('/:id', authenticateToken, async (req, res) => {
       return res.status(403).json({ error: 'Not authorized to delete this review' });
     }
 
-    await prisma.review.delete({
+    await getPrisma().review.delete({
       where: { id },
     });
 
@@ -358,7 +358,7 @@ router.post('/:id/like', authenticateToken, async (req, res) => {
     const { id } = req.params;
 
     // Check if review exists
-    const review = await prisma.review.findUnique({
+    const review = await getPrisma().review.findUnique({
       where: { id },
     });
 
@@ -367,7 +367,7 @@ router.post('/:id/like', authenticateToken, async (req, res) => {
     }
 
     // Check if user already liked this review
-    const existingLike = await prisma.like.findUnique({
+    const existingLike = await getPrisma().like.findUnique({
       where: {
         reviewId_userId: {
           reviewId: id,
@@ -378,7 +378,7 @@ router.post('/:id/like', authenticateToken, async (req, res) => {
 
     if (existingLike) {
       // Unlike the review
-      await prisma.like.delete({
+      await getPrisma().like.delete({
         where: {
           reviewId_userId: {
             reviewId: id,
@@ -389,7 +389,7 @@ router.post('/:id/like', authenticateToken, async (req, res) => {
       res.json({ message: 'Review unliked', liked: false });
     } else {
       // Like the review
-      await prisma.like.create({
+      await getPrisma().like.create({
         data: {
           reviewId: id,
           userId: req.user.id,
@@ -410,7 +410,7 @@ router.get('/friends/:userId', async (req, res) => {
     const { limit = 20, offset = 0 } = req.query;
 
     // Get users that the current user is following
-    const following = await prisma.follow.findMany({
+    const following = await getPrisma().follow.findMany({
       where: { followerId: userId },
       select: { followingId: true },
     });
@@ -421,7 +421,7 @@ router.get('/friends/:userId', async (req, res) => {
       return res.json({ reviews: [] });
     }
 
-    const reviews = await prisma.review.findMany({
+    const reviews = await getPrisma().review.findMany({
       where: {
         userId: { in: followingIds },
         user: {
@@ -485,7 +485,7 @@ router.get('/:id/comments', async (req, res) => {
     const { limit = 50, offset = 0 } = req.query;
 
     // Check if review exists
-    const review = await prisma.review.findUnique({
+    const review = await getPrisma().review.findUnique({
       where: { id },
     });
 
@@ -493,7 +493,7 @@ router.get('/:id/comments', async (req, res) => {
       return res.status(404).json({ error: 'Review not found' });
     }
 
-    const comments = await prisma.comment.findMany({
+    const comments = await getPrisma().comment.findMany({
       where: { reviewId: id },
       include: {
         user: {
@@ -534,7 +534,7 @@ router.post('/:id/comment',
       const { content } = req.body;
 
       // Check if review exists
-      const review = await prisma.review.findUnique({
+      const review = await getPrisma().review.findUnique({
         where: { id },
       });
 
@@ -542,7 +542,7 @@ router.post('/:id/comment',
         return res.status(404).json({ error: 'Review not found' });
       }
 
-      const comment = await prisma.comment.create({
+      const comment = await getPrisma().comment.create({
         data: {
           reviewId: id,
           userId: req.user.id,
@@ -573,7 +573,7 @@ router.delete('/:reviewId/comments/:commentId', authenticateToken, async (req, r
   try {
     const { reviewId, commentId } = req.params;
 
-    const comment = await prisma.comment.findUnique({
+    const comment = await getPrisma().comment.findUnique({
       where: { id: commentId },
     });
 
@@ -585,7 +585,7 @@ router.delete('/:reviewId/comments/:commentId', authenticateToken, async (req, r
       return res.status(403).json({ error: 'Not authorized to delete this comment' });
     }
 
-    await prisma.comment.delete({
+    await getPrisma().comment.delete({
       where: { id: commentId },
     });
 
