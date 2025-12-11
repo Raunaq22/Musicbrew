@@ -1,32 +1,23 @@
 {
   "version": 2,
-  "name": "musicbrew",
   "builds": [
     {
       "src": "server/server.js",
       "use": "@vercel/node"
-    },
-    {
-      "src": "client/build/**",
-      "use": "@vercel/static"
     }
   ],
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "/server.js"
-    },
-    {
-      "src": "/",
-      "dest": "/server.js"
+      "dest": "/server/server.js"
     },
     {
       "src": "/static/(.*)",
-      "dest": "/client/build/static/$1"
+      "dest": "/server/server.js"
     },
     {
       "src": "/(.*)",
-      "dest": "/server.js"
+      "dest": "/server/server.js"
     }
   ],
   "functions": {
